@@ -1,4 +1,4 @@
-package com.backend.backend;
+package com.eventlagbe.backend.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class Hello {
     @RequestMapping("/")
     public String hello() {
-        return "Hello World";
+        return "Hello World my name is Event Lagbe";
     }
 }
