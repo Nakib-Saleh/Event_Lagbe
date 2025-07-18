@@ -3,6 +3,7 @@ import AuthContext from "../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload";
+import { motion } from "framer-motion";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -339,7 +340,12 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-base-100 py-8">
       <div className="container mx-auto px-4">
-        <div className="card bg-base-100 shadow-xl max-w-md mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="bg-base-100 shadow-xl max-w-md mx-auto"
+        >
           <div className="card-body">
             <h2 className="text-2xl font-bold text-center mb-6 w-full">
               Register
@@ -363,15 +369,17 @@ const Register = () => {
               </select>
             </div>
             {userType && (
-              <div className="w-full">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="w-full"
+              >
                 <div className="flex items-center mb-4">
                   <div
-                    className={`badge ${getUserTypeColor(
-                      userType
-                    )} p-3 text-sm font-semibold`}
+                    className={`badge ${getUserTypeColor(userType)} p-3 text-sm font-semibold`}
                   >
-                    {userType.charAt(0).toUpperCase() + userType.slice(1)}{" "}
-                    Registration
+                    {userType.charAt(0).toUpperCase() + userType.slice(1)} Registration
                   </div>
                 </div>
                 <form onSubmit={handleSubmit}>
@@ -384,16 +392,14 @@ const Register = () => {
                     >
                       {isLoading
                         ? "Registering..."
-                        : `Register as ${
-                            userType.charAt(0).toUpperCase() + userType.slice(1)
-                          }`}
+                        : `Register as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
                     </button>
                   </div>
                 </form>
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../Provider/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const { logIn } = useContext(AuthContext);
@@ -37,7 +38,12 @@ const Login = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <ToastContainer />
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+      >
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -70,7 +76,7 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
