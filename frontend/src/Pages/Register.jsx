@@ -20,7 +20,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { registerWithFirebaseAndMongo, userRole, setUserRole } = useContext(AuthContext);
+  const { registerWithFirebaseAndMongo } = useContext(AuthContext);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -95,9 +95,11 @@ const Register = () => {
           idDocuments: [],
           idDocumentUrls: [],
         });
-        setUserRole(userType);
+        
+        
         setUserType("");
         navigate("/");
+        window.location.reload();
       } else {
         toast.error("Registration failed.");
       }
