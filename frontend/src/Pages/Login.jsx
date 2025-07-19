@@ -4,6 +4,9 @@ import AuthContext from "../Provider/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
+import logo from "../assets/logins.jpg";
+import { FaGoogle } from "react-icons/fa";
+
 
 const Login = () => {
   const { logIn } = useContext(AuthContext);
@@ -24,7 +27,7 @@ const Login = () => {
         navigate("/");
       }, 1500);
     } catch (err) {
-        console.log(err.code);
+      console.log(err.code);
       if (err?.code === "auth/invalid-credential" || err?.code === "auth/user-not-found") {
         setError("Invalid email or password");
       } else {
@@ -36,49 +39,67 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="flex min-h-screen">
       <ToastContainer />
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium">Email</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border rounded"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(""); }}
-              required
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">Password</label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              required
-            />
-            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-            disabled={loading}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-      </motion.div>
+
+      <div className="w-1/2 hidden md:flex items-center justify-center p-8">
+        <img
+          src={logo} 
+          alt="Login Visual"
+          className="rounded-xl shadow-xl w-auto h-full object-cover"
+        />
+      </div>
+
+      <div className="w-full md:w-1/2 flex items-center justify-center p-6 ">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md bg-gradient-to-b from-yellow-50 via-yellow-100 to-amber-200"
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center">Welcome Back!</h2>
+          <hr className="border-t-2 border-black my-4" />
+          <h2 className="text-xl font-bold mb-6 text-center">Login</h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block mb-1 font-medium">Email</label>
+              <input
+                type="email"
+                className="w-full px-3 py-2 border rounded"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                required
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">Password</label>
+              <input
+                type="password"
+                className="w-full px-3 py-2 border rounded"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                required
+              />
+              {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-red-400 text-white py-2 rounded hover:bg-blue-500 transition"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+            <button className="w-full bg-blue-500 text-white flex justify-center items-center gap-2 py-2 rounded hover:bg-red-400 transition">
+              <FaGoogle />
+              Login with Google
+            </button>
+            <h3 className="text-center">Don't have an account?<span className="text-blue-500 cursor-pointer" onClick={() => navigate("/register")}> Register Now</span></h3>
+          </form>
+        </motion.div>
+      </div>
     </div>
   );
 };
 
-export default Login; 
+export default Login;
