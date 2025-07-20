@@ -1,4 +1,4 @@
-package com.eventlagbe.backend.Controller;
+package com.eventlagbe.backend.controller;
 
 public class AdminController {
     

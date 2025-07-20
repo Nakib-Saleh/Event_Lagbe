@@ -1,4 +1,4 @@
-package com.eventlagbe.backend.Controller;
+package com.eventlagbe.backend.controller;
 
 import com.eventlagbe.backend.Models.Admin;
 import com.eventlagbe.backend.Models.Organization;
