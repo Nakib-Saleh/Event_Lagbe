@@ -20,7 +20,7 @@ import {
     const [user, setUser] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(true);
-  
+
     const register = (email, password) => {
       setLoading(true);
       return createUserWithEmailAndPassword(auth, email, password);

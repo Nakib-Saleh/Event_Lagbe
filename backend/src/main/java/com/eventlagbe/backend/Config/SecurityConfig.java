@@ -17,8 +17,7 @@ public class SecurityConfig {
             .and()
             .csrf().disable() // disable CSRF for development
             .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/api/**").permitAll() // adjust as needed
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // Allow all requests for now
             );
 
         return http.build();

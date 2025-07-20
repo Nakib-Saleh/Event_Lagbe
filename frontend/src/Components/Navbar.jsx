@@ -36,7 +36,7 @@ const Navbar = () => {
                 </a>
               </li>
               <li>
-                <Link to='/profile'>Profile</Link> 
+                <Link to={`/${userRole}Dashboard`}>Profile</Link>
               </li>
               <li>
                 <a onClick={handleLogOut}>Logout</a>

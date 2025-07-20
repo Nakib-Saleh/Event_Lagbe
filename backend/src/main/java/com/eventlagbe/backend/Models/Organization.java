@@ -18,7 +18,7 @@ public class Organization {
     private String name;
     private String type;
     private String logoUrl;
-    private boolean verified;
+    private boolean isVerified = false;
     private List<String> organizerIds;
     private List<String> eventIds;
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -43,8 +43,8 @@ public class Organization {
     public String getLogoUrl() { return logoUrl; }
     public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
-    public boolean isVerified() { return verified; }
-    public void setVerified(boolean verified) { this.verified = verified; }
+    public boolean getIsVerified() { return isVerified; }
+    public void setIsVerified(boolean isVerified) { this.isVerified = isVerified; }
 
     public List<String> getOrganizerIds() { return organizerIds; }
     public void setOrganizerIds(List<String> organizerIds) { this.organizerIds = organizerIds; }
