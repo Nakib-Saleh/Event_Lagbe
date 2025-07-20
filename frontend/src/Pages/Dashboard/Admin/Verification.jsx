@@ -188,7 +188,7 @@ const Verification = () => {
         </div>
       )}
       
-      <div className="bg-white rounded-lg p-4 overflow-x-auto overflow-y-auto h-[calc(100vh-130px)]">
+      <div className="bg-white rounded-lg p-4 overflow-x-auto overflow-y-auto max-h-[calc(100vh-130px)]">
         {loading ? (
           <div className="flex justify-center items-center h-32">
             <span className="loading loading-spinner loading-lg"></span>
