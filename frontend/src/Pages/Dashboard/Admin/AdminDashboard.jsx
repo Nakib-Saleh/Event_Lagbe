@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     {
       title: "Verification",
       icon: <MdOutlineVerifiedUser className="text-red-600" />,
-      badge: { text: "6", color: "badge-error" },
+      //badge: { text: "6", color: "badge-error" },
     },
     {
       title: "Reports",

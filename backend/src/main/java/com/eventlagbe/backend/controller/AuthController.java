@@ -1,4 +1,4 @@
-package com.eventlagbe.backend.controller;
+package com.eventlagbe.backend.Controller;
 
 import com.eventlagbe.backend.Models.Admin;
 import com.eventlagbe.backend.Models.Organization;
@@ -74,6 +74,16 @@ public class AuthController {
         Participant participant = participantRepository.findByFirebaseUid(firebaseUid);
         if (participant != null) return ResponseEntity.ok(java.util.Map.of("role", "participant", "user", participant));
         return ResponseEntity.status(404).body("User not found");
+    }
+
+    @GetMapping("/unverified/organizers")
+    public ResponseEntity<?> getUnverifiedOrganizers() {
+        return ResponseEntity.ok(organizerRepository.findByVerifiedByOrg(false));
+    }
+
+    @GetMapping("/unverified/participants")
+    public ResponseEntity<?> getUnverifiedParticipants() {
+        return ResponseEntity.ok(participantRepository.findByVerifiedByAdmin(false));
     }
 
     /* Profile API */

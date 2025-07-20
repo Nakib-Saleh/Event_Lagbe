@@ -11,6 +11,13 @@ const Verification = () => {
   const [selectedOrganization, setSelectedOrganization] = useState(null);
   const [showBulkApproveModal, setShowBulkApproveModal] = useState(false);
   const [showBulkRejectModal, setShowBulkRejectModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("Organization");
+
+  const tabs = [
+    { id: "Organization", label: "Organization Verification" },
+    { id: "Organizer", label: "Organizer Verification" },
+    { id: "Participants", label: "Participants Verification" },
+  ];
 
   // Fetch unverified organizations
   const fetchOrganizations = async () => {
@@ -153,7 +160,20 @@ const Verification = () => {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Organization Verification</h1>
+      <div className="flex flex-row justify-between py-4">
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          onClick={() => setActiveTab(tab.id)}
+          className={`cursor-pointer text-center px-8 py-2 rounded-xl border-2 border-black transition 
+            ${activeTab === tab.id ? "bg-red-500 text-white" : "bg-blue-200 text-black"}`}
+        >
+          <h1 className="text-xl font-bold">{tab.label}</h1>
+        </div>
+      ))}
+    </div>
+      <div className="flex flex-col justify-center py-4">
+      <h1 className="text-xl font-bold text-gray-800 mb-4">{activeTab} Verification</h1>
       
       {/* Bulk Action Buttons */}
       {selectedOrganizations.length > 0 && (
@@ -400,6 +420,7 @@ const Verification = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

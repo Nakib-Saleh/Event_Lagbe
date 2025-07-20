@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../Provider/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { motion } from "framer-motion";
-import logo from "../assets/logins.jpg";
 import { FaGoogle } from "react-icons/fa";
 import Lottie from "lottie-react";
 import animationData from "../assets/Artificial Intelligence Chatbot.json";
 
 const Login = () => {
-  const { logIn } = useContext(AuthContext);
+  const { logIn, signInWithGoogle } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +37,23 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await signInWithGoogle();
+      toast.success("Login with Google successful!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (err) {
+      setError("Google sign-in failed");
+      toast.error(err?.message || "Google sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       <ToastContainer />
@@ -48,7 +63,7 @@ const Login = () => {
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 ">
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -87,13 +102,18 @@ const Login = () => {
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-            <button className="w-full bg-blue-500 text-white flex justify-center items-center gap-2 py-2 rounded hover:bg-red-400 transition">
+            <button
+              type="button"
+              className="w-full bg-blue-500 text-white flex justify-center items-center gap-2 py-2 rounded hover:bg-red-400 transition"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
               <FaGoogle />
-              Login with Google
+              {loading ? "Signing in..." : "Login with Google"}
             </button>
             <h3 className="text-center">Don't have an account?<span className="text-blue-500 cursor-pointer" onClick={() => navigate("/register")}> Register Now</span></h3>
           </form>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
