@@ -2,6 +2,8 @@ package com.eventlagbe.backend.Controller;
 
 import com.eventlagbe.backend.Models.Organization;
 import com.eventlagbe.backend.Repository.OrganizationRepository;
+import com.eventlagbe.backend.Service.FirebaseService;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,12 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/organizations")
+@RequestMapping("/api/organization")
 @CrossOrigin(origins = "http://localhost:5173")
 public class OrganizationController {
 
     @Autowired
     private OrganizationRepository organizationRepository;
+    
+    @Autowired
+    private FirebaseService firebaseService;
 
     @GetMapping("/unverified")
     public ResponseEntity<List<Organization>> getUnverifiedOrganizations() {
@@ -37,8 +42,20 @@ public class OrganizationController {
     public ResponseEntity<Void> rejectOrganization(@PathVariable String id) {
         Organization organization = organizationRepository.findById(id).orElse(null);
         if (organization != null) {
-            organizationRepository.delete(organization);
-            return ResponseEntity.ok().build();
+            try {
+                // Delete from Firebase first
+                String firebaseUid = organization.getFirebaseUid();
+                if (firebaseUid != null && !firebaseUid.isEmpty()) {
+                    firebaseService.deleteUser(firebaseUid);
+                }
+                
+                // Then delete from MongoDB
+                organizationRepository.delete(organization);
+                return ResponseEntity.ok().build();
+            } catch (FirebaseAuthException e) {
+                // If Firebase deletion fails, donot delete from MongoDB
+                return ResponseEntity.internalServerError().build();
+            }
         }
         return ResponseEntity.notFound().build();
     }

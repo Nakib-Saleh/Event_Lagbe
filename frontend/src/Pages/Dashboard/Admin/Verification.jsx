@@ -6,12 +6,17 @@ const Verification = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrganizations, setSelectedOrganizations] = useState([]);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState(null);
+  const [showBulkApproveModal, setShowBulkApproveModal] = useState(false);
+  const [showBulkRejectModal, setShowBulkRejectModal] = useState(false);
 
   // Fetch unverified organizations
   const fetchOrganizations = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:2038/api/organizations/unverified");
+      const response = await axios.get("http://localhost:2038/api/organization/unverified");
       setOrganizations(response.data);
     } catch (error) {
       console.error("Error fetching organizations:", error);
@@ -25,11 +30,25 @@ const Verification = () => {
     fetchOrganizations();
   }, []);
 
+  // Show approve confirmation modal
+  const showApproveConfirmation = (organization) => {
+    setSelectedOrganization(organization);
+    setShowApproveModal(true);
+  };
+
+  // Show reject confirmation modal
+  const showRejectConfirmation = (organization) => {
+    setSelectedOrganization(organization);
+    setShowRejectModal(true);
+  };
+
   // Handle approve organization
-  const handleApprove = async (id) => {
+  const handleApprove = async () => {
     try {
-      await axios.put(`http://localhost:2038/api/organizations/${id}/approve`);
+      await axios.put(`http://localhost:2038/api/organization/${selectedOrganization.id}/approve`);
       toast.success("Organization approved successfully");
+      setShowApproveModal(false);
+      setSelectedOrganization(null);
       fetchOrganizations(); // Refresh the list
     } catch (error) {
       console.error("Error approving organization:", error);
@@ -38,15 +57,68 @@ const Verification = () => {
   };
 
   // Handle reject organization
-  const handleReject = async (id) => {
+  const handleReject = async () => {
     try {
-      await axios.delete(`http://localhost:2038/api/organizations/${id}/reject`);
-
+      await axios.delete(`http://localhost:2038/api/organization/${selectedOrganization.id}/reject`);
       toast.success("Organization rejected successfully");
+      setShowRejectModal(false);
+      setSelectedOrganization(null);
       fetchOrganizations(); // Refresh the list
     } catch (error) {
       console.error("Error rejecting organization:", error);
       toast.error("Failed to reject organization");
+    }
+  };
+
+  // Show bulk approve confirmation modal
+  const showBulkApproveConfirmation = () => {
+    if (selectedOrganizations.length === 0) {
+      toast.error("Please select organizations to approve");
+      return;
+    }
+    setShowBulkApproveModal(true);
+  };
+
+  // Show bulk reject confirmation modal
+  const showBulkRejectConfirmation = () => {
+    if (selectedOrganizations.length === 0) {
+      toast.error("Please select organizations to reject");
+      return;
+    }
+    setShowBulkRejectModal(true);
+  };
+
+  // Handle bulk approve organizations
+  const handleBulkApprove = async () => {
+    try {
+      const promises = selectedOrganizations.map(id => 
+        axios.put(`http://localhost:2038/api/organization/${id}/approve`)
+      );
+      await Promise.all(promises);
+      toast.success(`${selectedOrganizations.length} organizations approved successfully`);
+      setShowBulkApproveModal(false);
+      setSelectedOrganizations([]);
+      fetchOrganizations(); // Refresh the list
+    } catch (error) {
+      console.error("Error approving organizations:", error);
+      toast.error("Failed to approve some organizations");
+    }
+  };
+
+  // Handle bulk reject organizations
+  const handleBulkReject = async () => {
+    try {
+      const promises = selectedOrganizations.map(id => 
+        axios.delete(`http://localhost:2038/api/organization/${id}/reject`)
+      );
+      await Promise.all(promises);
+      toast.success(`${selectedOrganizations.length} organizations rejected successfully`);
+      setShowBulkRejectModal(false);
+      setSelectedOrganizations([]);
+      fetchOrganizations(); // Refresh the list
+    } catch (error) {
+      console.error("Error rejecting organizations:", error);
+      toast.error("Failed to reject some organizations");
     }
   };
 
@@ -82,6 +154,39 @@ const Verification = () => {
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-4">Organization Verification</h1>
+      
+      {/* Bulk Action Buttons */}
+      {selectedOrganizations.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-blue-800">
+                {selectedOrganizations.length} organization(s) selected
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                className="btn btn-success btn-sm"
+                onClick={showBulkApproveConfirmation}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Approve Selected
+              </button>
+              <button 
+                className="btn btn-error btn-sm"
+                onClick={showBulkRejectConfirmation}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Reject Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="bg-white rounded-lg p-4 overflow-x-auto overflow-y-auto h-[calc(100vh-130px)]">
         {loading ? (
@@ -154,13 +259,13 @@ const Verification = () => {
                       <div className="flex gap-2">
                         <button 
                           className="btn btn-success btn-xs"
-                          onClick={() => handleApprove(organization.id)}
+                          onClick={() => showApproveConfirmation(organization)}
                         >
                           Approve
                         </button>
                         <button 
                           className="btn btn-error btn-xs"
-                          onClick={() => handleReject(organization.id)}
+                          onClick={() => showRejectConfirmation(organization)}
                         >
                           Reject
                         </button>
@@ -173,6 +278,128 @@ const Verification = () => {
           </table>
         )}
       </div>
+
+      {/* Approve Confirmation Modal */}
+      {showApproveModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-green-600">Confirm Approval</h3>
+            <p className="py-4">
+              Are you sure you want to approve <strong>{selectedOrganization?.name}</strong>?
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              This will allow the organization to access the platform and create events.
+            </p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => {
+                  setShowApproveModal(false);
+                  setSelectedOrganization(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-success"
+                onClick={handleApprove}
+              >
+                Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Confirmation Modal */}
+      {showRejectModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-red-600">Confirm Rejection</h3>
+            <p className="py-4">
+              Are you sure you want to reject <strong>{selectedOrganization?.name}</strong>?
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              This action will permanently delete the organization and their Firebase account. This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setSelectedOrganization(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-error"
+                onClick={handleReject}
+              >
+                Reject & Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Approve Confirmation Modal */}
+      {showBulkApproveModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-green-600">Confirm Bulk Approval</h3>
+            <p className="py-4">
+              Are you sure you want to approve <strong>{selectedOrganizations.length} organization(s)</strong>?
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              This will allow all selected organizations to access the platform and create events.
+            </p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowBulkApproveModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-success"
+                onClick={handleBulkApprove}
+              >
+                Approve All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Reject Confirmation Modal */}
+      {showBulkRejectModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-red-600">Confirm Bulk Rejection</h3>
+            <p className="py-4">
+              Are you sure you want to reject <strong>{selectedOrganizations.length} organization(s)</strong>?
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              This action will permanently delete all selected organizations and their Firebase accounts. This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowBulkRejectModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-error"
+                onClick={handleBulkReject}
+              >
+                Reject & Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

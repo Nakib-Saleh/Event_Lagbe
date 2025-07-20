@@ -13,15 +13,20 @@ import {
   FiChevronRight,
   FiMenu,
   FiUsers,
+  FiUser,
 } from "react-icons/fi";
 import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("Dashboard");
+  const [selected, setSelected] = useState("Profile");
   const navigate = useNavigate(); 
   const menuItems = [
+    {
+      title:"Profile",
+      icon: <FiUser className="text-blue-600" />,
+    },
     {
       title: "Verification",
       icon: <MdOutlineVerifiedUser className="text-blue-600" />,
@@ -54,7 +59,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="flex h-screen font-roboto">
+    <div className="flex min-h-screen font-roboto">
       <Sidebar
         collapsed={isCollapsed}
         className="bg-white border-r border-gray-200 rounded-xl"
@@ -194,7 +199,7 @@ const AdminDashboard = () => {
         </Menu>
 
         {/* Footer Card */}
-        <div className="mt-auto p-4 absolute bottom-0 left-0 right-0">
+        <div className="mt-auto p-4 sticky bottom-0 left-0 right-0">
           {!isCollapsed ? (
             <div className="bg-blue-600 rounded-lg p-4 text-white">
               <div className="flex flex-col items-center text-center">
@@ -215,11 +220,11 @@ const AdminDashboard = () => {
       </Sidebar>
 
       {/* Main Content */}
-      <div className="flex-1  p-6 bg-[#eef1fc] rounded-r-2xl">
+      <div className="flex-1 p-6 bg-[#eef1fc] rounded-r-2xl min-h-screen">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           Admin Dashboard
         </h1>
-        <div>
+        <div className="min-h-full">
           <Outlet></Outlet>
         </div>
       </div>
