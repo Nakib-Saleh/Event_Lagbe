@@ -6,7 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import logo from "../assets/logins.jpg";
 import { FaGoogle } from "react-icons/fa";
-
+import Lottie from "lottie-react";
+import animationData from "../assets/Artificial Intelligence Chatbot.json";
 
 const Login = () => {
   const { logIn } = useContext(AuthContext);
@@ -43,11 +44,7 @@ const Login = () => {
       <ToastContainer />
 
       <div className="w-1/2 hidden md:flex items-center justify-center p-8">
-        <img
-          src={logo} 
-          alt="Login Visual"
-          className="rounded-xl shadow-xl w-auto h-full object-cover"
-        />
+        <Lottie animationData={animationData} loop={true} />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 ">
@@ -55,7 +52,7 @@ const Login = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md bg-gradient-to-b from-yellow-50 via-yellow-100 to-amber-200"
+          className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md bg-gradient-to-b from-red-50 via-red-100 to-red-200"
         >
           <h2 className="text-2xl font-bold mb-6 text-center">Welcome Back!</h2>
           <hr className="border-t-2 border-black my-4" />

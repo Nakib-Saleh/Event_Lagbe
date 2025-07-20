@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../Provider/AuthContext";
+import logos from "../assets/EVENT.png";
 
 const Navbar = () => {
   const { user, userRole, logOut } = useContext(AuthContext);
@@ -46,7 +47,7 @@ const Navbar = () => {
         </div>
       ) : (
         <div className="navbar-end gap-2">
-          <Link to="/login" className="btn btn-primary">
+          <Link to="/login" className="btn bg-red-500 text-white">
             Login
           </Link>
           <Link to="/register" className="btn">
@@ -98,7 +99,9 @@ const Navbar = () => {
               {list}
             </ul>
           </div>
-          <a className="btn btn-ghost text-xl">Event Lagbe</a>
+          <a className="btn btn-ghost text-xl">
+            <img src={logos} alt="Event Lagbe" className="h-12 " />
+          </a>
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">{list}</ul>

@@ -89,7 +89,7 @@ const Profile = () => {
                         </div>
                         <button
                             onClick={() => setIsEditing(!isEditing)}
-                            className="btn btn-primary btn-sm"
+                            className="btn bg-red-500 text-white btn-sm"
                         >
                             {isEditing ? 'Cancel' : 'Edit Profile'}
                         </button>

@@ -16,5 +16,8 @@
     "url": "https://github.com/Nakib-Saleh/Event_Lagbe/issues"
   },
   "homepage": "https://github.com/Nakib-Saleh/Event_Lagbe#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "lottie-react": "^2.4.1"
+  }
 }

@@ -4,6 +4,8 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 import { motion } from "framer-motion";
+import Lottie from "lottie-react";
+import animationData from "../assets/ladylog.json";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -338,8 +340,11 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen flex flex-row items-center justify-center bg-base-100 py-8">
+      <div className="w-1/2 hidden md:flex items-center justify-center p-8">
+        <Lottie animationData={animationData} loop={true} />
+      </div>
+      <div className="container mx-auto px-4 md:w-1/2">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -377,7 +382,7 @@ const Register = () => {
               >
                 <div className="flex items-center mb-4">
                   <div
-                    className={`badge ${getUserTypeColor(userType)} p-3 text-sm font-semibold`}
+                    className={`badge ${getUserTypeColor(userType)} p-3 text-sm font-semibold text-white`}
                   >
                     {userType.charAt(0).toUpperCase() + userType.slice(1)} Registration
                   </div>
@@ -387,7 +392,7 @@ const Register = () => {
                     {renderForm()}
                     <button
                       type="submit"
-                      className="btn btn-primary w-full"
+                      className="btn bg-red-500 text-white w-full"
                       disabled={isLoading}
                     >
                       {isLoading
