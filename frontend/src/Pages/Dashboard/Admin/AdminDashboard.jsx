@@ -25,36 +25,36 @@ const AdminDashboard = () => {
   const menuItems = [
     {
       title:"Profile",
-      icon: <FiUser className="text-blue-600" />,
+      icon: <FiUser className="text-red-600" />,
     },
     {
       title: "Verification",
-      icon: <MdOutlineVerifiedUser className="text-blue-600" />,
+      icon: <MdOutlineVerifiedUser className="text-red-600" />,
       badge: { text: "6", color: "badge-error" },
     },
     {
       title: "Reports",
-      icon: <MdOutlineReport className="text-blue-600" />,
+      icon: <MdOutlineReport className="text-red-600" />,
     },
     {
       title: "Users",
-      icon: <FiUsers className="text-blue-600" />,
+      icon: <FiUsers className="text-red-600" />,
     },
   ];
 
   const extraItems = [
     {
       title: "Calendar",
-      icon: <FiCalendar className="text-blue-600" />,
+      icon: <FiCalendar className="text-red-600" />,
       badge: { text: "New", color: "badge-success" },
     },
     {
       title: "Documentation",
-      icon: <FiFileText className="text-blue-600" />,
+      icon: <FiFileText className="text-red-600" />,
     },
     {
       title: "Examples",
-      icon: <FiHeart className="text-blue-600" />,
+      icon: <FiHeart className="text-red-600" />,
     },
   ];
 
@@ -72,10 +72,10 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-center w-full">
           {!isCollapsed && (
             <div className="flex items-center gap-3 p-2">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="text-blue-600 font-semibold text-lg">
+              <span className="text-red-600 font-semibold text-lg">
                 Profile
               </span>
             </div>
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
               }}
               className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
                 selected === item.title
-                  ? "bg-blue-50 text-blue-600"
+                  ? "bg-red-50 text-red-600"
                   : "hover:bg-gray-100"
               }`}
               style={{
@@ -165,7 +165,7 @@ const AdminDashboard = () => {
               }}
               className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
                 selected === item.title
-                  ? "bg-blue-50 text-blue-600"
+                  ? "bg-red-50 text-red-600"
                   : "hover:bg-gray-50"
               }`}
               style={{
@@ -200,22 +200,7 @@ const AdminDashboard = () => {
 
         {/* Footer Card */}
         <div className="mt-auto p-4 sticky bottom-0 left-0 right-0">
-          {!isCollapsed ? (
-            <div className="bg-blue-600 rounded-lg p-4 text-white">
-              <div className="flex flex-col items-center text-center">
-                <FiGithub className="text-2xl mb-2" />
-                <h4 className="font-semibold mb-1">Pro Sidebar</h4>
-                <p className="text-blue-200 text-xs mb-3">V 1.0.0-alpha.9</p>
-                <button className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100 transition-colors">
-                  view code
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <FiGithub className="text-blue-600 text-xl" />
-            </div>
-          )}
+          
         </div>
       </Sidebar>
 
