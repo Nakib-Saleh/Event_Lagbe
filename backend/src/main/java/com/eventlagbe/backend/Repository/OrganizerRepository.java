@@ -7,4 +7,5 @@ public interface OrganizerRepository extends MongoRepository<Organizer, String> 
     Organizer findByUsername(String username);
     Organizer findByEmail(String email);
     Organizer findByFirebaseUid(String firebaseUid);
+    java.util.List<Organizer> findByVerifiedByOrg(boolean verifiedByOrg);
 } 

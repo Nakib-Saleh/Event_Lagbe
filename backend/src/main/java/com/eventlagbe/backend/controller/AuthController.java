@@ -76,6 +76,16 @@ public class AuthController {
         return ResponseEntity.status(404).body("User not found");
     }
 
+    @GetMapping("/unverified/organizers")
+    public ResponseEntity<?> getUnverifiedOrganizers() {
+        return ResponseEntity.ok(organizerRepository.findByVerifiedByOrg(false));
+    }
+
+    @GetMapping("/unverified/participants")
+    public ResponseEntity<?> getUnverifiedParticipants() {
+        return ResponseEntity.ok(participantRepository.findByVerifiedByAdmin(false));
+    }
+
     /* Profile API */
 
     @GetMapping("/admin/{firebaseUid}")

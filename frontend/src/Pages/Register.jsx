@@ -400,9 +400,13 @@ const Register = () => {
                         : `Register as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
                     </button>
                   </div>
+                  
                 </form>
               </motion.div>
             )}
+          </div>
+          <div className="flex justify-center py-4">
+            <h3 className="text-center">Already have an account?<span className="text-blue-500 text-center py-2 cursor-pointer" onClick={() => navigate("/login")}> Login Now</span></h3>
           </div>
         </motion.div>
       </div>
