@@ -162,7 +162,10 @@ const AdminDashboard = () => {
             <MenuItem
               key={index}
               onClick={() => {
-                navigate(`/adminDashboard/${item.title.toLowerCase()}`);
+                const path = item.title === "Calendar"
+                  ? "/adminDashboard/calendar"
+                  : `/adminDashboard/${item.title.toLowerCase()}`;
+                navigate(path);
                 setSelected(item.title);
               }}
               className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${

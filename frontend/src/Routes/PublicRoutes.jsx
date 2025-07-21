@@ -8,6 +8,7 @@ import Profile from "../Pages/Dashboard/Profile";
 import Verification from "../Pages/Dashboard/Admin/Verification";
 import UserList from "../Pages/Dashboard/Admin/UserList";
 import SkillsList from "../Pages/Dashboard/Admin/SkillsList";
+import Calendar from "../Pages/Dashboard/Admin/Calendar";
 import PrivateRoute from "./PrivateRoutes";
 
 const PublicRoutes = createBrowserRouter([
@@ -42,6 +43,10 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/adminDashboard/skills",
             element: <SkillsList></SkillsList>,
+          },
+          {
+            path: "/adminDashboard/calendar",
+            element: <Calendar></Calendar>,
           },
         ],
       },

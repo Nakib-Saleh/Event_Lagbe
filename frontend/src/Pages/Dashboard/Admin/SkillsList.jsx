@@ -77,7 +77,7 @@ const SkillsList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100/60 via-white/60 to-red-200/80 backdrop-blur-md p-8 rounded-xl shadow-xl">
-      <h2 className="text-2xl font-bold mb-6 text-red-700 drop-shadow">Manage Skills</h2>
+      <h2 className="text-2xl font-bold mb-6 text-orange-700 drop-shadow">Manage Skills</h2>
       <form
         onSubmit={isEditMode ? handleUpdateSkill : handleAddSkill}
         className="glass bg-white/60 border border-red-200 rounded-lg p-4 mb-8 shadow flex flex-col md:flex-row gap-4 items-center"
