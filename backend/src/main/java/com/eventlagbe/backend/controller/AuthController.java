@@ -83,7 +83,7 @@ public class AuthController {
 
     @GetMapping("/unverified/participants")
     public ResponseEntity<?> getUnverifiedParticipants() {
-        return ResponseEntity.ok(participantRepository.findByVerifiedByAdmin(false));
+        return ResponseEntity.ok(participantRepository.findByIsVerified(false));
     }
 
     /* Profile API */

@@ -6,6 +6,7 @@ import Login from "../Pages/Login";
 import AdminDashboard from "../Pages/Dashboard/Admin/AdminDashboard";
 import Verification from "../Pages/Dashboard/Admin/Verification";
 import Profile from "../Pages/Dashboard/Profile";
+import VerificationOptimized from "../Pages/Dashboard/Admin/Verification_optimized";
 
 const PublicRoutes = createBrowserRouter([
     {
@@ -26,7 +27,7 @@ const PublicRoutes = createBrowserRouter([
             },
             {
               path:"/adminDashboard/verification",
-              element:<Verification></Verification>
+              element:<VerificationOptimized></VerificationOptimized>
             }
           ]
         },

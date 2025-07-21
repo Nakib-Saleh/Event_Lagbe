@@ -7,5 +7,5 @@ public interface ParticipantRepository extends MongoRepository<Participant, Stri
     Participant findByUsername(String username);
     Participant findByEmail(String email);
     Participant findByFirebaseUid(String firebaseUid);
-    java.util.List<Participant> findByVerifiedByAdmin(boolean verifiedByAdmin);
+    java.util.List<Participant> findByIsVerified(boolean isVerified);
 } 

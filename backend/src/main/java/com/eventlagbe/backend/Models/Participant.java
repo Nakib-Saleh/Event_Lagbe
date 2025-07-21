@@ -19,7 +19,7 @@ public class Participant {
     private String passwordHash;
     private String institution;
     private List<String> idDocumentUrls;
-    private boolean verifiedByAdmin = false;
+    private boolean isVerified = false;
     private List<String> interestedSkills;
     private List<String> registeredEventIds;
     private List<String> pastEventIds;
@@ -49,8 +49,8 @@ public class Participant {
     public List<String> getIdDocumentUrls() { return idDocumentUrls; }
     public void setIdDocumentUrls(List<String> idDocumentUrls) { this.idDocumentUrls = idDocumentUrls; }
 
-    public boolean isVerifiedByAdmin() { return verifiedByAdmin; }
-    public void setVerifiedByAdmin(boolean verifiedByAdmin) { this.verifiedByAdmin = verifiedByAdmin; }
+    public boolean getIsVerified() { return isVerified; }
+    public void setIsVerified(boolean isVerified) { this.isVerified = isVerified; }
 
     public List<String> getInterestedSkills() { return interestedSkills; }
     public void setInterestedSkills(List<String> interestedSkills) { this.interestedSkills = interestedSkills; }
