@@ -17,8 +17,6 @@ public class Admin {
     private String username;
     private String name;
     private boolean isSuperAdmin;
-    private List<String> skillCategories;
-    private int reportThreshold = 5;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
     private String firebaseUid;
@@ -37,12 +35,6 @@ public class Admin {
 
     public boolean getIsSuperAdmin() { return isSuperAdmin; }
     public void setIsSuperAdmin(boolean isSuperAdmin) { this.isSuperAdmin = isSuperAdmin; }
-
-    public List<String> getSkillCategories() { return skillCategories; }
-    public void setSkillCategories(List<String> skillCategories) { this.skillCategories = skillCategories; }
-
-    public int getReportThreshold() { return reportThreshold; }
-    public void setReportThreshold(int reportThreshold) { this.reportThreshold = reportThreshold; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

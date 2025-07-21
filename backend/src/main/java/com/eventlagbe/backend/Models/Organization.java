@@ -14,7 +14,6 @@ public class Organization {
     private String email;
     @Indexed(unique = true)
     private String username;
-    private String passwordHash;
     private String name;
     private String type;
     private String logoUrl;

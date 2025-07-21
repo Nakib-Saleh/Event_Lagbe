@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../Provider/AuthContext";
-import { toast } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 import { motion } from "framer-motion";
@@ -118,6 +118,7 @@ const Register = () => {
   const renderForm = () => {
     const baseFields = (
       <>
+      <div><Toaster/></div>
         <div className="form-control">
           <label className="label">
             <span className="label-text font-bold">Full Name</span>

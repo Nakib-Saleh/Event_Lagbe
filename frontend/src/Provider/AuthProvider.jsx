@@ -14,7 +14,7 @@ import {
   import { auth } from "../firebase.init";
   import AuthContext from "./AuthContext";
   import axios from "axios";
-  import { toast } from "react-hot-toast"; // or your preferred toast lib
+  import { toast } from "react-hot-toast";
   
   const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
