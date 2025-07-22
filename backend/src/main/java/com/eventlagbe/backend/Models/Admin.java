@@ -16,7 +16,8 @@ public class Admin {
     @Indexed(unique = true)
     private String username;
     private String name;
-    private boolean isSuperAdmin;
+    private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
+    private boolean isSuperAdmin = false;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
     private String firebaseUid;
@@ -32,6 +33,9 @@ public class Admin {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 
     public boolean getIsSuperAdmin() { return isSuperAdmin; }
     public void setIsSuperAdmin(boolean isSuperAdmin) { this.isSuperAdmin = isSuperAdmin; }

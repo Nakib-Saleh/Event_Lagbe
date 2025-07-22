@@ -2,9 +2,10 @@ import axios from 'axios';
 import React, { useEffect, useContext, useState } from "react";
 import AuthContext from "../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
+import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
 const Profile = () => {
-    const { user, userRole } = useContext(AuthContext);
+    const {user, userRole} = useContext(AuthContext);
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -14,7 +15,7 @@ const Profile = () => {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.uid}`);
+                const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
                 setProfileData(response.data);
                 setFormData(response.data);
             } catch (error) {
@@ -25,10 +26,10 @@ const Profile = () => {
             }
         };
         
-        if (user?.uid && userRole) {
+        if (user?.firebaseUid && userRole) {
             fetchProfile();
         }
-    }, [user?.uid, userRole]);
+    }, [user.firebaseUid, userRole]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -38,10 +39,52 @@ const Profile = () => {
         }));
     };
 
+    // Profile picture upload handler
+    const handleProfilePicChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const res = await uploadToCloudinary(file);
+            setFormData((prev) => ({
+                ...prev,
+                profilePictureUrl: res.secure_url,
+            }));
+            toast.success("Profile picture updated (not saved yet)");
+        } catch {
+            toast.error("Failed to upload profile picture");
+        }
+    };
+
+    // Multiple photoUrls upload handler (for org/organizer)
+    const handlePhotoUrlsChange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        try {
+            const uploadPromises = files.map(file => uploadToCloudinary(file));
+            const results = await Promise.all(uploadPromises);
+            const urls = results.map(res => res.secure_url);
+            setFormData((prev) => ({
+                ...prev,
+                pictureUrls: [...(prev.pictureUrls || []), ...urls],
+            }));
+            toast.success("Photo(s) uploaded (not saved yet)");
+        } catch {
+            toast.error("Failed to upload photo(s)");
+        }
+    };
+
+    // Remove photo from pictureUrls
+    const handleRemovePhotoUrl = (url) => {
+        setFormData((prev) => ({
+            ...prev,
+            pictureUrls: (prev.pictureUrls || []).filter(u => u !== url),
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.uid}`, formData);
+            await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
             setProfileData(formData);
             setIsEditing(false);
             toast.success("Profile updated successfully");
@@ -106,7 +149,7 @@ const Profile = () => {
                                     <div className="avatar">
                                         <div className="w-24 h-24 rounded-full">
                                             <img
-                                                src={profileData.logoUrl || profileData.profilePicture || "https://img.daisyui.com/images/profile/demo/2@94.webp"}
+                                                src={formData.profilePictureUrl || profileData.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp"}
                                                 alt="Profile"
                                                 className="w-full h-full object-cover rounded-full"
                                                 onError={(e) => {
@@ -119,9 +162,55 @@ const Profile = () => {
                                         <h3 className="text-lg font-semibold">{profileData.name || profileData.username}</h3>
                                         <p className="text-gray-600">{profileData.email}</p>
                                         <p className="text-sm text-gray-500">Member since {new Date(profileData.createdAt).toLocaleDateString()}</p>
+                                        {isEditing && (
+                                            <div className="mt-2">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleProfilePicChange}
+                                                    className="file-input file-input-bordered file-input-xs"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Organization/Organizer photoUrls */}
+                            {(userRole === 'organization' || userRole === 'organizer') && (
+                                <div className="md:col-span-2">
+                                    <h3 className="text-md font-semibold mb-2">Gallery Photos</h3>
+                                    <div className="flex flex-wrap gap-4 mb-2">
+                                        {(formData.pictureUrls || []).map((url, idx) => (
+                                            <div key={idx} className="relative group">
+                                                <img
+                                                    src={url}
+                                                    alt={`Gallery ${idx + 1}`}
+                                                    className="w-20 h-20 object-cover rounded border"
+                                                />
+                                                {isEditing && (
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 group-hover:opacity-100"
+                                                        onClick={() => handleRemovePhotoUrl(url)}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {isEditing && (
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handlePhotoUrlsChange}
+                                            className="file-input file-input-bordered file-input-xs"
+                                        />
+                                    )}
+                                </div>
+                            )}
 
                             {/* Basic Information */}
                             <div className="space-y-4">

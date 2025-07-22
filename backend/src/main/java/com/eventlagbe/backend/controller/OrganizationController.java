@@ -27,6 +27,11 @@ public class OrganizationController {
         return ResponseEntity.ok(unverifiedOrganizations);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Organization>> getAllOrganizations() {
+        return ResponseEntity.ok(organizationRepository.findAll());
+    }
+
     @PutMapping("/{id}/approve")
     public ResponseEntity<Organization> approveOrganization(@PathVariable String id) {
         Organization organization = organizationRepository.findById(id).orElse(null);

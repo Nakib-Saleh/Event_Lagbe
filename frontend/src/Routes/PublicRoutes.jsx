@@ -6,10 +6,13 @@ import Login from "../Pages/Login";
 import AdminDashboard from "../Pages/Dashboard/Admin/AdminDashboard";
 import Profile from "../Pages/Dashboard/Profile";
 import Verification from "../Pages/Dashboard/Admin/Verification";
+import OrganizationVerification from "../Pages/Dashboard/Organization/Verification";
 import UserList from "../Pages/Dashboard/Admin/UserList";
 import SkillsList from "../Pages/Dashboard/Admin/SkillsList";
 import Calendar from "../Pages/Dashboard/Admin/Calendar";
 import PrivateRoute from "./PrivateRoutes";
+import OrganizationDashboard from "../Pages/Dashboard/Organization/OrganizationDashboard";
+import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -19,7 +22,7 @@ const PublicRoutes = createBrowserRouter([
       {
         path: "/adminDashboard",
         element: (
-          <PrivateRoute>
+          <PrivateRoute allowedRoles={["admin"]}>
             <AdminDashboard></AdminDashboard>
           </PrivateRoute>
         ),
@@ -47,6 +50,32 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/adminDashboard/calendar",
             element: <Calendar></Calendar>,
+          },
+        ],
+      },
+      {
+        path: "/organizationDashboard",
+        element: (
+          <PrivateRoute allowedRoles={["organization"]}>
+            <OrganizationDashboard></OrganizationDashboard>
+          </PrivateRoute>
+        ),
+        children: [
+          {
+            path: "/organizationDashboard",
+            element: <Navigate to="/organizationDashboard/profile" replace />,
+          },
+          {
+            path: "/organizationDashboard/profile",
+            element: <Profile></Profile>,
+          },
+          {
+            path: "/organizationDashboard/verification",
+            element: <OrganizationVerification></OrganizationVerification>,
+          },
+          {
+            path: "/organizationDashboard/organizers",
+            element: <OrganizerList></OrganizerList>,
           },
         ],
       },

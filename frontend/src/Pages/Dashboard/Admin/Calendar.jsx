@@ -15,31 +15,38 @@ import {
 
 const Calendar = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  // Single modal state: null | { type: 'add', data, title } | { type: 'delete', data }
+  const [modal, setModal] = useState(null);
 
   const handleDateClick = (selected) => {
-    const title = prompt("Please enter a new title for your event");
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
+    setModal({ type: 'add', data: selected, title: '' });
+  };
 
-    if (title) {
+  const handleAddEvent = () => {
+    if (modal.title.trim()) {
+      console.log(modal);
+      const calendarApi = modal.data.view.calendar;
+      calendarApi.unselect();
       calendarApi.addEvent({
-        id: `${selected.dateStr}-${title}`,
-        title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
+        id: `${modal.data.dateStr}-${modal.title}`,
+        title: modal.title,
+        start: modal.data.startStr,
+        end: modal.data.endStr,
+        allDay: modal.data.allDay,
       });
     }
+    setModal(null);
   };
 
   const handleEventClick = (selected) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
-      )
-    ) {
-      selected.event.remove();
+    setModal({ type: 'delete', data: selected.event });
+  };
+
+  const handleDeleteEvent = () => {
+    if (modal.data) {
+      modal.data.remove();
     }
+    setModal(null);
   };
 
   return (
@@ -109,6 +116,64 @@ const Calendar = () => {
           />
         </Box>
       </Box>
+
+      {/* Add Event Modal */}
+      {modal?.type === 'add' && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Add New Event</h3>
+            <input
+              type="text"
+              className="input input-bordered w-full mt-4"
+              placeholder="Event Title"
+              value={modal.title}
+              onChange={e => setModal(m => ({ ...m, title: e.target.value }))}
+              autoFocus
+            />
+            <div className="modal-action">
+              <button
+                className="btn btn-outline"
+                onClick={() => setModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-success"
+                onClick={handleAddEvent}
+                disabled={!modal.title.trim()}
+              >
+                Add Event
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Event Modal */}
+      {modal?.type === 'delete' && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-red-600">Delete Event</h3>
+            <p className="py-4">
+              Are you sure you want to delete the event <strong>{modal.data?.title}</strong>?
+            </p>
+            <div className="modal-action">
+              <button
+                className="btn btn-outline"
+                onClick={() => setModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={handleDeleteEvent}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Box>
   );
 };

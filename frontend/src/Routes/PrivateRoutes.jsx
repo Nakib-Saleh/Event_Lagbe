@@ -10,12 +10,10 @@ import AuthContext from "../Provider/AuthContext";
  * Usage:
  * <PrivateRoute><SomeComponent /></PrivateRoute>
  */
-const PrivateRoute = ({ children }) => {
-    // Access authentication state from AuthContext
-    const { loading, user } = useContext(AuthContext);
+const PrivateRoute = ({ children, allowedRoles }) => {
+    const { loading, user, userRole } = useContext(AuthContext);
     const location = useLocation();
 
-    // Show a loading spinner while authentication state is being determined.
     if (loading) {
         return (
             <div className="w-32 text-center py-8 text-gray-500">
@@ -24,13 +22,18 @@ const PrivateRoute = ({ children }) => {
         );
     }
 
-    // If the user is authenticated, render the protected content (children).
-    if (user) {
-        return children;
+    if (!user) {
+        // Not authenticated
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    // If the user is not authenticated, redirect them to the login page.
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+        // Authenticated but not authorized
+        return <Navigate to="/error" replace />;
+    }
+
+    // Authenticated (and authorized if roles specified)
+    return children;
 };
 
 export default PrivateRoute;

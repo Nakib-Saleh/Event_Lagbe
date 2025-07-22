@@ -1,40 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-
-const ENTITY_CONFIG = {
-  Organization: {
-    label: "Organization Verification",
-    api: {
-      fetch: "http://localhost:2038/api/organization/unverified",
-      approve: id => `http://localhost:2038/api/organization/${id}/approve`,
-      reject: id => `http://localhost:2038/api/organization/${id}/reject`,
-    },
-    avatar: org => org.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp",
-    name: org => org.name,
-    username: org => org.username,
-    extra: null,
-    type: "organization",
-  },
-  Participants: {
-    label: "Participants Verification",
-    api: {
-      fetch: "http://localhost:2038/api/participant/unverified",
-      approve: id => `http://localhost:2038/api/participant/${id}/approve`,
-      reject: id => `http://localhost:2038/api/participant/${id}/reject`,
-    },
-    avatar: p => p.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp",
-    name: p => p.name,
-    username: p => p.username,
-    extra: p => p.idDocumentUrls,
-    type: "participant",
-  },
-};
-
-const TABS = [
-  { id: "Organization", label: "Organization Verification" },
-  { id: "Participants", label: "Participants Verification" },
-];
+import AuthContext from "../../../Provider/AuthContext";
 
 const ConfirmationModal = ({ show, onClose, onConfirm, title, message, confirmText, cancelText }) =>
   show ? (
@@ -49,35 +16,6 @@ const ConfirmationModal = ({ show, onClose, onConfirm, title, message, confirmTe
       </div>
     </div>
   ) : null;
-
-const IdDocsModal = ({ show, onClose, participant }) => (
-  show ? (
-    <div className="modal modal-open">
-      <div className="modal-box max-w-2xl">
-        <h3 className="font-bold text-lg mb-2">
-          ID Documents for {participant?.name}
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {participant?.idDocumentUrls?.length ? (
-            participant.idDocumentUrls.map((url, idx) => (
-              <img
-                key={idx}
-                src={url}
-                alt={`ID Document ${idx + 1}`}
-                className="w-full h-48 object-contain border rounded"
-              />
-            ))
-          ) : (
-            <div className="text-gray-500">No documents uploaded.</div>
-          )}
-        </div>
-        <div className="modal-action">
-          <button className="btn btn-outline" onClick={onClose}>Close</button>
-        </div>
-      </div>
-    </div>
-  ) : null
-);
 
 const BulkActionBar = ({ selectedCount, entityType, onApprove, onReject }) => (
   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
@@ -116,27 +54,21 @@ const formatDate = (dateString) => {
 };
 
 const VerificationOptimized = () => {
-  const [activeTab, setActiveTab] = useState("Organization");
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [showBulkApproveModal, setShowBulkApproveModal] = useState(false);
-  const [showBulkRejectModal, setShowBulkRejectModal] = useState(false);
-  const [currentItem, setCurrentItem] = useState(null);
-  const [showIdDocsModal, setShowIdDocsModal] = useState(false);
-
-  const config = ENTITY_CONFIG[activeTab];
+  const [modal, setModal] = useState({ type: null, item: null });
 
   // Fetch data
   const fetchData = async () => {
+    if (!user || !user.id) return;
     try {
       setLoading(true);
-      const response = await axios.get(config.api.fetch);
+      const response = await axios.get(`http://localhost:2038/api/organizer/${user.id}/unverified-organizers`);
       setData(response.data);
     } catch {
-      toast.error(`Failed to fetch ${config.type}s`);
+      toast.error("Failed to fetch organizers");
     } finally {
       setLoading(false);
     }
@@ -145,7 +77,8 @@ const VerificationOptimized = () => {
   useEffect(() => {
     fetchData();
     setSelected([]);
-  }, [activeTab]);
+    // eslint-disable-next-line
+  }, [user]);
 
   // Select logic
   const handleSelectAll = (e) => {
@@ -162,46 +95,44 @@ const VerificationOptimized = () => {
   // Approve/Reject logic
   const handleApprove = async () => {
     try {
-      await axios.put(config.api.approve(currentItem.id));
-      toast.success(`${config.type.charAt(0).toUpperCase() + config.type.slice(1)} approved successfully`);
-      setShowApproveModal(false);
-      setCurrentItem(null);
+      await axios.put(`http://localhost:2038/api/organizer/${modal.item.id}/approve`);
+      toast.success("Organizer approved successfully");
+      setModal({ type: null, item: null });
       fetchData();
     } catch {
-      toast.error(`Failed to approve ${config.type}`);
+      toast.error("Failed to approve organizer");
     }
   };
   const handleReject = async () => {
     try {
-      await axios.delete(config.api.reject(currentItem.id));
-      toast.success(`${config.type.charAt(0).toUpperCase() + config.type.slice(1)} rejected successfully`);
-      setShowRejectModal(false);
-      setCurrentItem(null);
+      await axios.delete(`http://localhost:2038/api/organizer/${modal.item.id}/reject`);
+      toast.success("Organizer rejected successfully");
+      setModal({ type: null, item: null });
       fetchData();
     } catch {
-      toast.error(`Failed to reject ${config.type}`);
+      toast.error("Failed to reject organizer");
     }
   };
   const handleBulkApprove = async () => {
     try {
-      await Promise.all(selected.map(id => axios.put(config.api.approve(id))));
-      toast.success(`${selected.length} ${config.type}s approved successfully`);
-      setShowBulkApproveModal(false);
+      await Promise.all(selected.map(id => axios.put(`http://localhost:2038/api/organizer/${id}/approve`)));
+      toast.success(`${selected.length} organizers approved successfully`);
+      setModal({ type: null, item: null });
       setSelected([]);
       fetchData();
     } catch {
-      toast.error(`Failed to approve some ${config.type}s`);
+      toast.error("Failed to approve some organizers");
     }
   };
   const handleBulkReject = async () => {
     try {
-      await Promise.all(selected.map(id => axios.delete(config.api.reject(id))));
-      toast.success(`${selected.length} ${config.type}s rejected successfully`);
-      setShowBulkRejectModal(false);
+      await Promise.all(selected.map(id => axios.delete(`http://localhost:2038/api/organizer/${id}/reject`)));
+      toast.success(`${selected.length} organizers rejected successfully`);
+      setModal({ type: null, item: null });
       setSelected([]);
       fetchData();
     } catch {
-      toast.error(`Failed to reject some ${config.type}s`);
+      toast.error("Failed to reject some organizers");
     }
   };
 
@@ -230,7 +161,7 @@ const VerificationOptimized = () => {
         {data.length === 0 ? (
           <tr>
             <td colSpan="5" className="text-center py-8 text-gray-500">
-              No unverified {config.type}s found
+              No unverified organizers found
             </td>
           </tr>
         ) : (
@@ -251,8 +182,8 @@ const VerificationOptimized = () => {
                   <div className="avatar">
                     <div className="mask mask-squircle h-12 w-12">
                       <img
-                        src={config.avatar(item)}
-                        alt={`${config.name(item)} avatar`}
+                        src={item.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp"}
+                        alt={`${item.name} avatar`}
                         onError={e => {
                           e.target.src = "https://img.daisyui.com/images/profile/demo/2@94.webp";
                         }}
@@ -260,8 +191,8 @@ const VerificationOptimized = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="font-bold">{config.name(item)}</div>
-                    <div className="text-sm opacity-50">@{config.username(item)}</div>
+                    <div className="font-bold">{item.name}</div>
+                    <div className="text-sm opacity-50">@{item.username}</div>
                   </div>
                 </div>
               </td>
@@ -269,22 +200,10 @@ const VerificationOptimized = () => {
               <td>{formatDate(item.createdAt)}</td>
               <th>
                 <div className="flex gap-2">
-                  {activeTab === "Participants" && (
-                    <button
-                      className="btn btn-info btn-xs"
-                      onClick={() => {
-                        setCurrentItem(item);
-                        setShowIdDocsModal(true);
-                      }}
-                    >
-                      View ID Documents
-                    </button>
-                  )}
                   <button
                     className="btn btn-success btn-xs"
                     onClick={() => {
-                      setCurrentItem(item);
-                      setShowApproveModal(true);
+                      setModal({ type: 'approve', item });
                     }}
                   >
                     Approve
@@ -292,8 +211,7 @@ const VerificationOptimized = () => {
                   <button
                     className="btn btn-error btn-xs"
                     onClick={() => {
-                      setCurrentItem(item);
-                      setShowRejectModal(true);
+                      setModal({ type: 'reject', item });
                     }}
                   >
                     Reject
@@ -309,25 +227,14 @@ const VerificationOptimized = () => {
 
   return (
     <div>
-      <div role="tablist" className="tabs tabs-boxed gap-x-2">
-        {TABS.map(tab => (
-          <div
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`tab ${activeTab === tab.id ? "tab-active" : ""} text-center font-bold px-2 py-2 rounded-xl border-2 border-black transition ${activeTab === tab.id ? "bg-red-500 text-white" : "bg-blue-200 text-black"}`}
-          >
-            {tab.label}
-          </div>
-        ))}
-      </div>
       <div className="flex flex-col justify-center py-4">
-        <h1 className="text-xl font-bold text-gray-800 mb-4">{config.label}</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-4">Organizer Verification</h1>
         {selected.length > 0 && (
           <BulkActionBar
             selectedCount={selected.length}
-            entityType={config.type.charAt(0).toUpperCase() + config.type.slice(1)}
-            onApprove={() => setShowBulkApproveModal(true)}
-            onReject={() => setShowBulkRejectModal(true)}
+            entityType="Organizer"
+            onApprove={() => setModal({ type: 'bulkApprove', item: null })}
+            onReject={() => setModal({ type: 'bulkReject', item: null })}
           />
         )}
         <div className="bg-white rounded-lg p-4 overflow-x-auto overflow-y-auto max-h-[calc(100vh-130px)]">
@@ -341,48 +248,40 @@ const VerificationOptimized = () => {
         </div>
         {/* Approve Confirmation Modal */}
         <ConfirmationModal
-          show={showApproveModal}
-          onClose={() => { setShowApproveModal(false); setCurrentItem(null); }}
+          show={modal.type === 'approve'}
+          onClose={() => setModal({ type: null, item: null })}
           onConfirm={handleApprove}
           title={`Confirm Approval`}
-          message={`Are you sure you want to approve ${(currentItem ? config.name(currentItem) : "this item")}?`}
+          message={`Are you sure you want to approve ${(modal.item ? modal.item.name : "this item")}?`}
           confirmText="Approve"
         />
         {/* Reject Confirmation Modal */}
         <ConfirmationModal
-          show={showRejectModal}
-          onClose={() => { setShowRejectModal(false); setCurrentItem(null); }}
+          show={modal.type === 'reject'}
+          onClose={() => setModal({ type: null, item: null })}
           onConfirm={handleReject}
           title={`Confirm Rejection`}
-          message={`Are you sure you want to reject ${(currentItem ? config.name(currentItem) : "this item")}? This action cannot be undone.`}
+          message={`Are you sure you want to reject ${(modal.item ? modal.item.name : "this item")}? This action cannot be undone.`}
           confirmText="Reject & Delete"
         />
         {/* Bulk Approve Confirmation Modal */}
         <ConfirmationModal
-          show={showBulkApproveModal}
-          onClose={() => setShowBulkApproveModal(false)}
+          show={modal.type === 'bulkApprove'}
+          onClose={() => setModal({ type: null, item: null })}
           onConfirm={handleBulkApprove}
           title={`Confirm Bulk Approval`}
-          message={`Are you sure you want to approve ${selected.length} ${config.type}(s)?`}
+          message={`Are you sure you want to approve ${selected.length} organizers?`}
           confirmText="Approve All"
         />
         {/* Bulk Reject Confirmation Modal */}
         <ConfirmationModal
-          show={showBulkRejectModal}
-          onClose={() => setShowBulkRejectModal(false)}
+          show={modal.type === 'bulkReject'}
+          onClose={() => setModal({ type: null, item: null })}
           onConfirm={handleBulkReject}
           title={`Confirm Bulk Rejection`}
-          message={`Are you sure you want to reject ${selected.length} ${config.type}(s)? This action cannot be undone.`}
+          message={`Are you sure you want to reject ${selected.length} organizers? This action cannot be undone.`}
           confirmText="Reject & Delete All"
         />
-        {/* ID Documents Modal for Participants */}
-        {activeTab === "Participants" && (
-          <IdDocsModal
-            show={showIdDocsModal}
-            onClose={() => setShowIdDocsModal(false)}
-            participant={currentItem}
-          />
-        )}
       </div>
     </div>
   );

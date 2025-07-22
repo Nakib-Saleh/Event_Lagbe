@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -30,6 +32,9 @@ public class AuthController {
     @PostMapping("/register/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody Admin admin) {
         if (admin.getFirebaseUid() == null || admin.getFirebaseUid().isEmpty()) {
+            System.out.println("---------");
+            System.out.println(admin.getFirebaseUid());
+            System.out.println("---------");
             return ResponseEntity.badRequest().body("Missing Firebase UID");
         }
         Admin saved = adminRepository.save(admin);
@@ -51,6 +56,19 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Missing Firebase UID");
         }
         Organizer saved = organizerRepository.save(organizer);
+        // Update the organization to include this organizer's id
+        if (saved.getOrganizationId() != null && !saved.getOrganizationId().isEmpty()) {
+            Organization org = organizationRepository.findById(saved.getOrganizationId()).orElse(null);
+            if (org != null) {
+                List<String> organizerIds = org.getOrganizerIds();
+                if (organizerIds == null) organizerIds = new java.util.ArrayList<>();
+                if (!organizerIds.contains(saved.getId())) {
+                    organizerIds.add(saved.getId());
+                    org.setOrganizerIds(organizerIds);
+                    organizationRepository.save(org);
+                }
+            }
+        }
         return ResponseEntity.ok(saved);
     }
 
@@ -63,8 +81,8 @@ public class AuthController {
         return ResponseEntity.ok(saved);
     }
 
-    @GetMapping("/role/{firebaseUid}")
-    public ResponseEntity<?> getUserRole(@PathVariable String firebaseUid) {
+    @GetMapping("/{firebaseUid}")
+    public ResponseEntity<?> getUserEntity(@PathVariable String firebaseUid) {
         Admin admin = adminRepository.findByFirebaseUid(firebaseUid);
         if (admin != null) return ResponseEntity.ok(java.util.Map.of("role", "admin", "user", admin));
         Organization org = organizationRepository.findByFirebaseUid(firebaseUid);
@@ -76,15 +94,7 @@ public class AuthController {
         return ResponseEntity.status(404).body("User not found");
     }
 
-    @GetMapping("/unverified/organizers")
-    public ResponseEntity<?> getUnverifiedOrganizers() {
-        return ResponseEntity.ok(organizerRepository.findByVerifiedByOrg(false));
-    }
-
-    @GetMapping("/unverified/participants")
-    public ResponseEntity<?> getUnverifiedParticipants() {
-        return ResponseEntity.ok(participantRepository.findByIsVerified(false));
-    }
+   
 
     /* Profile API */
 

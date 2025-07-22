@@ -15,10 +15,10 @@ public class Organizer {
     private String email;
     @Indexed(unique = true)
     private String username;
-    private String passwordHash;
     private String name;
+    private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
     private String organizationId;
-    private boolean verifiedByOrg;
+    private boolean isVerified;
     private List<String> eventIds;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
@@ -36,11 +36,14 @@ public class Organizer {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
 
-    public boolean isVerifiedByOrg() { return verifiedByOrg; }
-    public void setVerifiedByOrg(boolean verifiedByOrg) { this.verifiedByOrg = verifiedByOrg; }
+    public boolean getIsVerified() { return isVerified; }
+    public void setIsVerified(boolean isVerified) { this.isVerified = isVerified; }
 
     public List<String> getEventIds() { return eventIds; }
     public void setEventIds(List<String> eventIds) { this.eventIds = eventIds; }

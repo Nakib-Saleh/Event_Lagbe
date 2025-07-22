@@ -4,6 +4,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "organizations")
@@ -16,7 +17,8 @@ public class Organization {
     private String username;
     private String name;
     private String type;
-    private String logoUrl;
+    private String profilePictureUrl ="https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
+    private List<String> pictureUrls;
     private boolean isVerified = false;
     private List<String> organizerIds;
     private List<String> eventIds;
@@ -39,8 +41,8 @@ public class Organization {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public String getLogoUrl() { return logoUrl; }
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 
     public boolean getIsVerified() { return isVerified; }
     public void setIsVerified(boolean isVerified) { this.isVerified = isVerified; }
@@ -59,4 +61,7 @@ public class Organization {
 
     public String getFirebaseUid() { return firebaseUid; }
     public void setFirebaseUid(String firebaseUid) { this.firebaseUid = firebaseUid; }
+
+    public List<String> getPictureUrls() { return pictureUrls; }
+    public void setPictureUrls(List<String> pictureUrls) { this.pictureUrls = pictureUrls; }
 }

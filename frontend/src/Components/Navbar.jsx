@@ -22,8 +22,7 @@ const Navbar = () => {
               <div className="w-10 rounded-full">
                 <img
                   alt="Tailwind CSS Navbar component"
-                  //src={user.profilePicture}
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  src={user?.profilePictureUrl || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
                 />
               </div>
             </div>
@@ -33,7 +32,7 @@ const Navbar = () => {
             >
               <li>
                 <a className="justify-between">
-                  {userRole}
+                  {userRole || "User"}
                 </a>
               </li>
               <li>

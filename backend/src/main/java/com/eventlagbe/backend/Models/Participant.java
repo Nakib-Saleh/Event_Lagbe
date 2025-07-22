@@ -18,6 +18,7 @@ public class Participant {
     private String username;
     private String passwordHash;
     private String institution;
+    private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
     private List<String> idDocumentUrls;
     private boolean isVerified = false;
     private List<String> interestedSkills;
@@ -45,6 +46,9 @@ public class Participant {
 
     public String getInstitution() { return institution; }
     public void setInstitution(String institution) { this.institution = institution; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 
     public List<String> getIdDocumentUrls() { return idDocumentUrls; }
     public void setIdDocumentUrls(List<String> idDocumentUrls) { this.idDocumentUrls = idDocumentUrls; }
