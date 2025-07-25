@@ -19,6 +19,7 @@ import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useContext } from "react";
+import { MdOutlineEmojiEvents } from "react-icons/md";
 import AuthContext from "../../../Provider/AuthContext";
 
 const OrganizationDashboard = () => {
@@ -39,6 +40,10 @@ const OrganizationDashboard = () => {
     {
       title: "Organizers",
       icon: <FiUsers className="text-red-600" />,
+    },
+    {
+      title: "Events",
+      icon: <MdOutlineEmojiEvents className="text-red-600 text-xl" />,
     },
   ];
 

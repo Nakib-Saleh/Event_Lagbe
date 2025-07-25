@@ -1,40 +1,21 @@
 import axios from 'axios';
 import React, { useEffect, useContext, useState } from "react";
-import AuthContext from "../../Provider/AuthContext";
+import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
-import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
+import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { FaHeart } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
 
 
-const Profile = () => {
+const AdminProfile = () => {
 
   const TABS = [
     { id: "about", label: "About" },
     { id: "gallery", label: "Gallery" },
-    { id: "events", label: "Events" },
-    { id: "organizers", label: "Organizers" },
     { id: "followers", label: "Followers" },
   ];
 
   const { user, userRole } = useContext(AuthContext);
-    const [organizers, setOrganizers] = useState([]);
-
-    useEffect(() => {
-        const fetchOrganizers = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get(`http://localhost:2038/api/organizer/${user.id}/verified-organizers`);
-                setOrganizers(res.data);
-            } catch {
-                setOrganizers([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOrganizers();
-    }, [user]);
-
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -159,7 +140,7 @@ const Profile = () => {
 
       {/* Name + Username + Edit */}
       <div className="pt-20 px-6 sm:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">
               {profileData.name || profileData.username}
@@ -252,43 +233,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Organizer/org fields */}
-          {(userRole === 'organization' || userRole === 'organizer') && (
-            <>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Type</span>
-                </label>
-                {isEditing ? (
-                  <select
-                    name="type"
-                    value={formData.type || ''}
-                    onChange={handleInputChange}
-                    className="select select-bordered"
-                  >
-                    <option value="">Select type</option>
-                    <option value="corporate">Corporate</option>
-                    <option value="non-profit">Non-Profit</option>
-                    <option value="educational">Educational</option>
-                    <option value="government">Government</option>
-                    <option value="other">Other</option>
-                  </select>
-                ) : (
-                  <p className="text-gray-700">{profileData.type || 'Not specified'}</p>
-                )}
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Verification</span>
-                </label>
-                <span className={`badge ${profileData.isVerified ? 'badge-success' : 'badge-warning'}`}>
-                  {profileData.isVerified ? 'Verified' : 'Pending'}
-                </span>
-              </div>
-            </>
-          )}
-
           {/* Created / Updated Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -310,28 +254,8 @@ const Profile = () => {
         </form>
       </div>
       )}
-      {pages === "organizers" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h2 className='text-2xl font-bold text-gray-800 mb-4'>Organizers</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {organizers.length === 0 ? (
-              <p className="text-gray-500">No organizers found.</p>
-            ) : (
-              organizers.map(org => (
-                <div key={org.id} className="p-4 border rounded shadow-sm flex items-center gap-4">
-                  <img src={org.profilePictureUrl} alt={org.name} className="w-12 h-12 rounded-full object-cover" />
-                  <div>
-                    <h3 className="font-semibold">{org.name}</h3>
-                    <p className="text-sm text-gray-500">@{org.username}</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default Profile;
+export default AdminProfile;

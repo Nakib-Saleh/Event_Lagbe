@@ -13,6 +13,8 @@ import Calendar from "../Pages/Dashboard/Admin/Calendar";
 import PrivateRoute from "./PrivateRoutes";
 import OrganizationDashboard from "../Pages/Dashboard/Organization/OrganizationDashboard";
 import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
+import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
+import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -33,7 +35,7 @@ const PublicRoutes = createBrowserRouter([
           },
           {
             path: "/adminDashboard/profile",
-            element: <Profile></Profile>,
+            element: <AdminProfile></AdminProfile>,
           },
           {
             path: "/adminDashboard/verification",
@@ -76,6 +78,10 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/organizationDashboard/organizers",
             element: <OrganizerList></OrganizerList>,
+          },
+          {
+            path: "/organizationDashboard/events",
+            element: <Eventlist></Eventlist>,
           },
         ],
       },
