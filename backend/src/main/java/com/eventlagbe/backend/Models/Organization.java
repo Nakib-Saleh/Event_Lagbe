@@ -18,12 +18,15 @@ public class Organization {
     private String name;
     private String type;
     private String profilePictureUrl ="https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
+    private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private List<String> pictureUrls;
     private boolean isVerified = false;
     private List<String> organizerIds;
     private List<String> eventIds;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
+    private List<String> followers = new ArrayList<>();
+    private List<String> following = new ArrayList<>();
     private String firebaseUid;
 
     public String getId() { return id; }
@@ -43,6 +46,9 @@ public class Organization {
 
     public String getProfilePictureUrl() { return profilePictureUrl; }
     public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
+    public String getBannerUrl() { return bannerUrl; }
+    public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
 
     public boolean getIsVerified() { return isVerified; }
     public void setIsVerified(boolean isVerified) { this.isVerified = isVerified; }
@@ -64,4 +70,10 @@ public class Organization {
 
     public List<String> getPictureUrls() { return pictureUrls; }
     public void setPictureUrls(List<String> pictureUrls) { this.pictureUrls = pictureUrls; }
+
+    public List<String> getFollowers() { return followers; }
+    public void setFollowers(List<String> followers) { this.followers = followers; }
+
+    public List<String> getFollowing() { return following; }
+    public void setFollowing(List<String> following) { this.following = following; }
 }

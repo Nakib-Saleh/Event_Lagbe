@@ -4,7 +4,6 @@ import ErrorPage from "../Components/Errorpage";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
 import AdminDashboard from "../Pages/Dashboard/Admin/AdminDashboard";
-import Profile from "../Pages/Dashboard/Profile";
 import Verification from "../Pages/Dashboard/Admin/Verification";
 import OrganizationVerification from "../Pages/Dashboard/Organization/Verification";
 import UserList from "../Pages/Dashboard/Admin/UserList";
@@ -15,6 +14,8 @@ import OrganizationDashboard from "../Pages/Dashboard/Organization/OrganizationD
 import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
 import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
+import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
+import PublicProfile from "../Pages/PublicProfile";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -69,7 +70,7 @@ const PublicRoutes = createBrowserRouter([
           },
           {
             path: "/organizationDashboard/profile",
-            element: <Profile></Profile>,
+            element: <OrgProfile></OrgProfile>,
           },
           {
             path: "/organizationDashboard/verification",
@@ -84,6 +85,10 @@ const PublicRoutes = createBrowserRouter([
             element: <Eventlist></Eventlist>,
           },
         ],
+      },
+      {
+        path: "/profile/:firebaseUid",
+        element: <PublicProfile></PublicProfile>,
       },
       {
         path: "/register",

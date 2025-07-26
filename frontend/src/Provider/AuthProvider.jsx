@@ -94,6 +94,7 @@ const AuthProvider = ({ children }) => {
       setUser(currentUser);
 
       if (currentUser) {
+        setLoading(true);
         fetch(`http://localhost:2038/api/auth/${currentUser.uid}`)
           .then((res) => res.json())
           .then((data) => {
@@ -106,11 +107,20 @@ const AuthProvider = ({ children }) => {
           .catch(() => {
             setUser(null);
             setUserRole(null);
+          })
+          .finally(() => {
+            setLoading(false);
           });
       }
-      setLoading(false);
+      else{
+        setUser(null);
+        setUserRole(null);
+        setLoading(false);
+      }
     });
-    return () => unSubscribe();
+    return () => {
+      unSubscribe();
+    };
   }, []);
 
   const authInfo = {

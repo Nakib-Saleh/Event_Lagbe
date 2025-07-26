@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "participants")
@@ -19,6 +20,7 @@ public class Participant {
     private String passwordHash;
     private String institution;
     private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
+    private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private List<String> idDocumentUrls;
     private boolean isVerified = false;
     private List<String> interestedSkills;
@@ -27,6 +29,8 @@ public class Participant {
     private List<String> favoriteOrganizerIds;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
+    private List<String> followers = new ArrayList<>();
+    private List<String> following = new ArrayList<>();
     private String firebaseUid;
 
     public String getId() { return id; }
@@ -49,6 +53,9 @@ public class Participant {
 
     public String getProfilePictureUrl() { return profilePictureUrl; }
     public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
+    public String getBannerUrl() { return bannerUrl; }
+    public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
 
     public List<String> getIdDocumentUrls() { return idDocumentUrls; }
     public void setIdDocumentUrls(List<String> idDocumentUrls) { this.idDocumentUrls = idDocumentUrls; }
@@ -75,4 +82,10 @@ public class Participant {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public String getFirebaseUid() { return firebaseUid; }
     public void setFirebaseUid(String firebaseUid) { this.firebaseUid = firebaseUid; }
+
+    public List<String> getFollowers() { return followers; }
+    public void setFollowers(List<String> followers) { this.followers = followers; }
+
+    public List<String> getFollowing() { return following; }
+    public void setFollowing(List<String> following) { this.following = following; }
 }
