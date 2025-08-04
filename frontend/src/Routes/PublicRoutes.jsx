@@ -16,6 +16,7 @@ import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
 import PublicProfile from "../Pages/PublicProfile";
+import EventAdd from "../Pages/Dashboard/Organization/EventAdd";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/organizationDashboard/events",
             element: <Eventlist></Eventlist>,
+          },
+          {
+            path: "/organizationDashboard/addEvent",
+            element: <EventAdd></EventAdd>,
           },
         ],
       },

@@ -21,12 +21,13 @@ import { Toaster } from "react-hot-toast";
 import { useContext } from "react";
 import { MdOutlineEmojiEvents } from "react-icons/md";
 import AuthContext from "../../../Provider/AuthContext";
+import { IoIosAddCircleOutline } from "react-icons/io";
 
 const OrganizationDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Profile");
   const navigate = useNavigate(); 
-  const { user, userRole } = useContext(AuthContext);
+  const { user: _user, userRole: _userRole } = useContext(AuthContext);
   const menuItems = [
     {
       title:"Profile",
@@ -53,6 +54,10 @@ const OrganizationDashboard = () => {
       icon: <FiCalendar className="text-red-600" />,
       badge: { text: "New", color: "badge-success" },
     },
+    {
+      title: "Add Events",
+      icon: <IoIosAddCircleOutline className="text-red-600 font-extrabold" />,
+    }
   ];
 
   return (
@@ -160,6 +165,8 @@ const OrganizationDashboard = () => {
               onClick={() => {
                 const path = item.title === "Calendar"
                   ? "/organizationDashboard/calendar"
+                  : item.title === "Add Events"
+                  ? "/organizationDashboard/addEvent"
                   : `/organizationDashboard/${item.title.toLowerCase()}`;
                 navigate(path);
                 setSelected(item.title);
