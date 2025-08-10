@@ -16,6 +16,7 @@ const EventAdd = () => {
     description: '',
     location: '',
     eventType: 'on-site',
+    isIntraUniversity: false,
     requiredSkills: [], // array of { id, name }
     coHosts: [],
     sponsors: [],
@@ -191,6 +192,7 @@ const EventAdd = () => {
         description: formData.description,
         location: formData.location,
         eventType: formData.eventType,
+        isIntraUniversity: formData.isIntraUniversity,
         organizationId: formData.coHosts.find(h => h.type === 'organization')?.id || null,
         requiredSkillIds: formData.requiredSkills.map(s => s.id),
         sponsorNames: formData.sponsors,
@@ -220,6 +222,7 @@ const EventAdd = () => {
         description: '',
         location: '',
         eventType: 'on-site',
+        isIntraUniversity: false,
         requiredSkills: [],
         coHosts: [],
         sponsors: [],
@@ -354,6 +357,56 @@ const EventAdd = () => {
                     ))}
                   </select>
                 </div>
+              </div>
+            </div>
+
+            {/* Event Scope */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Event Scope
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="isIntraUniversity"
+                    value="false"
+                    checked={!formData.isIntraUniversity}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      isIntraUniversity: e.target.value === 'true'
+                    }))}
+                    className="mr-3"
+                  />
+                  <div className="flex items-center gap-2">
+                    <FiUsers className="text-blue-600" />
+                    <div>
+                      <span className="font-medium">Open Event</span>
+                      <p className="text-sm text-gray-500">All students can participate</p>
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="isIntraUniversity"
+                    value="true"
+                    checked={formData.isIntraUniversity}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      isIntraUniversity: e.target.value === 'true'
+                    }))}
+                    className="mr-3"
+                  />
+                  <div className="flex items-center gap-2">
+                    <FiUsers className="text-green-600" />
+                    <div>
+                      <span className="font-medium">Intra-University Event</span>
+                      <p className="text-sm text-gray-500">Only students from your organization can participate</p>
+                    </div>
+                  </div>
+                </label>
               </div>
             </div>
           </div>
@@ -712,17 +765,15 @@ const EventAdd = () => {
               setFormData({
                 title: '',
                 description: '',
-                startDate: '',
-                endDate: '',
-                startTime: '',
-                endTime: '',
                 location: '',
                 eventType: 'on-site',
-                category: '',
+                isIntraUniversity: false,
+                requiredSkills: [],
                 coHosts: [],
                 sponsors: [],
                 coverImage: null,
-                tags: []
+                tags: [],
+                schedules: []
               });
             }}
             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"

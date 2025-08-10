@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "../Components/MainLayout";
 import ErrorPage from "../Components/Errorpage";
+import Home from "../Pages/Home";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
 import AdminDashboard from "../Pages/Dashboard/Admin/AdminDashboard";
@@ -23,6 +24,10 @@ const PublicRoutes = createBrowserRouter([
     path: "/",
     element: <MainLayout></MainLayout>,
     children: [
+      {
+        path: "/",
+        element: <Home></Home>,
+      },
       {
         path: "/adminDashboard",
         element: (
