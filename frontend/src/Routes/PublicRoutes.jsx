@@ -85,11 +85,15 @@ const PublicRoutes = createBrowserRouter([
             path: "/organizationDashboard/events",
             element: <Eventlist></Eventlist>,
           },
-          {
-            path: "/organizationDashboard/addEvent",
-            element: <EventAdd></EventAdd>,
-          },
         ],
+      },
+      {
+        path: "/add-event",
+        element: (
+          <PrivateRoute allowedRoles={["organization"]}>
+            <EventAdd></EventAdd>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/profile/:firebaseUid",

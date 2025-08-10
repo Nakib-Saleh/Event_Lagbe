@@ -53,10 +53,6 @@ const OrganizationDashboard = () => {
       title: "Calendar",
       icon: <FiCalendar className="text-red-600" />,
       badge: { text: "New", color: "badge-success" },
-    },
-    {
-      title: "Add Events",
-      icon: <IoIosAddCircleOutline className="text-red-600 font-extrabold" />,
     }
   ];
 
@@ -165,8 +161,6 @@ const OrganizationDashboard = () => {
               onClick={() => {
                 const path = item.title === "Calendar"
                   ? "/organizationDashboard/calendar"
-                  : item.title === "Add Events"
-                  ? "/organizationDashboard/addEvent"
                   : `/organizationDashboard/${item.title.toLowerCase()}`;
                 navigate(path);
                 setSelected(item.title);

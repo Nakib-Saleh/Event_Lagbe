@@ -31,7 +31,11 @@ const Register = () => {
     if (userType === "organizer") {
       fetch("http://localhost:2038/api/organization")
         .then((res) => res.json())
-        .then((data) => setOrganizations(data))
+        .then((data) => {
+          // Handle both paginated and non-paginated responses
+          const items = Array.isArray(data) ? data : (data?.content ?? []);
+          setOrganizations(items);
+        })
         .catch(() => {
           setOrganizations([]);
         });

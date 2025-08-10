@@ -43,6 +43,7 @@ const AuthProvider = ({ children }) => {
     return sendPasswordResetEmail(auth, email);
   };
   const provider = new GoogleAuthProvider();
+  
   const signInWithGoogle = () => {
     setLoading(true);
     return signInWithPopup(auth, provider);

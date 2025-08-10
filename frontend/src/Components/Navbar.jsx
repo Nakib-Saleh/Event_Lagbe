@@ -68,6 +68,11 @@ const Navbar = () => {
       <li>
         <Link to="/">All events</Link>
       </li>
+      {user && userRole === "organization" && (
+        <li>
+          <Link to="/add-event">Add Event</Link>
+        </li>
+      )}
     </>
   );
   return (

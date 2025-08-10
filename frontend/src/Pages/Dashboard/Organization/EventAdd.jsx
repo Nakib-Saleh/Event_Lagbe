@@ -1,38 +1,84 @@
-import React, { useState } from 'react';
-import { FiCalendar, FiClock, FiMapPin, FiUsers, FiImage, FiGlobe, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiCalendar, FiMapPin, FiUsers, FiImage, FiGlobe } from 'react-icons/fi';
 import { MdOutlineEmojiEvents, MdOutlineDescription } from 'react-icons/md';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { uploadToCloudinary } from '../../../utils/cloudinaryUpload';
+import { useNavigate } from 'react-router-dom';
 
 const EventAdd = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    startDate: '',
-    endDate: '',
-    startTime: '',
-    endTime: '',
     location: '',
     eventType: 'on-site',
-    category: '',
+    requiredSkills: [], // array of { id, name }
     coHosts: [],
     sponsors: [],
     coverImage: null,
-    tags: []
+    tags: [],
+    schedules: [] // array of { id, title, start, end, allDay }
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [newSponsor, setNewSponsor] = useState('');
+  const [skills, setSkills] = useState([]);
+  const [skillsLoading, setSkillsLoading] = useState(false);
+  const [skillsError, setSkillsError] = useState(null);
+
+  useEffect(() => {
+    const loadSkills = async () => {
+      try {
+        setSkillsLoading(true);
+        const res = await fetch('http://localhost:2038/api/skills');
+        const data = await res.json();
+        setSkills(Array.isArray(data) ? data : []);
+      } catch {
+        setSkillsError('Failed to load skills');
+        setSkills([]);
+      } finally {
+        setSkillsLoading(false);
+      }
+    };
+    loadSkills();
+  }, []);
+
+  // Calendar state
+  const [calendarModal, setCalendarModal] = useState(null); // null | { data, title }
+  const [currentCalendarEvents, setCurrentCalendarEvents] = useState([]);
 
   // Mock data for organizations and organizers
-  const mockOrganizations = [
-    { id: '1', name: 'TechCorp Inc.', type: 'organization', email: 'contact@techcorp.com' },
-    { id: '2', name: 'Digital Solutions Ltd.', type: 'organization', email: 'info@digitalsolutions.com' },
-    { id: '3', name: 'John Smith', type: 'organizer', email: 'john.smith@email.com' },
-    { id: '4', name: 'Sarah Johnson', type: 'organizer', email: 'sarah.johnson@email.com' },
-    { id: '5', name: 'Innovation Hub', type: 'organization', email: 'hello@innovationhub.com' },
-  ];
+  // Remote search for organizations and organizers
+  const [searching, setSearching] = useState(false);
+  const [searchPage, setSearchPage] = useState(0);
+  const [searchHasMore, setSearchHasMore] = useState(false);
+  const fetchDirectory = async (query, page = 0) => {
+    if (!query || !query.trim()) return [];
+    try {
+      setSearching(true);
+      const [orgRes, orgzRes] = await Promise.all([
+        fetch(`http://localhost:2038/api/organization?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        fetch(`http://localhost:2038/api/organizer?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+      ]);
+      const mapOrg = (o) => ({ id: o.id, name: o.name || o.username || o.email, type: 'organization', email: o.email });
+      const mapOrgz = (p) => ({ id: p.id, name: p.name || p.username || p.email, type: 'organizer', email: p.email });
+      const orgContent = orgRes?.content ?? orgRes ?? [];
+      const orgzContent = orgzRes?.content ?? orgzRes ?? [];
+      const items = [...orgContent.map(mapOrg), ...orgzContent.map(mapOrgz)];
+      const hasMore = (orgRes?.last === false) || (orgzRes?.last === false);
+      return { items, hasMore };
+    } catch {
+      return { items: [], hasMore: false };
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,15 +104,31 @@ const EventAdd = () => {
 
   const handleSearchCoHosts = (query) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      const filtered = mockOrganizations.filter(org => 
-        org.name.toLowerCase().includes(query.toLowerCase()) ||
-        org.email.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered);
-    } else {
-      setSearchResults([]);
-    }
+    setSearchPage(0);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (searchQuery && searchQuery.trim()) {
+        const { items, hasMore } = await fetchDirectory(searchQuery, 0);
+        setSearchResults(items);
+        setSearchHasMore(hasMore);
+        setSearchPage(0);
+      } else {
+        setSearchResults([]);
+        setSearchHasMore(false);
+        setSearchPage(0);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const loadMoreResults = async () => {
+    const nextPage = searchPage + 1;
+    const { items, hasMore } = await fetchDirectory(searchQuery, nextPage);
+    setSearchResults(prev => [...prev, ...items]);
+    setSearchHasMore(hasMore);
+    setSearchPage(nextPage);
   };
 
   const handleAddCoHost = (coHost) => {
@@ -114,28 +176,90 @@ const EventAdd = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      let coverImageUrl = null;
+      if (formData.coverImage) {
+        // Upload to Cloudinary first
+        const uploadRes = await uploadToCloudinary(formData.coverImage);
+        coverImageUrl = uploadRes?.secure_url || uploadRes?.url || null;
+        if (!coverImageUrl) {
+          throw new Error('Image upload failed');
+        }
+      }
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        eventType: formData.eventType,
+        organizationId: formData.coHosts.find(h => h.type === 'organization')?.id || null,
+        requiredSkillIds: formData.requiredSkills.map(s => s.id),
+        sponsorNames: formData.sponsors,
+        coverImageUrl,
+        tags: formData.tags,
+        schedules: formData.schedules.map(s => ({
+          title: s.title,
+          start: s.start,
+          end: s.end,
+          allDay: s.allDay,
+        })),
+      };
+
+      const res = await fetch('http://localhost:2038/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to create event');
+      await res.json();
       toast.success('Event created successfully!');
-      setIsSubmitting(false);
-      // Reset form
+      setTimeout(() => {
+        navigate('/organizationDashboard');
+      }, 800);
       setFormData({
         title: '',
         description: '',
-        startDate: '',
-        endDate: '',
-        startTime: '',
-        endTime: '',
         location: '',
         eventType: 'on-site',
-        category: '',
+        requiredSkills: [],
         coHosts: [],
         sponsors: [],
         coverImage: null,
-        tags: []
+        tags: [],
+        schedules: []
       });
-    }, 2000);
+    } catch {
+      toast.error('Failed to create event');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Calendar handlers
+  const handleCalendarSelect = (selected) => {
+    // open modal to enter a label (optional)
+    setCalendarModal({ data: selected, title: formData.title || '' });
+  };
+
+  const addCalendarTimeslot = () => {
+    if (!calendarModal) return;
+    const calendarApi = calendarModal.data.view.calendar;
+    calendarApi.unselect();
+    const id = `${calendarModal.data.startStr}-${calendarModal.data.endStr}-${Date.now()}`;
+    calendarApi.addEvent({
+      id,
+      title: calendarModal.title || 'Session',
+      start: calendarModal.data.startStr,
+      end: calendarModal.data.endStr,
+      allDay: calendarModal.data.allDay,
+    });
+    setCalendarModal(null);
+  };
+
+  const handleCalendarEventClick = (selected) => {
+    // remove on click confirm
+    if (confirm('Remove this timeslot?')) {
+      selected.event.remove();
+    }
   };
 
   return (
@@ -192,33 +316,50 @@ const EventAdd = () => {
               />
             </div>
 
-            {/* Category */}
+            {/* Required Skills */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
+                Required Skills
               </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              >
-                <option value="">Select a category</option>
-                <option value="music">Music</option>
-                <option value="sports">Sports</option>
-                <option value="business">Business</option>
-                <option value="education">Education</option>
-                <option value="technology">Technology</option>
-                <option value="arts">Arts & Culture</option>
-                <option value="food">Food & Drink</option>
-                <option value="charity">Charity</option>
-                <option value="other">Other</option>
-              </select>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {formData.requiredSkills.map((s) => (
+                    <span key={s.id} className="badge badge-outline gap-2">
+                      {s.name}
+                      <button type="button" onClick={() => setFormData(prev => ({
+                        ...prev,
+                        requiredSkills: prev.requiredSkills.filter(rs => rs.id !== s.id)
+                      }))} className="text-red-500">✕</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="relative">
+                  <select
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    value=""
+                    onChange={(e) => {
+                      const skill = skills.find(sk => (sk.id || sk._id) === e.target.value);
+                      if (skill && !formData.requiredSkills.some(rs => rs.id === (skill.id || skill._id))) {
+                        setFormData(prev => ({
+                          ...prev,
+                          requiredSkills: [...prev.requiredSkills, { id: skill.id || skill._id, name: skill.name }]
+                        }));
+                      }
+                    }}
+                    disabled={skillsLoading || skillsError}
+                  >
+                    <option value="">{skillsLoading ? 'Loading skills...' : (skillsError || 'Add a skill')}</option>
+                    {skills.map(sk => (
+                      <option key={sk.id || sk._id} value={sk.id || sk._id}>{sk.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Date & Time Section */}
+        {/* Date & Time Section - Calendar based multi-timeslot selector */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -226,73 +367,81 @@ const EventAdd = () => {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Date & Time</h2>
-              <p className="text-gray-500 text-sm">When is your event happening?</p>
+              <p className="text-gray-500 text-sm">Select one or multiple time slots from the calendar below</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Start Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date *
-              </label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                required
-              />
-            </div>
-
-            {/* End Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Date *
-              </label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleInputChange}
-                min={formData.startDate}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                required
-              />
-            </div>
+          <div className="mb-4">
+            <FullCalendar
+              height="60vh"
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+              }}
+              initialView="dayGridMonth"
+              selectable={true}
+              selectMirror={true}
+              editable={true}
+              select={handleCalendarSelect}
+              eventClick={handleCalendarEventClick}
+              eventsSet={(events) => {
+                setCurrentCalendarEvents(events);
+                // keep a plain representation in form data
+                const schedules = events.map(e => ({
+                  id: e.id,
+                  title: e.title,
+                  start: e.startStr || e.start?.toISOString(),
+                  end: e.endStr || e.end?.toISOString(),
+                  allDay: e.allDay,
+                }));
+                setFormData(prev => ({ ...prev, schedules }));
+              }}
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Start Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Time *
-              </label>
-              <input
-                type="time"
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                required
-              />
+          {/* Modal to confirm adding a selected range */}
+          {calendarModal && (
+            <div className="modal modal-open">
+              <div className="modal-box">
+                <h3 className="font-bold text-lg">Add Timeslot</h3>
+                <label className="block text-sm font-medium text-gray-700 mt-4">Label (optional)</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full mt-2"
+                  placeholder="Session title"
+                  value={calendarModal.title}
+                  onChange={e => setCalendarModal(m => ({ ...m, title: e.target.value }))}
+                />
+                <div className="modal-action">
+                  <button className="btn btn-outline" onClick={() => setCalendarModal(null)}>Cancel</button>
+                  <button className="btn btn-success" onClick={addCalendarTimeslot}>Add</button>
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* End Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Time *
-              </label>
-              <input
-                type="time"
-                name="endTime"
-                value={formData.endTime}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                required
-              />
-            </div>
+          {/* Selected timeslots summary */}
+          <div className="mt-6">
+            <h4 className="text-md font-semibold text-gray-800 mb-2">Selected Timeslots ({currentCalendarEvents.length})</h4>
+            {currentCalendarEvents.length === 0 ? (
+              <p className="text-sm text-gray-500">No timeslots selected yet. Drag on the calendar to add.</p>
+            ) : (
+              <div className="space-y-2">
+                {currentCalendarEvents.map((evt) => (
+                  <div key={evt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{evt.title || 'Session'}</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(evt.start).toLocaleString()} — {evt.end ? new Date(evt.end).toLocaleString() : ''}
+                      </p>
+                    </div>
+                    <button className="btn btn-sm btn-outline btn-error" onClick={() => evt.remove()}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -386,16 +535,22 @@ const EventAdd = () => {
               <div className="space-y-4">
                 {/* Search Input */}
                 <div className="relative">
-                  <input
+                    <input
                     type="text"
-                    value={searchQuery}
-                    onChange={(e) => handleSearchCoHosts(e.target.value)}
+                      value={searchQuery}
+                      onChange={(e) => handleSearchCoHosts(e.target.value)}
                     placeholder="Search organizations or organizers..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   />
-                  {searchResults.length > 0 && (
+                    {searchQuery && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {searchResults.map((result) => (
+                      {searching && (
+                        <div className="px-4 py-3 text-sm text-gray-500">Searching...</div>
+                      )}
+                      {!searching && searchResults.length === 0 && (
+                        <div className="px-4 py-3 text-sm text-gray-500">No results</div>
+                      )}
+                      {!searching && searchResults.map((result) => (
                         <div
                           key={result.id}
                           onClick={() => handleAddCoHost(result)}
@@ -416,6 +571,15 @@ const EventAdd = () => {
                           </div>
                         </div>
                       ))}
+                        {!searching && searchHasMore && (
+                          <button
+                            type="button"
+                            onClick={loadMoreResults}
+                            className="w-full text-center py-2 text-blue-600 hover:bg-blue-50"
+                          >
+                            Load more
+                          </button>
+                        )}
                     </div>
                   )}
                 </div>

@@ -2,6 +2,9 @@ package com.eventlagbe.backend.Controller;
 import com.eventlagbe.backend.Models.Organizer;
 import com.eventlagbe.backend.Repository.OrganizerRepository;
 import com.eventlagbe.backend.Service.FirebaseService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +30,19 @@ public class OrganizerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Organizer>> getAllOrganizers() {
-        return ResponseEntity.ok(organizerRepository.findAll());
+    public ResponseEntity<?> getAllOrganizers(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (q != null && !q.isBlank()) {
+            Page<Organizer> result = organizerRepository
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(q, q, q, pageable);
+            return ResponseEntity.ok(result);
+        }
+        Page<Organizer> all = organizerRepository.findAll(pageable);
+        return ResponseEntity.ok(all);
     }
 
     @GetMapping("/{organizationId}/unverified-organizers")

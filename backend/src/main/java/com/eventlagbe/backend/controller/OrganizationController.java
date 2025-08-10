@@ -3,6 +3,9 @@ package com.eventlagbe.backend.Controller;
 import com.eventlagbe.backend.Models.Organization;
 import com.eventlagbe.backend.Repository.OrganizationRepository;
 import com.eventlagbe.backend.Service.FirebaseService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +31,19 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Organization>> getAllOrganizations() {
-        return ResponseEntity.ok(organizationRepository.findAll());
+    public ResponseEntity<?> getAllOrganizations(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (q != null && !q.isBlank()) {
+            Page<Organization> result = organizationRepository
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(q, q, q, pageable);
+            return ResponseEntity.ok(result);
+        }
+        Page<Organization> all = organizationRepository.findAll(pageable);
+        return ResponseEntity.ok(all);
     }
 
     @PutMapping("/{id}/approve")

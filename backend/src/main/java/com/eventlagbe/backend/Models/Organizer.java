@@ -16,6 +16,7 @@ public class Organizer {
     private String email;
     @Indexed(unique = true)
     private String username;
+    @Indexed
     private String name;
     private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
     private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
