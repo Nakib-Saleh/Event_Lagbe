@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FiCalendar, FiMapPin, FiUsers, FiAward, FiTrendingUp, FiGlobe, FiCheckCircle, FiStar, FiChevronLeft, FiChevronRight, FiPlus } from 'react-icons/fi';
 import { MdOutlineEmojiEvents, MdOutlineSchool, MdOutlineGroups } from 'react-icons/md';
+import AuthContext from '../Provider/AuthContext';
 import pic1 from '../assets/bd.JPG';
 import pic2 from '../assets/finals.jpg';
 import pic3 from '../assets/foreign.jpg';
 
 const Home = () => {
+  const { user } = useContext(AuthContext);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [followedUsers, setFollowedUsers] = useState(new Set());
 
@@ -557,137 +559,99 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Everything You Need for Successful Events
+
+      {/* People You Can Follow Section - Only shown when logged in */}
+      {user && (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                People You Can Follow
               </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Our comprehensive platform provides all the tools and features you need to create, manage, and participate in amazing events.
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Connect with participants, organizers, and organizations to expand your network
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <FiCheckCircle className="text-green-500 text-xl flex-shrink-0" />
-                    <span className="text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
             </div>
             
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
-              <div className="text-center">
-                <MdOutlineEmojiEvents className="text-6xl mx-auto mb-6" />
-                <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
-                <p className="text-blue-100 mb-6">
-                  Join thousands of students and organizations already using Event Lagbe
-                </p>
-                <Link
-                  to="/register"
-                  className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 inline-block"
-                >
-                  Start Your Journey
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* People You Can Follow Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              People You Can Follow
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Connect with participants, organizers, and organizations to expand your network
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {peopleToFollow.map((person) => (
-              <div key={person.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div className="flex items-start gap-4">
-                  {/* Profile Picture */}
-                  <img 
-                    src={person.avatar} 
-                    alt={person.name}
-                    className="w-16 h-16 rounded-full object-cover flex-shrink-0"
-                  />
-                  
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900 truncate">{person.name}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        person.role === 'Student' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : person.role === 'Organizer'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-purple-100 text-purple-800'
-                      }`}>
-                        {person.role}
-                      </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {peopleToFollow.map((person) => (
+                <div key={person.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                  <div className="flex items-start gap-4">
+                    {/* Profile Picture */}
+                    <img 
+                      src={person.avatar} 
+                      alt={person.name}
+                      className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                    />
+                    
+                    {/* User Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900 truncate">{person.name}</h3>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          person.role === 'Student' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : person.role === 'Organizer'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {person.role}
+                        </span>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-2">{person.followers} followers</p>
+                      
+                      {/* Skills */}
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {person.skills.map((skill, index) => (
+                          <span 
+                            key={index} 
+                            className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Follow Button */}
+                      <button
+                        onClick={() => handleFollow(person.id)}
+                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                          followedUsers.has(person.id)
+                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {followedUsers.has(person.id) ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <FiCheckCircle className="text-sm" />
+                            Following
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-2">
+                            <FiPlus className="text-sm" />
+                            Follow
+                          </span>
+                        )}
+                      </button>
                     </div>
-                    
-                    <p className="text-sm text-gray-600 mb-2">{person.followers} followers</p>
-                    
-                    {/* Skills */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {person.skills.map((skill, index) => (
-                        <span 
-                          key={index} 
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    {/* Follow Button */}
-                    <button
-                      onClick={() => handleFollow(person.id)}
-                      className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                        followedUsers.has(person.id)
-                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {followedUsers.has(person.id) ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiCheckCircle className="text-sm" />
-                          Following
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiPlus className="text-sm" />
-                          Follow
-                        </span>
-                      )}
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            <div className="text-center mt-12">
+              <Link
+                to="/explore"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-lg"
+              >
+                View All People to Follow
+                <FiPlus className="text-sm" />
+              </Link>
+            </div>
           </div>
-          
-          <div className="text-center mt-12">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-lg"
-            >
-              View All People to Follow
-              <FiPlus className="text-sm" />
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

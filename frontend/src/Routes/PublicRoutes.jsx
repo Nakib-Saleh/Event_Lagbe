@@ -18,6 +18,7 @@ import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
 import PublicProfile from "../Pages/PublicProfile";
 import EventAdd from "../Pages/Dashboard/Organization/EventAdd";
+import Explore from "../Pages/Explore";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -27,6 +28,14 @@ const PublicRoutes = createBrowserRouter([
       {
         path: "/",
         element: <Home></Home>,
+      },
+      {
+        path: "/explore",
+        element: (
+          <PrivateRoute>
+            <Explore></Explore>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/adminDashboard",
