@@ -71,7 +71,7 @@ const Navbar = () => {
         <Link to="/">Events</Link>
       </li>
       <li>
-        <Link to="/">All events</Link>
+        <Link to="/events">All events</Link>
       </li>
       {user && userRole === "organization" && (
         <li>
