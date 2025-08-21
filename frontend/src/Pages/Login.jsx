@@ -7,7 +7,7 @@ import Lottie from "lottie-react";
 import animationData from "../assets/Artificial Intelligence Chatbot.json";
 
 const Login = () => {
-  const { logIn, signInWithGoogle } = useContext(AuthContext);
+  const { logIn} = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,23 +31,6 @@ const Login = () => {
       } else {
         toast.error(err?.message || "Login failed");
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      await signInWithGoogle();
-      toast.success("Login with Google successful!");
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    } catch (err) {
-      setError("Google sign-in failed");
-      toast.error(err?.message || "Google sign-in failed");
     } finally {
       setLoading(false);
     }
@@ -99,15 +82,6 @@ const Login = () => {
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
-            </button>
-            <button
-              type="button"
-              className="w-full bg-blue-500 text-white flex justify-center items-center gap-2 py-2 rounded hover:bg-red-400 transition"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-            >
-              <FaGoogle />
-              {loading ? "Signing in..." : "Login with Google"}
             </button>
             <h3 className="text-center">Don't have an account?<span className="text-blue-500 cursor-pointer" onClick={() => navigate("/register")}> Register Now</span></h3>
           </form>

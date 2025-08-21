@@ -66,28 +66,6 @@ const Home = () => {
     });
   };
 
-  const features = [
-    {
-      icon: <FiCalendar className="text-3xl" />,
-      title: "Event Management",
-      description: "Create, manage, and track events with our comprehensive platform"
-    },
-    {
-      icon: <FiUsers className="text-3xl" />,
-      title: "Student Collaboration",
-      description: "Connect students with organizations and opportunities"
-    },
-    {
-      icon: <FiAward className="text-3xl" />,
-      title: "Skill Development",
-      description: "Build and showcase your skills through real-world projects"
-    },
-    {
-      icon: <FiGlobe className="text-3xl" />,
-      title: "National Reach",
-      description: "Access events and opportunities from anywhere in the country"
-    }
-  ];
 
   const stats = [
     { number: "500+", label: "Events Created" },
@@ -115,15 +93,6 @@ const Home = () => {
       content: "The platform makes event management so much easier. Great features and excellent support team.",
       rating: 5
     }
-  ];
-
-  const benefits = [
-    "Easy event creation and management",
-    "Real-time collaboration tools",
-    "Skill-based matching system",
-    "Comprehensive analytics dashboard",
-    "Mobile-responsive design",
-    "24/7 customer support"
   ];
 
   const peopleToFollow = [
