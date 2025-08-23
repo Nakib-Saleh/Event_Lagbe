@@ -18,8 +18,9 @@ import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
 import PublicProfile from "../Pages/PublicProfile";
 import EventAdd from "../Pages/Dashboard/Organization/EventAdd";
-import Explore from "../Pages/Explore";
+import Connect from "../Pages/Connect";
 import AllEvents from "../Pages/AllEvents";
+import EventDetails from "../Pages/EventDetails";
 
 const PublicRoutes = createBrowserRouter([
   {
@@ -31,16 +32,20 @@ const PublicRoutes = createBrowserRouter([
         element: <Home></Home>,
       },
       {
-        path: "/explore",
+        path: "/Connect",
         element: (
           <PrivateRoute>
-            <Explore></Explore>
+            <Connect></Connect>
           </PrivateRoute>
         ),
       },
       {
         path: "/events",
         element: <AllEvents></AllEvents>,
+      },
+      {
+        path: "/event/:eventId",
+        element: <EventDetails></EventDetails>,
       },
       {
         path: "/adminDashboard",

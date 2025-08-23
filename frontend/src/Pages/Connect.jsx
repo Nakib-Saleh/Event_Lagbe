@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FiUsers, FiMapPin, FiCalendar, FiStar, FiPlus, FiCheckCircle, FiSearch, FiFilter, FiTrendingUp, FiAward, FiGlobe, FiHeart } from "react-icons/fi";
 import { MdOutlineEmojiEvents, MdOutlineSchool, MdOutlineGroups, MdOutlineBusinessCenter } from "react-icons/md";
 
-const Explore = () => {
+const Connect = () => {
   const [followedUsers, setFollowedUsers] = useState(new Set());
   const [activeTab, setActiveTab] = useState("participants");
   const [searchQuery, setSearchQuery] = useState("");
@@ -265,7 +265,7 @@ const Explore = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Explore & Connect</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Connect with people</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Discover amazing people, organizers, and organizations. Connect with participants, organizers, and organizations to expand your network.
         </p>
@@ -464,6 +464,6 @@ const Explore = () => {
   );
 };
 
-export default Explore;
+export default Connect;
 
 

@@ -611,7 +611,7 @@ const Home = () => {
             
             <div className="text-center mt-12">
               <Link
-                to="/explore"
+                to="/Connect"
                 className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-lg"
               >
                 View All People to Follow

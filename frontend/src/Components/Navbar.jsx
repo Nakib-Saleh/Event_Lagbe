@@ -1,12 +1,18 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import AuthContext from "../Provider/AuthContext";
 import logos from "../assets/EVENT.png";
 
 const Navbar = () => {
   const { user, userRole, logOut } = useContext(AuthContext);
+  const location = useLocation();
+  
   const handleLogOut = () => {
     logOut();
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
   };
 
   const navEnd = (
@@ -60,19 +66,39 @@ const Navbar = () => {
   const list = (
     <>
       <li>
-        <Link to="/">Home</Link>
+        <Link 
+          to="/" 
+          className={isActive("/") ? "bg-red-500 text-white rounded-md" : ""}
+        >
+          Home
+        </Link>
       </li>
       {user && (
         <li>
-          <Link to="/explore">Explore</Link>
+          <Link 
+            to="/Connect" 
+            className={isActive("/Connect") ? "bg-red-500 text-white rounded-md" : ""}
+          >
+            Connect
+          </Link>
         </li>
       )}
       <li>
-        <Link to="/events">All events</Link>
+        <Link 
+          to="/events" 
+          className={isActive("/events") ? "bg-red-500 text-white rounded-md" : ""}
+        >
+          Explore Events
+        </Link>
       </li>
       {user && userRole === "organization" && (
         <li>
-          <Link to="/add-event">Add Event</Link>
+          <Link 
+            to="/add-event" 
+            className={isActive("/add-event") ? "bg-red-500 text-white rounded-md" : ""}
+          >
+            Add Event
+          </Link>
         </li>
       )}
     </>
@@ -110,7 +136,7 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">{list}</ul>
+          <ul className="menu menu-horizontal px-1 gap-6">{list}</ul>
         </div>
         {navEnd}
       </div>
