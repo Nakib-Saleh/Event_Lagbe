@@ -17,7 +17,7 @@ import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
 import PublicProfile from "../Pages/PublicProfile";
-import EventAdd from "../Pages/Dashboard/Organization/EventAdd";
+import EventAdd from "../Pages/EventAdd";
 import Connect from "../Pages/Connect";
 import AllEvents from "../Pages/AllEvents";
 import EventDetails from "../Pages/EventDetails";
@@ -114,7 +114,7 @@ const PublicRoutes = createBrowserRouter([
       {
         path: "/add-event",
         element: (
-          <PrivateRoute allowedRoles={["organization"]}>
+          <PrivateRoute allowedRoles={["organization","organizer"]}>
             <EventAdd></EventAdd>
           </PrivateRoute>
         ),

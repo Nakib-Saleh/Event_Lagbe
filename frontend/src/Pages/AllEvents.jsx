@@ -174,15 +174,15 @@ const AllEvents = () => {
                     <span>{evt.location}</span>
                     {evt.eventType && <span className="ml-2 badge badge-outline">{evt.eventType}</span>}
                   </div>
-                  {Array.isArray(evt.requiredSkillIds) && evt.requiredSkillIds.length > 0 && (
+                                    {Array.isArray(evt.requiredSkills) && evt.requiredSkills.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {evt.requiredSkillIds.map((sid) => (
-                        <span key={sid} className="badge badge-ghost">
-                          {skillIdToName[sid] || "Skill"}
+                      {evt.requiredSkills.map((skillName, index) => (
+                        <span key={index} className="badge badge-ghost">
+                          {skillName}
                         </span>
                       ))}
-                                         </div>
-                   )}
+                    </div>
+                  )}
                  </div>
                </Link>
              ))

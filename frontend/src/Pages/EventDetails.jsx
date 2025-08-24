@@ -1,122 +1,138 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FaBookmark } from "react-icons/fa";
 import { FaShareAlt } from "react-icons/fa";
 import { SiThealgorithms } from "react-icons/si";
-
-
-
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import  AuthContext  from "../Provider/AuthContext";
 
 const EventDetails = () => {
   const { eventId } = useParams();
+  const { user, userRole } = useContext(AuthContext);
   const [event, setEvent] = useState(null);
-  const [skills, setSkills] = useState([]);
-  const [organizations, setOrganizations] = useState([]);
+  const [ownerOrg, setOwnerOrg] = useState(null);
+  const [coHosts, setCoHosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [skillIdToName, setSkillIdToName] = useState({});
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isGoing, setIsGoing] = useState(false);
+  const [interestedCount, setInterestedCount] = useState(0);
+  const [goingCount, setGoingCount] = useState(0);
 
-     useEffect(() => {
-     let isMounted = true;
-     
-     const fetchEventDetails = async () => {
-       try {
-         setLoading(true);
-         setError("");
+  useEffect(() => {
+    let isMounted = true;
 
-        // Fetch skills and organizations first
-        const [skillsRes, organizationsRes] = await Promise.all([
-          fetch("http://localhost:2038/api/skills"),
-          fetch("http://localhost:2038/api/organization"),
-        ]);
+    const fetchEventDetails = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-        if (!skillsRes.ok) throw new Error("Failed to load skills");
-        if (!organizationsRes.ok) throw new Error("Failed to load organizations");
-
-                 const [skillsData, organizationsData] = await Promise.all([
-           skillsRes.json(),
-           organizationsRes.json(),
-         ]);
-
-         const skillsArray = Array.isArray(skillsData) ? skillsData : [];
-         const organizationsArray = Array.isArray(organizationsData?.content) 
-           ? organizationsData.content 
-           : Array.isArray(organizationsData) 
-           ? organizationsData 
-           : [];
-
-                 console.log("Raw organizations data:", organizationsData);
-         console.log("Extracted organizations array:", organizationsArray);
-         setSkills(skillsArray);
-         setOrganizations(organizationsArray);
-
-        const map = {};
-        skillsArray.forEach((s) => {
-          const id = s.id || s._id;
-          if (id) map[id] = s.name || s.skillName || "Unnamed Skill";
-        });
-        setSkillIdToName(map);
-
-        // Try to fetch single event first
         let eventData = null;
         try {
-          const eventRes = await fetch(`http://localhost:2038/api/events/${eventId}`);
+          const eventRes = await fetch(
+            `http://localhost:2038/api/events/${eventId}`
+          );
           if (eventRes.ok) {
             eventData = await eventRes.json();
           }
         } catch {
-          console.log("Single event fetch failed, trying fallback...");
-        }
-
-        // If single fetch failed, fallback to list fetch
-        if (!eventData) {
-          const allEventsRes = await fetch("http://localhost:2038/api/events?page=0&size=50");
-          if (!allEventsRes.ok) throw new Error("Failed to load events");
-          const allEventsData = await allEventsRes.json();
-          const content = Array.isArray(allEventsData?.content)
-            ? allEventsData.content
-            : Array.isArray(allEventsData)
-            ? allEventsData
-            : [];
-          eventData = content.find(
-            (e) => e.id == eventId || e._id == eventId
-          );
+          console.log("Single event fetch failed. ");
         }
 
         if (!eventData) throw new Error("Event not found");
-         console.log("Final event data:", eventData);
-         console.log("Setting event state...");
-         
-         if (isMounted) {
-           setEvent(eventData);
-           console.log("Event state set, current event:", event);
-         }
-       } catch (e) {
-         if (isMounted) {
-           setError(e.message || "Failed to load event details");
-         }
-       } finally {
-         if (isMounted) {
-           setLoading(false);
-         }
-       }
-     };
+        console.log("Final event data:", eventData);
 
-         if (eventId) {
-       console.log("EventDetails: eventId =", eventId);
-       fetchEventDetails();
-     }
+        if (isMounted) {
+          setEvent(eventData);
+          setInterestedCount(eventData.event?.interestedCount || 0);
+          setGoingCount(eventData.event?.goingCount || 0);
 
-     return () => {
-       isMounted = false;
-     };
-   }, [eventId]);
+          // Fetch user status if participant
+          if (user && userRole === 'participant') {
+            fetchUserStatus();
+          }
 
-   useEffect(() => {
-     console.log("Event state changed:", event);
-   }, [event]);
+          // Fetch owner organization details
+          if (eventData.event?.ownerId) {
+            try {
+              // First try to fetch by organization ID
+              let ownerRes = await fetch(
+                `http://localhost:2038/api/auth/${eventData.event.ownerId}`
+              );
+
+              if (ownerRes.ok) {
+                const ownerData = await ownerRes.json();
+                // console.log("Owner data:", ownerData.user);
+                setOwnerOrg(ownerData.user);
+              }
+            } catch (error) {
+              console.error("Failed to fetch owner organization:", error);
+            }
+          }
+
+          // Fetch co-host organizations details
+          if (eventData.event?.coHosts && eventData.event.coHosts.length > 0) {
+            try {
+              const coHostPromises = eventData.event.coHosts.map(
+                async (coHost) => {
+                  try {
+                    // If coHost is already an object with firebaseUid, use that
+                    const coHostId = coHost.firebaseUid || coHost;
+
+                    // First try to fetch by organization ID
+                    let coHostRes = await fetch(
+                      `http://localhost:2038/api/auth/${coHostId}`
+                    );
+
+                    if (coHostRes.ok) {
+                      const coHostData = await coHostRes.json();
+                      // console.log("Co-host data:", coHostData.user);
+                      // Merge with any existing coHost data (name, email)
+                      return {
+                        ...coHostData.user,
+                      };
+                    }
+                  } catch (error) {
+                    console.error(
+                      `Failed to fetch co-host ${coHostId}:`,
+                      error
+                    );
+                  }
+                  return null;
+                }
+              );
+
+              const coHostResults = await Promise.all(coHostPromises);
+              //console.log("Co-host results:", coHostResults);
+              setCoHosts(coHostResults);
+            } catch (error) {
+              console.error("Failed to fetch co-host organizations:", error);
+            }
+          }
+        }
+      } catch (e) {
+        if (isMounted) {
+          setError(e.message || "Failed to load event details");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (eventId) {
+      console.log("EventDetails: eventId =", eventId);
+      fetchEventDetails();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [eventId]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Date not specified";
@@ -132,17 +148,68 @@ const EventDetails = () => {
     });
   };
 
-     const getOrganizationName = (organizationId) => {
-     console.log("Looking for organization with ID:", organizationId);
-     console.log("Available organizations:", organizations);
-     const org = organizations.find(
-       (o) => o.id === organizationId || o._id === organizationId
-     );
-     console.log("Found organization:", org);
-     return org
-       ? org.name || org.username || org.organizationName || "Unnamed Organization"
-       : "Unknown Organization";
-   };
+  const handleBookmark = async () => {
+    if (!user || userRole !== 'participant') return;
+    
+    try {
+      const response = await fetch(`http://localhost:2038/api/events/${eventId}/bookmark`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          participantId: user.firebaseUid
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsBookmarked(data.isBookmarked);
+        setInterestedCount(data.interestedCount);
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    }
+  };
+
+  const handleGoing = async () => {
+    if (!user || userRole !== 'participant') return;
+    
+    try {
+      const response = await fetch(`http://localhost:2038/api/events/${eventId}/going`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          participantId: user.firebaseUid
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsGoing(data.isGoing);
+        setGoingCount(data.goingCount);
+      }
+    } catch (error) {
+      console.error('Error toggling going status:', error);
+    }
+  };
+
+  const fetchUserStatus = async () => {
+    if (!user || userRole !== 'participant') return;
+    
+    try {
+      const response = await fetch(`http://localhost:2038/api/events/${eventId}/user-status?participantId=${user.firebaseUid}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIsBookmarked(data.isBookmarked);
+        setIsGoing(data.isGoing);
+      }
+    } catch (error) {
+      console.error('Error fetching user status:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -155,43 +222,46 @@ const EventDetails = () => {
     );
   }
 
-     if (error) {
-     return (
-       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-         <div className="text-center">
-           <div className="text-6xl mb-4">😕</div>
-           <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
-           <p className="text-gray-600 mb-4">{error}</p>
-           <Link to="/events" className="btn btn-primary">
-             Back to Events
-           </Link>
-         </div>
-       </div>
-     );
-   }
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">😕</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Event Not Found
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Link to="/events" className="btn btn-primary">
+            Back to Events
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-   if (!event) {
-     return (
-       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-         <div className="text-center">
-           <div className="loading loading-spinner loading-lg"></div>
-           <p className="mt-4 text-gray-600">Loading event details...</p>
-         </div>
-       </div>
-     );
-   }
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading loading-spinner loading-lg"></div>
+          <p className="mt-4 text-gray-600">Loading event details...</p>
+        </div>
+      </div>
+    );
+  }
 
-    console.log("Rendering with event:", event);
-   console.log("Event title:", event?.title);
-   console.log("Event description:", event?.description);
-   console.log("Event object keys:", Object.keys(event || {}));
-   console.log("Organizations array:", organizations);
-   console.log("Skills array:", skills);
-   
-   return (
-     <div className="min-h-screen bg-gray-50">
-       {/* Hero Section with Cover Image */}
-       <div className="relative h-96">
+  // console.log("Rendering with event:", event);
+  // console.log("Event title:", event?.event?.title);
+  // console.log("Event description:", event?.event?.description);
+  // console.log("Event object keys:", Object.keys(event || {}));
+  // console.log("Owner organization:", ownerOrg);
+  // console.log("Co-host organizations:", coHosts);
+  // console.log("Skills array:", event?.event?.requiredSkills);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section with Cover Image */}
+      <div className="relative h-96">
         {event.event.coverImageUrl && (
           <img
             src={event.event.coverImageUrl}
@@ -204,23 +274,41 @@ const EventDetails = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-end justify-between">
               <div className="text-white">
-                <h1 className="text-4xl font-bold mb-2">{event.event.title || "Untitled Event"}</h1>
+                <h1 className="text-4xl font-bold mb-2">
+                  {event.event.title || "Untitled Event"}
+                </h1>
                 <p className="text-xl opacity-90">
                   {event.event.location || "Location not specified"}
                 </p>
-                                 <p className="text-lg opacity-80">
-                   {event.event.createdAt ? formatDate(event.event.createdAt) : "Date not specified"}
-                 </p>
+                <p className="text-lg opacity-80">
+                  {event.event.createdAt
+                    ? formatDate(event.event.createdAt)
+                    : "Date not specified"}
+                </p>
               </div>
-              <div className="hidden md:block">
-                <button  onClick={() => setIsBookmarked(!isBookmarked)} className={`btn btn-primary btn-lg
-                    <FaBookmark className="text-white mr-2" />
-                    transition-colors duration-300 ${
-                isBookmarked
-                ? "bg-blue-500 hover:bg-blue-600 text-white border-none"
-                : "bg-white text-black border border-gray-400 hover:bg-gray-100"}`}>
-                  <FaBookmark className="" />  {isBookmarked ? "Bookmarked" : "Bookmark Event"}
-                </button>
+                             <div className="hidden md:block">
+                 {user && userRole === 'participant' ? (
+                  <button
+                    onClick={handleBookmark}
+                    className={`btn btn-primary btn-lg
+                      <FaBookmark className="text-white mr-2" />
+                      transition-colors duration-300 ${
+                        isBookmarked
+                          ? "bg-blue-500 hover:bg-blue-600 text-white border-none"
+                          : "bg-white text-black border border-gray-400 hover:bg-gray-100"
+                      }`}
+                  >
+                    <FaBookmark className="" />{" "}
+                    {isBookmarked ? "Bookmarked" : "Bookmark Event"}
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-primary btn-lg bg-gray-400 cursor-not-allowed"
+                    disabled
+                  >
+                    <FaBookmark className="" /> Bookmark Event
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -234,37 +322,28 @@ const EventDetails = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* About Section */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">About this event</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                About this event
+              </h2>
               <p className="text-gray-700 leading-relaxed">
-                {event.event.description || "No description available for this event."}
+                {event.event.description ||
+                  "No description available for this event."}
               </p>
             </div>
 
             {/* Event Details */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Event Details</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Event Details
+              </h2>
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Date and time</p>
-                                         <p className="text-gray-600">
-                       {event.event.createdAt ? formatDate(event.event.createdAt) : "Date not specified"}
-                     </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
@@ -274,14 +353,20 @@ const EventDetails = () => {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Location</p>
-                    <p className="text-gray-600">{event.event.location || "Location not specified"}</p>
+                    <p className="text-gray-600">
+                      {event.event.location || "Location not specified"}
+                    </p>
                   </div>
                 </div>
 
                 {event.event.eventType && (
                   <div className="flex items-start space-x-4">
                     <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-4 h-4 text-purple-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
@@ -293,110 +378,315 @@ const EventDetails = () => {
                 )}
               </div>
             </div>
-
             {/* Required Skills */}
-            {Array.isArray(event.event.requiredSkillIds) && event.event.requiredSkillIds.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Required Skills</h2>
-                <div className="flex flex-wrap gap-2">
-                  {event.event.requiredSkillIds.map((skillId) => (
-                    <span key={skillId} className="badge badge-primary badge-lg">
-                      {skillIdToName[skillId] || "Skill"}
-                    </span>
-                  ))}
+            {Array.isArray(event.event.requiredSkills) &&
+              event.event.requiredSkills.length > 0 && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Required Skills
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {event.event.requiredSkills.map((skillName, index) => (
+                      <span
+                        key={index}
+                        className="badge badge-primary badge-lg"
+                      >
+                        {skillName}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+              )}
+
+            {/* Date & Time Section */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Date & Time
+              </h2>
+              <div className="space-y-6">
+                {Array.isArray(event.timeslots) &&
+                event.timeslots.length > 0 ? (
+                  <>
+                    {/* Calendar View */}
+                    <div>
+                      <h4 className="text-md font-semibold text-gray-800 mb-3">
+                        Calendar View
+                      </h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <FullCalendar
+                          height="550px"
+                          plugins={[
+                            dayGridPlugin,
+                            timeGridPlugin,
+                            interactionPlugin,
+                          ]}
+                          headerToolbar={{
+                            left: "prev,next today",
+                            center: "title",
+                            right: "dayGridMonth,timeGridWeek,timeGridDay",
+                          }}
+                          initialView="dayGridMonth"
+                          editable={false}
+                          selectable={false}
+                          selectMirror={false}
+                          dayMaxEvents={3}
+                          weekends={true}
+                          events={event.timeslots.map((timeslot, index) => ({
+                            id: `session-${index}`,
+                            title: timeslot.title || `Session ${index + 1}`,
+                            start: timeslot.start,
+                            end: timeslot.end,
+                            backgroundColor: "#3B82F6",
+                            borderColor: "#2563EB",
+                            textColor: "#FFFFFF",
+                            allDay: false,
+                            display: "block",
+                          }))}
+                          eventDisplay="block"
+                          eventTimeFormat={{
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            meridiem: "short",
+                          }}
+                          dayCellContent={(arg) => {
+                            return arg.dayNumberText;
+                          }}
+                          moreLinkClick="popover"
+                          moreLinkContent={(args) => {
+                            return `+${args.num} more`;
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* List View */}
+                    <div>
+                      <h4 className="text-md font-semibold text-gray-800 mb-3">
+                        Event Schedule ({event.timeslots.length} session
+                        {event.timeslots.length !== 1 ? "s" : ""})
+                      </h4>
+                      <div className="space-y-3">
+                        {event.timeslots.map((timeslot, index) => {
+                          const startDate = timeslot.start
+                            ? new Date(timeslot.start)
+                            : null;
+                          const endDate = timeslot.end
+                            ? new Date(timeslot.end)
+                            : null;
+
+                          return (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900 mb-1">
+                                  {timeslot.title || `Session ${index + 1}`}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {startDate
+                                    ? startDate.toLocaleString("en-US", {
+                                        weekday: "long",
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })
+                                    : "Start time not specified"}
+                                  {endDate && (
+                                    <>
+                                      {" — "}
+                                      {endDate.toLocaleString("en-US", {
+                                        weekday: "long",
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}
+                                    </>
+                                  )}
+                                </p>
+                              </div>
+                              <div className="ml-4">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  Session {index + 1}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg
+                        className="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 text-sm">
+                      No specific schedule available
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Event date and time information will be provided
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             {/* Join Event Card */}
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
-              <div className="text-center">
-              <button onClick={() => setIsGoing(!isGoing)} className={`btn btn-block text-xl btn-lg mb-4 transition-colors duration-300 ${
-                isGoing
-                ? "bg-red-500 hover:bg-red-700 text-white border-none"
-                : "bg-white text-black border border-gray-400 hover:bg-gray-100"}`} >
-                <SiThealgorithms className="mr-2 font-extrabold" />
-                {isGoing ? "Going" : "Join Event"}
+                             <div className="text-center">
+                 {user && userRole === 'participant' ? (
+                  <button
+                    onClick={handleGoing}
+                    className={`btn btn-block text-xl btn-lg mb-4 transition-colors duration-300 ${
+                      isGoing
+                        ? "bg-red-500 hover:bg-red-700 text-white border-none"
+                        : "bg-white text-black border border-gray-400 hover:bg-gray-100"
+                    }`}
+                  >
+                    <SiThealgorithms className="mr-2 font-extrabold" />
+                    {isGoing ? "Going" : "Join Event"}
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-block text-xl btn-lg mb-4 bg-gray-400 cursor-not-allowed"
+                    disabled
+                  >
+                    <SiThealgorithms className="mr-2 font-extrabold" />
+                    Join Event
+                  </button>
+                )}
+                <button className="btn btn-outline btn-block font-bold tex-3xl">
+                  <FaShareAlt className="text-clack" /> Share Event
                 </button>
-                <button className="btn btn-outline btn-block font-bold tex-3xl"><FaShareAlt className="text-clack" /> Share Event</button>
               </div>
             </div>
 
-                           <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Meet Your Hosts</h3>
-                <div className="flex flex-col gap-4">
-                <div className="font-medium text-gray-700">Organizer</div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Meet Your Hosts
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div className="font-medium text-gray-700">Owner</div>
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden">
-                    {(() => {
-                      const org = organizations.find(
-                        (o) => o.id === event.event.organizationId || o._id === event.event.organizationId
-                      );
-                      return org?.profilePictureUrl ? (
-                        <img 
-                          src={org.profilePictureUrl} 
-                          alt={org.name || org.username || "Organization"} 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {getOrganizationName(event.event.organizationId).charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      );
-                    })()}
+                    <img
+                      src={ownerOrg.profilePictureUrl}
+                      alt={ownerOrg.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                      {getOrganizationName(event.event.organizationId)}
+                      {ownerOrg.name}
                     </p>
-                    <p className="text-sm text-gray-600">Organization</p>
+                    <p className="text-sm text-gray-600">{ownerOrg.email}</p>
                   </div>
                 </div>
-                
-                {/* Sponsors Section */}
-                {Array.isArray(event.event.sponsorNames) && event.event.sponsorNames.length > 0 && (
+
+                {/* Co-Hosts Section */}
+                {coHosts.length > 0 && (
                   <>
-                    <div className="font-medium text-gray-700 mt-4">Sponsors</div>
+                    <div className="font-medium text-gray-700 mt-4">
+                      Co-Hosts
+                    </div>
                     <div className="space-y-2">
-                      {event.event.sponsorNames.map((sponsor, index) => (
-                        <div key={index} className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">
-                              {sponsor.charAt(0).toUpperCase()}
-                            </span>
+                      {coHosts.map((coHostOrg, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-3"
+                        >
+                          <div className="w-12 h-12 rounded-full overflow-hidden">
+                            <img
+                              src={coHostOrg.profilePictureUrl}
+                              alt={coHostOrg.name}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{sponsor}</p>
-                            <p className="text-sm text-gray-600">Sponsor</p>
+                            <p className="font-medium text-gray-900">
+                              {coHostOrg.name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {coHostOrg.email}
+                            </p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </>
                 )}
-                </div>
+
+                {/* Sponsors Section */}
+                {Array.isArray(event.event.sponsors) &&
+                  event.event.sponsors.length > 0 && (
+                    <>
+                      <div className="font-medium text-gray-700 mt-4">
+                        Sponsors
+                      </div>
+                      <div className="space-y-2">
+                        {event.event.sponsors.map((sponsor, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-3"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-orange-600 flex items-center justify-center">
+                              <span className="text-white font-bold text-sm">
+                                {sponsor.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {sponsor}
+                              </p>
+                              <p className="text-sm text-gray-600">Sponsor</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
               </div>
+            </div>
 
             {/* Event Stats */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Event Stats</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Event Stats
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Interested</span>
-                  <span className="font-medium">0 people</span>
+                  <span className="font-medium">{interestedCount} people</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Going</span>
-                  <span className="font-medium">0 people</span>
+                  <span className="font-medium">{goingCount} people</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shares</span>
-                  <span className="font-medium">0</span>
+                  <span className="font-medium">{event?.event?.sharesCount || 0}</span>
                 </div>
               </div>
             </div>

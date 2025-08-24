@@ -16,22 +16,27 @@ public class Participant {
     private String email;
     @Indexed(unique = true)
     private String name;
+    private String firebaseUid;
+
     private String username;
-    private String passwordHash;
     private String institution;
+
     private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
     private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private List<String> idDocumentUrls;
     private boolean isVerified = false;
     private List<String> interestedSkills;
-    private List<String> registeredEventIds;
-    private List<String> pastEventIds;
-    private List<String> favoriteOrganizerIds;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    private List<String> bookmarkedEventIds = new ArrayList<>();
+    private List<String> registeredEventIds = new ArrayList<>();
+    private List<String> pastEventIds = new ArrayList<>();
+
+
     private List<String> followers = new ArrayList<>();
     private List<String> following = new ArrayList<>();
-    private String firebaseUid;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -45,8 +50,10 @@ public class Participant {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public List<String> getBookmarkedEventIds() { return bookmarkedEventIds; }
+    public void setBookmarkedEventIds(List<String> bookmarkedEventIds) { this.bookmarkedEventIds = bookmarkedEventIds; }
+
+
 
     public String getInstitution() { return institution; }
     public void setInstitution(String institution) { this.institution = institution; }
@@ -72,8 +79,6 @@ public class Participant {
     public List<String> getPastEventIds() { return pastEventIds; }
     public void setPastEventIds(List<String> pastEventIds) { this.pastEventIds = pastEventIds; }
 
-    public List<String> getFavoriteOrganizerIds() { return favoriteOrganizerIds; }
-    public void setFavoriteOrganizerIds(List<String> favoriteOrganizerIds) { this.favoriteOrganizerIds = favoriteOrganizerIds; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

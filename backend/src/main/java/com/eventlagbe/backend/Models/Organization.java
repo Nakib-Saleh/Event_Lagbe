@@ -23,7 +23,7 @@ public class Organization {
     private List<String> pictureUrls;
     private boolean isVerified = false;
     private List<String> organizerIds;
-    private List<String> eventIds;
+    private List<String> eventIds = new ArrayList<>();
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
     private List<String> followers = new ArrayList<>();

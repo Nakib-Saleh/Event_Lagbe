@@ -22,7 +22,7 @@ public class Organizer {
     private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private String organizationId;
     private boolean isVerified;
-    private List<String> eventIds;
+    private List<String> eventIds = new ArrayList<>();
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
     private List<String> followers = new ArrayList<>();
