@@ -97,7 +97,7 @@ const EventDetails = () => {
                     }
                   } catch (error) {
                     console.error(
-                      `Failed to fetch co-host ${coHostId}:`,
+                      `Failed to fetch co-host ${coHost}:`,
                       error
                     );
                   }
