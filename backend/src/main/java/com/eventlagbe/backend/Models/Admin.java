@@ -22,6 +22,7 @@ public class Admin {
     private boolean isSuperAdmin = false;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
+    
     private List<String> followers = new ArrayList<>();
     private List<String> following = new ArrayList<>();
     private String firebaseUid;

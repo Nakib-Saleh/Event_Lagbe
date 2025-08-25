@@ -20,7 +20,7 @@ public class Event {
     private String location;
     private String eventType; // on-site | online
     private String ownerId; // creator org id
-    private String coverImageUrl;
+    private String coverImageUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private String eventScope; 
 
     private boolean isActive = true;

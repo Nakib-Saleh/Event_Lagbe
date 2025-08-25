@@ -19,13 +19,13 @@ public class Participant {
     private String firebaseUid;
 
     private String username;
-    private String institution;
+    private String institution = "N/A";
 
     private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";
     private String bannerUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753513555/banner_z0sar4.png";
     private List<String> idDocumentUrls;
     private boolean isVerified = false;
-    private List<String> interestedSkills;
+    private List<String> interestedSkills = new ArrayList<>(List.of("Competitive Programming", "Web Development"));
 
     private List<String> bookmarkedEventIds = new ArrayList<>();
     private List<String> registeredEventIds = new ArrayList<>();
