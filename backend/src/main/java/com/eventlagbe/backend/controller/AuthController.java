@@ -189,4 +189,30 @@ public class AuthController {
         }
         return ResponseEntity.status(404).body("Participant not found");
     }
+
+    @GetMapping("/check-username/{username}")
+    public ResponseEntity<?> checkUsernameAvailability(@PathVariable String username) {
+        // Check in all user types for username availability
+        Admin admin = adminRepository.findByUsername(username);
+        if (admin != null) {
+            return ResponseEntity.ok(java.util.Map.of("exists", true));
+        }
+        
+        Organization org = organizationRepository.findByUsername(username);
+        if (org != null) {
+            return ResponseEntity.ok(java.util.Map.of("exists", true));
+        }
+        
+        Organizer organizer = organizerRepository.findByUsername(username);
+        if (organizer != null) {
+            return ResponseEntity.ok(java.util.Map.of("exists", true));
+        }
+        
+        Participant participant = participantRepository.findByUsername(username);
+        if (participant != null) {
+            return ResponseEntity.ok(java.util.Map.of("exists", true));
+        }
+        
+        return ResponseEntity.ok(java.util.Map.of("exists", false));
+    }
 } 

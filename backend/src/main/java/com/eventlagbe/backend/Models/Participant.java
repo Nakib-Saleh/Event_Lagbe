@@ -18,7 +18,9 @@ public class Participant {
     private String name;
     private String firebaseUid;
 
+    @Indexed(unique = true)
     private String username;
+    
     private String institution = "N/A";
 
     private String profilePictureUrl = "https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png";

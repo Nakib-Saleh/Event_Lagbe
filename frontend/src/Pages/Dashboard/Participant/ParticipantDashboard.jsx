@@ -14,6 +14,8 @@ import {
   FiMenu,
   FiUsers,
   FiUser,
+  FiBookmark,
+  FiClock,
   FiUserPlus,
   FiUserCheck,
 } from "react-icons/fi";
@@ -25,28 +27,28 @@ import { MdOutlineEmojiEvents } from "react-icons/md";
 import AuthContext from "../../../Provider/AuthContext";
 import { IoIosAddCircleOutline } from "react-icons/io";
 
-const OrganizationDashboard = () => {
+const ParticipantDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Profile");
   const navigate = useNavigate(); 
   const { user: _user, userRole: _userRole } = useContext(AuthContext);
+  
   const menuItems = [
     {
       title:"Profile",
       icon: <FiUser className="text-red-600" />,
     },
     {
-      title: "Verification",
-      icon: <MdOutlineVerifiedUser className="text-red-600" />,
-      //badge: { text: "6", color: "badge-error" },
+      title: "Bookmarked Events",
+      icon: <FiBookmark className="text-red-600" />,
     },
     {
-      title: "Organizers",
-      icon: <FiUsers className="text-red-600" />,
-    },
-    {
-      title: "Events",
+      title: "Registered Events",
       icon: <MdOutlineEmojiEvents className="text-red-600 text-xl" />,
+    },
+    {
+      title: "Past Events",
+      icon: <FiClock className="text-red-600" />,
     },
     {
       title: "Followers",
@@ -119,7 +121,7 @@ const OrganizationDashboard = () => {
             <MenuItem
               key={index}
               onClick={() => {
-                navigate(`/organizationDashboard/${item.title.toLowerCase()}`);
+                navigate(`/participantDashboard/${item.title.toLowerCase().replace(/\s+/g, '-')}`);
                 setSelected(item.title);
               }}
               className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
@@ -170,8 +172,8 @@ const OrganizationDashboard = () => {
               key={index}
               onClick={() => {
                 const path = item.title === "Calendar"
-                  ? "/organizationDashboard/calendar"
-                  : `/organizationDashboard/${item.title.toLowerCase()}`;
+                  ? "/participantDashboard/calendar"
+                  : `/participantDashboard/${item.title.toLowerCase()}`;
                 navigate(path);
                 setSelected(item.title);
               }}
@@ -219,7 +221,7 @@ const OrganizationDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 p-6 bg-[#eef1fc] rounded-r-2xl min-h-screen">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          Organization Dashboard
+          Participant Dashboard
         </h1>
         <div className="min-h-full">
           <Outlet></Outlet>
@@ -229,4 +231,4 @@ const OrganizationDashboard = () => {
   );
 };
 
-export default OrganizationDashboard;
+export default ParticipantDashboard;

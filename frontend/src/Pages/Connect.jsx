@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext } from "react";
 import { FiUsers, FiSearch, FiTrendingUp, FiPlus, FiCheckCircle, FiHeart } from "react-icons/fi";
 import { MdOutlineEmojiEvents, MdOutlineBusinessCenter } from "react-icons/md";
+import AuthContext from "../Provider/AuthContext";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const Connect = () => {
+  const { user, userRole } = useContext(AuthContext);
   const [followedUsers, setFollowedUsers] = useState(new Set());
   const [activeTab, setActiveTab] = useState("participants");
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,8 +22,8 @@ const Connect = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // NOTE: per your instruction, DO NOT change this participants endpoint hack.
-        const participantsResponse = await fetch("http://localhost:2038/api/organization");
+        // Fetch participants from the correct endpoint
+        const participantsResponse = await fetch("http://localhost:2038/api/participant");
         const organizersResponse = await fetch("http://localhost:2038/api/organizer");
         const organizationsResponse = await fetch("http://localhost:2038/api/organization");
 
@@ -31,7 +35,7 @@ const Connect = () => {
         const organizersData = await organizersResponse.json();
         const organizationsData = await organizationsResponse.json();
 
-        setParticipants(Array.isArray(participantsData.content) ? participantsData.content : []);
+        setParticipants(Array.isArray(participantsData) ? participantsData : []);
         setOrganizers(Array.isArray(organizersData.content) ? organizersData.content : []);
         setOrganizations(Array.isArray(organizationsData.content) ? organizationsData.content : []);
         setLoading(false);
@@ -43,18 +47,78 @@ const Connect = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user?.firebaseUid]);
 
-  const handleFollow = (userId) => {
-    setFollowedUsers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
-      } else {
-        newSet.add(userId);
+  // Check initial follow status using user.following from AuthContext
+  useEffect(() => {
+    if (!user?.following || !user?.firebaseUid) {
+      setFollowedUsers(new Set());
+      return;
+    }
+
+    try {
+      const allUsers = [...participants, ...organizers, ...organizations];
+      const followedUserIds = new Set();
+
+      // Create a Set of Firebase UIDs that the current user is following
+      const followingFirebaseUids = new Set(user.following);
+
+      for (const userItem of allUsers) {
+        if (userItem.firebaseUid && 
+            userItem.firebaseUid !== user.firebaseUid && 
+            followingFirebaseUids.has(userItem.firebaseUid)) {
+          followedUserIds.add(userItem.id);
+        }
       }
-      return newSet;
-    });
+
+      setFollowedUsers(followedUserIds);
+    } catch (error) {
+      console.error("Error setting follow status:", error);
+      setFollowedUsers(new Set());
+    }
+  }, [user?.following, user?.firebaseUid, participants, organizers, organizations]);
+
+  const handleFollow = async (userId, firebaseUid) => {
+    // Don't allow users to follow themselves
+    if (firebaseUid === user?.firebaseUid) {
+      return;
+    }
+
+    if (!user?.firebaseUid || !userRole) {
+      toast.error("Please log in to follow users");
+      return;
+    }
+
+    try {
+      const isCurrentlyFollowing = followedUsers.has(userId);
+      
+      // Use the common follow endpoint
+      const apiEndpoint = `http://localhost:2038/api/follow/${user.firebaseUid}/follow/${firebaseUid}`;
+      
+      if (isCurrentlyFollowing) {
+        // Unfollow user
+        await axios.delete(apiEndpoint);
+        setFollowedUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(userId);
+          return newSet;
+        });
+        toast.success("Unfollowed successfully");
+      } else {
+        // Follow user
+        await axios.post(apiEndpoint);
+        setFollowedUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.add(userId);
+          return newSet;
+        });
+        toast.success("Followed successfully");
+      }
+    } catch (error) {
+      console.error("Error following/unfollowing user:", error);
+      const errorMessage = error.response?.data || "Failed to follow/unfollow user";
+      toast.error(errorMessage);
+    }
   };
 
   const getCurrentData = () => {
@@ -249,28 +313,29 @@ const Connect = () => {
                     )}
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleFollow(item.id)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                        followedUsers.has(item.id)
-                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {followedUsers.has(item.id) ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiCheckCircle className="text-sm" />
-                          Following
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiPlus className="text-sm" />
-                          Follow
-                        </span>
-                      )}
-                    </button>
+                                     {/* Action Buttons */}
+                   <div className="flex gap-2">
+                     <button
+                       onClick={() => handleFollow(item.id, item.firebaseUid)}
+                       className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                         followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid
+                           ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                           : 'bg-blue-600 text-white hover:bg-blue-700'
+                       }`}
+                       disabled={item.firebaseUid === user?.firebaseUid}
+                     >
+                       {followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid ? (
+                         <span className="flex items-center justify-center gap-2">
+                           <FiCheckCircle className="text-sm" />
+                           Following
+                         </span>
+                       ) : (
+                         <span className="flex items-center justify-center gap-2">
+                           <FiPlus className="text-sm" />
+                           Follow
+                         </span>
+                       )}
+                     </button>
 
                     <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
                       <FiHeart className="text-sm" />

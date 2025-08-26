@@ -16,6 +16,14 @@ import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
 import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
+import ParticipantDashboard from "../Pages/Dashboard/Participant/ParticipantDashboard";
+import ParticipantProfile from "../Pages/Dashboard/Participant/ParticipantProfile";
+import BookmarkedEvents from "../Pages/Dashboard/Participant/BookmarkedEvents";
+import RegisteredEvents from "../Pages/Dashboard/Participant/RegisteredEvents";
+import PastEvents from "../Pages/Dashboard/Participant/PastEvents";
+import Followers from "../Pages/Dashboard/Participant/Followers";
+import Following from "../Pages/Dashboard/Participant/Following";
+import ParticipantCalendar from "../Pages/Dashboard/Participant/Calendar";
 import PublicProfile from "../Pages/PublicProfile";
 import EventAdd from "../Pages/EventAdd";
 import Connect from "../Pages/Connect";
@@ -108,6 +116,56 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/organizationDashboard/events",
             element: <Eventlist></Eventlist>,
+          },
+          {
+            path: "/organizationDashboard/followers",
+            element: <Followers></Followers>,
+          },
+          {
+            path: "/organizationDashboard/following",
+            element: <Following></Following>,
+          },
+        ],
+      },
+      {
+        path: "/participantDashboard",
+        element: (
+          <PrivateRoute allowedRoles={["participant"]}>
+            <ParticipantDashboard></ParticipantDashboard>
+          </PrivateRoute>
+        ),
+        children: [
+          {
+            path: "/participantDashboard",
+            element: <Navigate to="/participantDashboard/profile" replace />,
+          },
+          {
+            path: "/participantDashboard/profile",
+            element: <ParticipantProfile></ParticipantProfile>,
+          },
+          {
+            path: "/participantDashboard/bookmarked-events",
+            element: <BookmarkedEvents></BookmarkedEvents>,
+          },
+          {
+            path: "/participantDashboard/registered-events",
+            element: <RegisteredEvents></RegisteredEvents>,
+          },
+          {
+            path: "/participantDashboard/past-events",
+            element: <PastEvents></PastEvents>,
+          },
+          {
+            path: "/participantDashboard/followers",
+            element: <Followers></Followers>,
+          },
+          {
+            path: "/participantDashboard/following",
+            element: <Following></Following>,
+          },
+          {
+            path: "/participantDashboard/calendar",
+            element: <ParticipantCalendar></ParticipantCalendar>,
           },
         ],
       },

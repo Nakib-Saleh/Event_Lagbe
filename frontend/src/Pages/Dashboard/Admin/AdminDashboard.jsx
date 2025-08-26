@@ -14,6 +14,8 @@ import {
   FiMenu,
   FiUsers,
   FiUser,
+  FiUserPlus,
+  FiUserCheck,
 } from "react-icons/fi";
 import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -40,6 +42,14 @@ const AdminDashboard = () => {
     {
       title: "Users",
       icon: <FiUsers className="text-red-600" />,
+    },
+    {
+      title: "Followers",
+      icon: <FiUserPlus className="text-red-600" />,
+    },
+    {
+      title: "Following",
+      icon: <FiUserCheck className="text-red-600" />,
     },
   ];
 
