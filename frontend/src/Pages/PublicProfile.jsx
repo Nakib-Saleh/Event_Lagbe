@@ -1,166 +1,140 @@
+// PublicProfile.jsx
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { FaHeart, FaCheckCircle, FaCrown } from "react-icons/fa";
+import { FaCheckCircle, FaCrown, FaHeart } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
+import { toast } from "react-hot-toast";
+
+// Auth
+import AuthContext from "../Provider/AuthContext";
+
+// Role components
+import ParticipantPublic from "../AllProfiles/ParticipantPublic";
+import OrganizerPublic from "../AllProfiles/OrganizerPublic";
+import OrganizationPublic from "../AllProfiles/OrganizationPublic";
 
 const PublicProfile = () => {
   const { firebaseUid } = useParams();
+  const { user: authUser, userRole } = useContext(AuthContext);
+
+  const [userRoleOfProfile, setUserRoleOfProfile] = useState(null);
   const [profileData, setProfileData] = useState(null);
-  const [organizers, setOrganizers] = useState([]);
-  const [userRole, setUserRole] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  const getTabsForRole = (role) => {
-    switch (role) {
-      case "admin":
-        return [{ id: "about", label: "About" }];
-      case "organization":
-        return [
-          { id: "about", label: "About" },
-          { id: "gallery", label: "Gallery" },
-          { id: "organizers", label: "Organizers" },
-          { id: "events", label: "Events" },
-        ];
-      case "organizer":
-        return [
-          { id: "about", label: "About" },
-          { id: "gallery", label: "Gallery" },
-          { id: "events", label: "Events" },
-        ];
-      case "participant":
-        return [
-          { id: "about", label: "About" },
-          { id: "gallery", label: "Gallery" },
-          { id: "followers", label: "Followers" },
-          { id: "following", label: "Following" },
-        ];
-      default:
-        return [{ id: "about", label: "About" }];
-    }
-  };
-
-  const [activeTab, setActiveTab] = useState("about");
-
+  // Load public profile + role
   useEffect(() => {
-    const fetchPublicProfile = async () => {
+    const load = async () => {
       if (!firebaseUid) {
         setError("Invalid user ID");
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
-        // First, get the user's role and basic info
-        const userResponse = await axios.get(
+        const { data } = await axios.get(
           `http://localhost:2038/api/auth/${firebaseUid}`
         );
-        const { role, user } = userResponse.data;
-
-        setUserRole(role);
-        setProfileData(user);
-        // Reset active tab to "about" when user role changes
-        setActiveTab("about");
-      } catch (error) {
-        console.error("Error fetching profile:", error);
+        setUserRoleOfProfile(data.role);
+        setProfileData(data.user);
+        setError(null);
+      } catch (e) {
+        console.error(e);
         setError("Profile not found");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchPublicProfile();
+    load();
   }, [firebaseUid]);
 
+  // Following state = does *my* following contain *their* uid?
   useEffect(() => {
-    const fetchOrganizers = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `http://localhost:2038/api/organizer/${profileData.id}/verified-organizers`
-        );
-        setOrganizers(res.data);
-      } catch {
-        setOrganizers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrganizers();
-  }, [profileData]);
+    if (!authUser || !profileData) {
+      setIsFollowing(false);
+      return;
+    }
+    const myFollowing = Array.isArray(authUser.following)
+      ? authUser.following
+      : [];
+    setIsFollowing(myFollowing.includes(profileData.firebaseUid));
+  }, [authUser, profileData]);
 
-  const handleToggleFollow = () => {
-    setIsFollowing((prev) => !prev);
-    // TODO: Implement follow/unfollow API call
-  };
+  const isOwnProfile =
+    authUser?.firebaseUid &&
+    profileData?.firebaseUid &&
+    authUser.firebaseUid === profileData.firebaseUid;
 
-  const getRoleBadge = (role, isVerified, isSuperAdmin) => {
-    if (role === "admin" && isSuperAdmin) {
+  const roleBadge = useMemo(() => {
+    if (!userRoleOfProfile) return null;
+    if (userRoleOfProfile === "admin" && profileData?.isSuperAdmin)
       return (
         <span className="badge badge-warning gap-1">
           <FaCrown className="text-xs" />
           Super Admin
         </span>
       );
-    } else if (role === "admin") {
-      return <span className="badge badge-info gap-1">Admin</span>;
-    } else if (role === "organization" && isVerified) {
+    if (userRoleOfProfile === "admin") return <span className="badge">Admin</span>;
+    if (userRoleOfProfile === "organization" && profileData?.isVerified)
       return (
         <span className="badge badge-success gap-1">
           <FaCheckCircle className="text-xs" />
           Verified Organization
         </span>
       );
-    } else if (role === "organization") {
-      return <span className="badge badge-warning gap-1">Organization</span>;
-    } else if (role === "organizer" && isVerified) {
+    if (userRoleOfProfile === "organizer" && profileData?.isVerified)
       return (
         <span className="badge badge-success gap-1">
           <FaCheckCircle className="text-xs" />
           Verified Organizer
         </span>
       );
-    } else if (role === "organizer") {
-      return <span className="badge badge-warning gap-1">Organizer</span>;
-    } else if (role === "participant") {
-      return <span className="badge badge-primary gap-1">Participant</span>;
-    }
+    if (userRoleOfProfile === "organization")
+      return <span className="badge badge-outline">Organization</span>;
+    if (userRoleOfProfile === "organizer")
+      return <span className="badge badge-outline">Organizer</span>;
+    if (userRoleOfProfile === "participant")
+      return <span className="badge badge-primary">Participant</span>;
     return null;
-  };
+  }, [userRoleOfProfile, profileData]);
 
-  const getRoleSpecificFields = () => {
-    if (!profileData) return [];
-
-    const fields = [
-      { label: "Email", value: profileData.email, readonly: true },
-      { label: "Name", value: profileData.name },
-      { label: "Username", value: profileData.username },
-    ];
-
-    // Add role-specific fields
-    if (userRole === "organization" || userRole === "organizer") {
-      fields.push({ label: "Type", value: profileData.type });
+  // Follow/Unfollow exactly like Connect.jsx, but status comes only from *my* following list
+  const handleFollow = async (userId, firebaseUid) => {
+    // Don't allow users to follow themselves
+    if (firebaseUid === authUser?.firebaseUid) {
+      return;
     }
 
-    if (userRole === "organization") {
-      fields.push({
-        label: "Events Created",
-        value: profileData.eventIds?.length || 0,
-      });
-      fields.push({
-        label: "Organizers",
-        value: profileData.organizerIds?.length || 0,
-      });
+    if (!authUser?.firebaseUid || !userRole) {
+      toast.error("Please log in to follow users");
+      return;
     }
 
-    if (userRole === "organizer") {
-      fields.push({ label: "Organization", value: profileData.organizationId });
+    try {
+      const isCurrentlyFollowing = isFollowing;
+      
+      // Use the common follow endpoint
+      const apiEndpoint = `http://localhost:2038/api/follow/${authUser.firebaseUid}/follow/${firebaseUid}`;
+      
+      if (isCurrentlyFollowing) {
+        // Unfollow user
+        await axios.delete(apiEndpoint);
+        setIsFollowing(false);
+        toast.success("Unfollowed successfully");
+      } else {
+        // Follow user
+        await axios.post(apiEndpoint);
+        setIsFollowing(true);
+        toast.success("Followed successfully");
+      }
+    } catch (error) {
+      console.error("Error following/unfollowing user:", error);
+      const errorMessage = error.response?.data || "Failed to follow/unfollow user";
+      toast.error(errorMessage);
     }
-
-    return fields;
   };
 
   if (loading) {
@@ -173,7 +147,7 @@ const PublicProfile = () => {
 
   if (error || !profileData) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-16">
         <h2 className="text-xl font-semibold text-gray-600">
           {error || "Profile not found"}
         </h2>
@@ -182,315 +156,107 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto mt-6">
+    <div className="max-w-6xl mx-auto">
       {/* Banner */}
-      <div className="relative h-60 bg-gray-200 rounded-lg shadow-sm">
+      <div className="relative h-60 bg-base-200 rounded-xl ">
         <img
           src={
             profileData.bannerUrl ||
             "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80"
           }
-          alt="Cover"
-          className="object-cover w-full h-full rounded-lg"
+          alt="cover"
+          className="w-full h-full object-cover"
         />
 
-        {/* Profile Picture */}
-        <div className="absolute -bottom-14 left-6 z-50 flex items-end">
-          <div className="relative w-28 h-28 border-4 border-white rounded-full overflow-hidden shadow-lg">
+        {/* Avatar */}
+        <div className="absolute -bottom-14 left-6">
+          <div className="relative w-28 h-28 rounded-full ring-4 ring-white  shadow-xl">
             <img
               src={
                 profileData.profilePictureUrl ||
                 "https://img.daisyui.com/images/profile/demo/2@94.webp"
               }
-              alt="Profile"
-              className="w-full h-full object-cover"
               onError={(e) => {
-                e.target.src =
+                e.currentTarget.src =
                   "https://img.daisyui.com/images/profile/demo/2@94.webp";
               }}
+              alt="avatar"
+              className="w-full h-full object-cover"
             />
             {profileData.isVerified && (
               <div className="absolute -top-1 -right-1 bg-green-400 rounded-full p-1">
-                <FaCheckCircle className="text-green-600 text-sm" />
-              </div>
-            )}
-            {userRole === "admin" && profileData.isSuperAdmin && (
-              <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-1">
-                <FaCrown className="text-yellow-600 text-sm" />
+                <FaCheckCircle className="text-green-700 text-xs" />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Name + Username + Follow */}
-      <div className="pt-20 px-6 sm:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-center">
+      {/* Header row */}
+      <div className="pt-20 px-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-2xl font-bold">
                 {profileData.name || profileData.username}
-              </h2>
-              {getRoleBadge(
-                userRole,
-                profileData.isVerified,
-                profileData.isSuperAdmin
-              )}
+              </h1>
+              {roleBadge}
             </div>
-            <p className="text-gray-500">
-              @{profileData.username || "unknown"}
-            </p>
-            <div className="flex gap-4 text-sm text-gray-600 mt-1">
-              <span>{profileData.followers?.length || 0} Followers</span>
-              <span>{profileData.following?.length || 0} Following</span>
-              {userRole === "organization" && (
-                <>
-                  <span>{profileData.eventIds?.length || 0} Events</span>
-                  <span>
-                    {profileData.organizerIds?.length || 0} Organizers
-                  </span>
-                </>
-              )}
-            </div>
+            <p className="text-base-content/60">@{profileData.username}</p>
           </div>
-          <div className="flex gap-4">
-            <button
-              onClick={handleToggleFollow}
-              className={`btn flex items-center gap-2 transition duration-200 ${
-                !isFollowing
-                  ? "bg-gray-200 text-black"
-                  : "bg-red-600 text-white"
-              }`}
-            >
-              {!isFollowing ? (
-                <CiHeart className="text-xl" />
-              ) : (
-                <FaHeart className="text-xl" />
-              )}
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-          </div>
+
+          <div>{!isOwnProfile && (
+           <button
+           onClick={() => handleFollow(profileData.id, profileData.firebaseUid)}
+           className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+             isFollowing || profileData.firebaseUid === authUser?.firebaseUid
+               ? 'btn btn-primary  bg-red-400 text-white hover:bg-red-500'
+               : 'btn btn-primary  bg-gray-200 text-black hover:bg-gray-700'
+           }`}
+           disabled={profileData.firebaseUid === authUser?.firebaseUid}
+         >
+           {isFollowing || profileData.firebaseUid === authUser?.firebaseUid ? (
+             <span className="flex items-center justify-center gap-2">
+               <FaHeart className="text-sm" />
+               Following
+             </span>
+           ) : (
+             <span className="flex items-center justify-center gap-2">
+               <CiHeart className="text-sm" />
+               Follow
+             </span>
+           )}
+         </button> 
+          )}</div>
         </div>
       </div>
 
-      <div className="border-b-2 border-gray-400 w-full my-4"></div>
+      {/* Role-render */}
+      <div className="px-6 mt-6">
+        {userRoleOfProfile === "participant" && (
+          <ParticipantPublic profile={profileData} />
+        )}
+        {userRoleOfProfile === "organizer" && <OrganizerPublic profile={profileData} />}
+        {userRoleOfProfile === "organization" && (
+          <OrganizationPublic profile={profileData} />
+        )}
 
-      <div role="tablist" className="tabs tabs-boxed gap-x-6">
-        {getTabsForRole(userRole).map((tab) => (
-          <div
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`text-center font-bold px-2 pt-2 pb-0 transition border-b-2 cursor-pointer
-              ${
-                activeTab === tab.id
-                  ? "text-red-500 border-red-500"
-                  : "text-black border-transparent"
-              } rounded-t-xl`}
-          >
-            {tab.label}
+        {/* Fallback for unknown roles */}
+        {!["participant", "organizer", "organization"].includes(userRoleOfProfile) && (
+          <div className="card bg-base-100 shadow mt-4">
+            <div className="card-body">
+              <h3 className="card-title">About</h3>
+              <p>Email: {profileData.email}</p>
+              {profileData.createdAt && (
+                <p>Created: {new Date(profileData.createdAt).toLocaleString()}</p>
+              )}
+              {profileData.updatedAt && (
+                <p>Updated: {new Date(profileData.updatedAt).toLocaleString()}</p>
+              )}
+            </div>
           </div>
-        ))}
+        )}
       </div>
-
-      {/* About Tab */}
-      {activeTab === "about" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <div className="space-y-4">
-            {getRoleSpecificFields().map((field, index) => (
-              <div key={index} className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">{field.label}</span>
-                </label>
-                <p className="text-gray-700">{field.value || "Not provided"}</p>
-              </div>
-            ))}
-
-            {/* Created / Updated Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="label">
-                  <span className="label-text">Created At</span>
-                </label>
-                <p className="text-sm text-gray-500">
-                  {profileData.createdAt
-                    ? new Date(profileData.createdAt).toLocaleString()
-                    : "Not available"}
-                </p>
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Last Updated</span>
-                </label>
-                <p className="text-sm text-gray-500">
-                  {profileData.updatedAt
-                    ? new Date(profileData.updatedAt).toLocaleString()
-                    : "Not available"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Gallery Tab */}
-      {activeTab === "gallery" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Gallery</h3>
-          {profileData.pictureUrls && profileData.pictureUrls.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {profileData.pictureUrls.map((url, index) => (
-                <div
-                  key={index}
-                  className="aspect-square rounded-lg overflow-hidden"
-                >
-                  <img
-                    src={url}
-                    alt={`Gallery ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src =
-                        "https://via.placeholder.com/300x300?text=Image+Not+Found";
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">
-              No gallery images yet
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Events Tab */}
-      {activeTab === "events" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">
-            Events ({profileData.eventIds?.length || 0})
-          </h3>
-          {profileData.eventIds && profileData.eventIds.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.eventIds.map((eventId, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="w-10 h-10 bg-blue-300 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">{index + 1}</span>
-                  </div>
-                  <span className="font-medium">Event ID: {eventId}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">
-              No events created yet
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Organizers Tab - Only for organizations */}
-      {activeTab === "organizers" && userRole === "organization" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {organizers.length === 0 ? (
-              <div className="col-span-full text-center py-8">
-                <p className="text-gray-500 mb-2">
-                  No verified organizers found.
-                </p>
-                <p className="text-sm text-gray-400">
-                  Only verified organizers are displayed here.
-                </p>
-              </div>
-            ) : (
-              organizers.map((org) => (
-                <div
-                  key={org.id}
-                  className="p-4 border rounded shadow-sm flex items-center gap-4"
-                >
-                  <div className="relative">
-                    <img
-                      src={org.profilePictureUrl}
-                      alt={org.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://img.daisyui.com/images/profile/demo/2@94.webp";
-                      }}
-                    />
-                    {org.isVerified && (
-                      <div className="absolute -top-1 -right-1 bg-green-400 rounded-full p-1">
-                        <FaCheckCircle className="text-green-600 text-xs" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{org.name}</h3>
-                    <p className="text-sm text-gray-500">@{org.username}</p>
-                    {org.isVerified && (
-                      <span className="text-xs text-green-600 font-medium">
-                        Verified
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Followers Tab */}
-      {activeTab === "followers" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">
-            Followers ({profileData.followers?.length || 0})
-          </h3>
-          {profileData.followers && profileData.followers.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.followers.map((follower, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{follower}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No followers yet</p>
-          )}
-        </div>
-      )}
-
-      {/* Following Tab */}
-      {activeTab === "following" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">
-            Following ({profileData.following?.length || 0})
-          </h3>
-          {profileData.following && profileData.following.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.following.map((following, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{following}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">
-              Not following anyone yet
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

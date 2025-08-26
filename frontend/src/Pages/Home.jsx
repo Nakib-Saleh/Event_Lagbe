@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiCalendar,
@@ -20,22 +20,23 @@ const Home = () => {
   const { user } = useContext(AuthContext);
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [followedUsers, setFollowedUsers] = useState(new Set());
 
-  // ---- New: fetched entities for "People You Can Follow" ----
+  // Entities for "People You Can Follow"
   const [participants, setParticipants] = useState([]);
   const [organizers, setOrganizers] = useState([]);
   const [organizations, setOrganizations] = useState([]);
-  const [featuredSix, setFeaturedSix] = useState([]);
   const [loadingFollow, setLoadingFollow] = useState(true);
   const [errorFollow, setErrorFollow] = useState(null);
 
-  // keep the participant=organization endpoint as requested
+  // Local UI "following" state (for button label). We initialize it from user.following once data loads.
+  const [followedUsers, setFollowedUsers] = useState(new Set());
+
+  // Fetch people/orgs (participants endpoint returns a plain array — not `.content`)
   useEffect(() => {
     const fetchAll = async () => {
       try {
         const [participantsRes, organizersRes, organizationsRes] = await Promise.all([
-          fetch('http://localhost:2038/api/organization'), // used for participants too
+          fetch('http://localhost:2038/api/participant'),
           fetch('http://localhost:2038/api/organizer'),
           fetch('http://localhost:2038/api/organization'),
         ]);
@@ -48,11 +49,11 @@ const Home = () => {
         const organizersData = await organizersRes.json();
         const organizationsData = await organizationsRes.json();
 
-        const p = Array.isArray(participantsData?.content) ? participantsData.content : [];
+        // IMPORTANT: participants is a plain array (to match Connect.jsx)
+        const p = Array.isArray(participantsData) ? participantsData : [];
         const o = Array.isArray(organizersData?.content) ? organizersData.content : [];
         const g = Array.isArray(organizationsData?.content) ? organizationsData.content : [];
 
-        // tag each group so we can show "Participant/Organizer/Organization"
         const taggedParticipants = p.map((it) => ({ ...it, __entityType: 'Participant' }));
         const taggedOrganizers = o.map((it) => ({ ...it, __entityType: 'Organizer' }));
         const taggedOrganizations = g.map((it) => ({ ...it, __entityType: 'Organization' }));
@@ -60,16 +61,6 @@ const Home = () => {
         setParticipants(taggedParticipants);
         setOrganizers(taggedOrganizers);
         setOrganizations(taggedOrganizations);
-
-        // pick 6 random from merged
-        const merged = [...taggedParticipants, ...taggedOrganizers, ...taggedOrganizations];
-
-        const shuffled = [...merged];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        setFeaturedSix(shuffled.slice(0, 6));
         setLoadingFollow(false);
       } catch (err) {
         console.error('Fetch follow suggestions failed:', err);
@@ -81,10 +72,80 @@ const Home = () => {
     fetchAll();
   }, []);
 
-  const handleFollow = (userId) => {
+  // Build a quick lookup of firebaseUids the current user already follows
+  const followingFirebaseUids = useMemo(() => new Set(user?.following || []), [user?.following]);
+
+  // After data loads (and when user.following changes), initialize local "followed" ids
+  useEffect(() => {
+    // Map current dataset to ids and mark those that are already followed (by firebaseUid)
+    const all = [...participants, ...organizers, ...organizations];
+    const init = new Set();
+
+    for (const item of all) {
+      const fid = item?.firebaseUid;
+      if (!fid) continue;
+      if (followingFirebaseUids.has(fid)) {
+        const id = deriveStableId(item);
+        init.add(id);
+      }
+    }
+    setFollowedUsers(init);
+  }, [participants, organizers, organizations, followingFirebaseUids]);
+
+  // Derive a stable display name
+  const displayName = (item) =>
+    item?.name ||
+    item?.fullName ||
+    item?.displayName ||
+    item?.organizationName ||
+    item?.company ||
+    'Unknown';
+
+  // Derive a stable id for UI keys and button state
+  const deriveStableId = (item) => {
+    const type = item?.__entityType || 'Participant';
+    const uid = item?.firebaseUid || item?.id || item?._id || displayName(item);
+    return `${type}:${uid}`;
+  };
+
+  // Exclude: yourself + anyone already in user.following; then randomize and pick 6
+  const featuredSix = useMemo(() => {
+    const merged = [...participants, ...organizers, ...organizations];
+
+    // Deduplicate by firebaseUid first (if present), otherwise by derived id
+    const seen = new Set();
+    const deduped = [];
+    for (const item of merged) {
+      const key = item?.firebaseUid || deriveStableId(item);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(item);
+    }
+
+    // Filter out yourself + already followed
+    const filtered = deduped.filter((item) => {
+      const fid = item?.firebaseUid;
+      if (!fid) return true; // if no firebaseUid, we can't match — let it pass
+      if (user?.firebaseUid && fid === user.firebaseUid) return false; // exclude self
+      if (followingFirebaseUids.has(fid)) return false; // exclude already-followed
+      return true;
+    });
+
+    // Shuffle (Fisher–Yates)
+    const shuffled = [...filtered];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled.slice(0, 6);
+  }, [participants, organizers, organizations, user?.firebaseUid, followingFirebaseUids]);
+
+  // Local UI follow toggle (does not hit API — mirrors button state only)
+  const handleFollow = (id) => {
     setFollowedUsers((prev) => {
       const s = new Set(prev);
-      s.has(userId) ? s.delete(userId) : s.add(userId);
+      s.has(id) ? s.delete(id) : s.add(id);
       return s;
     });
   };
@@ -156,15 +217,10 @@ const Home = () => {
     },
   ];
 
-  // helper: get display name
-  const displayName = (item) =>
-    item.name || item.fullName || item.displayName || item.organizationName || item.company || 'Unknown';
-
-  // helper: badge styles
   const badgeClass = (type) => {
     if (type === 'Participant') return 'bg-blue-100 text-blue-800';
     if (type === 'Organizer') return 'bg-green-100 text-green-800';
-    return 'bg-purple-100 text-purple-800'; // Organization
+    return 'bg-purple-100 text-purple-800';
   };
 
   return (
@@ -518,7 +574,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* People You Can Follow (real data, random 6) */}
+      {/* People You Can Follow (real data, random 6 excluding already-followed + self) */}
       {user && (
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -538,15 +594,15 @@ const Home = () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {featuredSix.map((item) => {
-                    const id = item.id || item._id || displayName(item);
-                    const type = item.__entityType || 'Participant';
+                    const id = deriveStableId(item);
+                    const type = item?.__entityType || 'Participant';
                     return (
-                      <div key={`${type}-${id}`} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                      <div key={id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
                         <div className="flex items-start gap-4">
                           {/* Avatar */}
                           <img
                             src={
-                              item.profilePictureUrl ||
+                              item?.profilePictureUrl ||
                               'https://res.cloudinary.com/dfvwazcdk/image/upload/v1753161431/generalProfilePicture_inxppe.png'
                             }
                             alt={displayName(item)}
@@ -561,11 +617,11 @@ const Home = () => {
                             </div>
 
                             <p className="text-sm text-gray-600 mb-2">
-                              {(Array.isArray(item.followers) && item.followers.length) || 0} followers
+                              {(Array.isArray(item?.followers) && item.followers.length) || 0} followers
                             </p>
 
-                            {/* Skills (optional if present) */}
-                            {Array.isArray(item.skills) && item.skills.length > 0 && (
+                            {/* Skills (optional) */}
+                            {Array.isArray(item?.skills) && item.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1 mb-4">
                                 {item.skills.slice(0, 3).map((skill, i) => (
                                   <span key={i} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
