@@ -48,12 +48,6 @@ public class OrganizationController {
         return ResponseEntity.ok(all);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Organization> getOrganizationById(@PathVariable String id) {
-        return organizationRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
     @PutMapping("/{id}/approve")
     public ResponseEntity<Organization> approveOrganization(@PathVariable String id) {

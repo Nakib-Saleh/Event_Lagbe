@@ -1,8 +1,7 @@
-// PublicProfile.jsx
 import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { FaCheckCircle, FaCrown, FaHeart } from "react-icons/fa";
+import { FaHeart, FaCheckCircle, FaCrown } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
 import AuthContext from "../Provider/AuthContext";
 import { toast } from "react-hot-toast";
@@ -11,7 +10,8 @@ const PublicProfile = () => {
   const { firebaseUid } = useParams();
   const { user: currentUser } = useContext(AuthContext);
   const [profileData, setProfileData] = useState(null);
-
+  const [organizers, setOrganizers] = useState([]);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -49,15 +49,17 @@ const PublicProfile = () => {
 
   // Fetch public profile from database
   useEffect(() => {
-    const load = async () => {
+    const fetchPublicProfile = async () => {
       if (!firebaseUid) {
         setError("Invalid user ID");
         setLoading(false);
         return;
       }
+
       try {
         setLoading(true);
-        const { data } = await axios.get(
+        // First, get the user's role and basic info
+        const userResponse = await axios.get(
           `http://localhost:2038/api/auth/${firebaseUid}`
         );
         const { role, user } = userResponse.data;
@@ -72,7 +74,8 @@ const PublicProfile = () => {
         setLoading(false);
       }
     };
-    load();
+
+    fetchPublicProfile();
   }, [firebaseUid]);
 
   // Fetch verified organizers for organizations
@@ -221,27 +224,29 @@ const PublicProfile = () => {
           Super Admin
         </span>
       );
-    if (userRoleOfProfile === "admin") return <span className="badge">Admin</span>;
-    if (userRoleOfProfile === "organization" && profileData?.isVerified)
+    } else if (role === "admin") {
+      return <span className="badge badge-info gap-1">Admin</span>;
+    } else if (role === "organization" && isVerified) {
       return (
         <span className="badge badge-success gap-1">
           <FaCheckCircle className="text-xs" />
           Verified Organization
         </span>
       );
-    if (userRoleOfProfile === "organizer" && profileData?.isVerified)
+    } else if (role === "organization") {
+      return <span className="badge badge-warning gap-1">Organization</span>;
+    } else if (role === "organizer" && isVerified) {
       return (
         <span className="badge badge-success gap-1">
           <FaCheckCircle className="text-xs" />
           Verified Organizer
         </span>
       );
-    if (userRoleOfProfile === "organization")
-      return <span className="badge badge-outline">Organization</span>;
-    if (userRoleOfProfile === "organizer")
-      return <span className="badge badge-outline">Organizer</span>;
-    if (userRoleOfProfile === "participant")
-      return <span className="badge badge-primary">Participant</span>;
+    } else if (role === "organizer") {
+      return <span className="badge badge-warning gap-1">Organizer</span>;
+    } else if (role === "participant") {
+      return <span className="badge badge-primary gap-1">Participant</span>;
+    }
     return null;
   };
 
@@ -295,7 +300,7 @@ const PublicProfile = () => {
 
   if (error || !profileData) {
     return (
-      <div className="text-center py-16">
+      <div className="text-center py-8">
         <h2 className="text-xl font-semibold text-gray-600">
           {error || "Profile not found"}
         </h2>
@@ -304,36 +309,41 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-5xl mx-auto mt-6">
       {/* Banner */}
-      <div className="relative h-60 bg-base-200 rounded-xl ">
+      <div className="relative h-60 bg-gray-200 rounded-lg shadow-sm">
         <img
           src={
             profileData.bannerUrl ||
             "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80"
           }
-          alt="cover"
-          className="w-full h-full object-cover"
+          alt="Cover"
+          className="object-cover w-full h-full rounded-lg"
         />
 
-        {/* Avatar */}
-        <div className="absolute -bottom-14 left-6">
-          <div className="relative w-28 h-28 rounded-full ring-4 ring-white  shadow-xl">
+        {/* Profile Picture */}
+        <div className="absolute -bottom-14 left-6 z-50 flex items-end">
+          <div className="relative w-28 h-28 border-4 border-white rounded-full overflow-hidden shadow-lg">
             <img
               src={
                 profileData.profilePictureUrl ||
                 "https://img.daisyui.com/images/profile/demo/2@94.webp"
               }
+              alt="Profile"
+              className="w-full h-full object-cover"
               onError={(e) => {
-                e.currentTarget.src =
+                e.target.src =
                   "https://img.daisyui.com/images/profile/demo/2@94.webp";
               }}
-              alt="avatar"
-              className="w-full h-full object-cover"
             />
             {profileData.isVerified && (
               <div className="absolute -top-1 -right-1 bg-green-400 rounded-full p-1">
-                <FaCheckCircle className="text-green-700 text-xs" />
+                <FaCheckCircle className="text-green-600 text-sm" />
+              </div>
+            )}
+            {userRole === "admin" && profileData.isSuperAdmin && (
+              <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-1">
+                <FaCrown className="text-yellow-600 text-sm" />
               </div>
             )}
           </div>
