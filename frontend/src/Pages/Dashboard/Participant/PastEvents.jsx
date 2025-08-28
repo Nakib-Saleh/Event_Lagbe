@@ -26,7 +26,7 @@ const PastEvents = () => {
     const fetchPastEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:2038/api/participant/${user.firebaseUid}/past-events`);
+        const response = await axios.get(`http://localhost:2038/api/participant/${user.firebaseUid}/registered-events`);
         setPastEvents(response.data);
       } catch (error) {
         console.error("Error fetching past events:", error);

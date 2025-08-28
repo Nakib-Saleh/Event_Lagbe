@@ -119,7 +119,7 @@ const BookmarkedEvents = () => {
                     
                     <div className="flex items-center gap-2">
                       <FiMapPin className="text-red-500" />
-                      <span>{event.venue || 'Location TBA'}</span>
+                      <span>{event.location || 'Location TBA'}</span>
                     </div>
                   </div>
 

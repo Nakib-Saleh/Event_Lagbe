@@ -130,35 +130,7 @@ public class ParticipantController {
         return ResponseEntity.ok(registeredEvents);
     }
 
-    @GetMapping("/{firebaseUid}/past-events")
-    public ResponseEntity<List<Event>> getPastEvents(@PathVariable String firebaseUid) {
-        Participant participant = participantRepository.findByFirebaseUid(firebaseUid);
-        if (participant == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        List<Event> pastEvents = new ArrayList<>();
-        if (participant.getPastEventIds() != null) {
-            for (String eventId : participant.getPastEventIds()) {
-                Event event = eventRepository.findById(eventId).orElse(null);
-                if (event != null) {
-                    // Fetch organizer information
-                    if (event.getOwnerId() != null) {
-                        Organization organizer = organizationRepository.findById(event.getOwnerId()).orElse(null);
-                        if (organizer != null) {
-                            event.setOrganizerName(organizer.getName());
-                        }
-                    }
-                    
-                    // Set venue if location exists
-                    
-                    pastEvents.add(event);
-                }
-            }
-        }
-        
-        return ResponseEntity.ok(pastEvents);
-    }
+
 
     @GetMapping("/{firebaseUid}/followers")
     public ResponseEntity<List<Participant>> getFollowers(@PathVariable String firebaseUid) {
