@@ -81,5 +81,14 @@ public class OrganizationController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Organization> getOrganizationById(@PathVariable String id) {
+        Organization organization = organizationRepository.findById(id).orElse(null);
+        if (organization != null) {
+            return ResponseEntity.ok(organization);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 
 } 
