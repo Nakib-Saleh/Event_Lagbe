@@ -141,15 +141,6 @@ const Home = () => {
     return shuffled.slice(0, 6);
   }, [participants, organizers, organizations, user?.firebaseUid, followingFirebaseUids]);
 
-  // Local UI follow toggle (does not hit API — mirrors button state only)
-  const handleFollow = (id) => {
-    setFollowedUsers((prev) => {
-      const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
-      return s;
-    });
-  };
-
   const carouselSlides = [
     {
       image: pic1,
@@ -637,26 +628,10 @@ const Home = () => {
                             )}
 
                             {/* Follow */}
-                            <button
-                              onClick={() => handleFollow(id)}
-                              className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                                followedUsers.has(id)
-                                  ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                  : 'bg-blue-600 text-white hover:bg-blue-700'
-                              }`}
-                            >
-                              {followedUsers.has(id) ? (
-                                <span className="flex items-center justify-center gap-2">
-                                  <FiCheckCircle className="text-sm" />
-                                  Following
-                                </span>
-                              ) : (
-                                <span className="flex items-center justify-center gap-2">
-                                  <FiPlus className="text-sm" />
-                                  Follow
-                                </span>
-                              )}
-                            </button>
+                            <Link to={`/profile/${item.firebaseUid}`}
+                              className={`w-full btn font-bold border-2 border-blue-500 bg-blue-50 py-2 px-4 rounded-lg font-medium`}>
+                              View Profile
+                            </Link>
                           </div>
                         </div>
                       </div>

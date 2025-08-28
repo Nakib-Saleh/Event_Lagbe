@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchEventsByIds, splitRunningPast, EventCard } from "./shared";
+import { MdOutlineEmojiEvents } from "react-icons/md";
 
 const ParticipantPublic = ({ profile }) => {
   const [tab, setTab] = useState("about"); // about | registered
@@ -69,22 +70,30 @@ const ParticipantPublic = ({ profile }) => {
       {tab === "registered" && (
         <div className="mt-4">
           {/* Sub-tabs */}
-          <div role="tablist" className="tabs tabs-lifted">
+          <div role="tablist" className="tabs tabs-lifted gap-6">
             <button
-              className={`tab ${subTab === "running" ? "tab-active" : ""}`}
+              className={`tab items-center justify-center transition-all duration-300 ease-in-out px-6 py-2 font-medium text-lg ${
+                subTab === "running"
+                  ? "tab-active bg-blue-600 text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700"
+              }`}
               onClick={() => setSubTab("running")}
             >
               Running
             </button>
             <button
-              className={`tab ${subTab === "past" ? "tab-active" : ""}`}
+              className={`tab items-center justify-center transition-all duration-300 ease-in-out px-6 py-2 font-medium text-lg ${
+                subTab === "past"
+                  ? "tab-active bg-blue-600 text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700"
+              }`}
               onClick={() => setSubTab("past")}
             >
               Past
             </button>
           </div>
 
-          <div className="mt-4">
+          <div className="my-8">
             {loading ? (
               <div className="flex justify-center py-12">
                 <span className="loading loading-spinner" />
@@ -99,8 +108,10 @@ const ParticipantPublic = ({ profile }) => {
                 ))}
                 {(subTab === "running" ? events.running : events.past).length ===
                   0 && (
-                  <div className="text-base-content/60">
-                    No {subTab} events.
+                  <div className="text-center py-12 bg-gray-50 rounded-lg col-span-full">
+                    <MdOutlineEmojiEvents className="text-6xl text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">No {subTab} Events Found</h3>
+                    <p className="text-gray-500">There are no {subTab} events to display at the moment.</p>
                   </div>
                 )}
               </div>

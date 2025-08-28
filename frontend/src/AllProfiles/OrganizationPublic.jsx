@@ -6,6 +6,8 @@ import {
   EventCard,
   fetchOrganizersByIds, // fallback if endpoint not present
 } from "./shared"; 
+import { FiImage, FiUsers } from "react-icons/fi";
+import { MdOutlineEmojiEvents } from "react-icons/md";
 
 const OrganizationPublic = ({ profile }) => {
   const [tab, setTab] = useState("about"); // about | gallery | organizers | events
@@ -127,7 +129,11 @@ const OrganizationPublic = ({ profile }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-base-content/60">No images uploaded.</div>
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <FiImage className="text-6xl text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No Images Found</h3>
+                <p className="text-gray-500">It looks like this organization hasn't uploaded any images yet.</p>
+              </div>
             )}
           </div>
         </div>
@@ -142,7 +148,11 @@ const OrganizationPublic = ({ profile }) => {
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
             ) : organizers.length === 0 ? (
-              <div className="text-gray-500 text-center">No verified organizers found.</div>
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <FiUsers className="text-6xl text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No Organizers Found</h3>
+                <p className="text-gray-500">This organization has not added any organizers yet.</p>
+              </div>
             ) : (
               <div className="max-w-3xl mx-auto w-full">
                 <h2 className="text-2xl font-bold mb-4">Verified Organizers</h2>
@@ -190,16 +200,24 @@ const OrganizationPublic = ({ profile }) => {
       {/* Organized Events with Running/Past sub-tabs */}
       {tab === "events" && (
         <div className="mt-4">
-          <div role="tablist" className="tabs tabs-lifted">
-            <button className={`tab ${subTab === "running" ? "tab-active" : ""}`} onClick={() => setSubTab("running")}>
+          <div role="tablist" className="tabs tabs-lifted gap-6">
+            <button className={`tab items-center justify-center transition-all duration-300 ease-in-out px-6 py-2 font-medium text-lg ${
+              subTab === "running"
+                ? "tab-active bg-blue-600 text-white shadow-md" 
+                : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700" 
+            }`} onClick={() => setSubTab("running")}>
               Running
             </button>
-            <button className={`tab ${subTab === "past" ? "tab-active" : ""}`} onClick={() => setSubTab("past")}>
+            <button className={`tab items-center justify-center transition-all duration-300 ease-in-out px-6 py-2 font-medium text-lg ${
+              subTab === "past"
+                ? "tab-active bg-blue-600 text-white shadow-md" 
+                : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700" 
+            }`} onClick={() => setSubTab("past")}>
               Past
             </button>
           </div>
 
-          <div className="mt-4">
+          <div className="my-8">
             {loadingEvents ? (
               <div className="flex justify-center py-12">
                 <span className="loading loading-spinner" />
@@ -210,7 +228,11 @@ const OrganizationPublic = ({ profile }) => {
                   <EventCard key={e.id} event={e} />
                 ))}
                 {(subTab === "running" ? events.running : events.past).length === 0 && (
-                  <div className="text-base-content/60">No {subTab} events.</div>
+                  <div className="text-center py-12 bg-gray-50 rounded-lg col-span-full">
+                    <MdOutlineEmojiEvents className="text-6xl text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">No {subTab} Events Found</h3>
+                    <p className="text-gray-500">There are no {subTab} events to display at the moment.</p>
+                  </div>
                 )}
               </div>
             )}
