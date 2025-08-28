@@ -94,7 +94,7 @@ const RegisteredEvents = () => {
                 {/* Event Image */}
                 <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
                   <img
-                    src={event.bannerUrl}
+                    src={event.coverImageUrl}
                     alt={event.title}
                     className="w-full h-full object-cover"
                   />

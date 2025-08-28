@@ -688,12 +688,9 @@ const PublicProfile = () => {
                        {/* Event Banner */}
                        <div className="w-32 h-24 flex-shrink-0">
                          <img
-                           src={event.bannerUrl || "https://via.placeholder.com/128x96?text=Event"}
+                           src={event.coverImageUrl}
                            alt={event.title}
                            className="w-full h-full object-cover"
-                           onError={(e) => {
-                             e.target.src = "https://via.placeholder.com/128x96?text=Event";
-                           }}
                          />
                        </div>
                        

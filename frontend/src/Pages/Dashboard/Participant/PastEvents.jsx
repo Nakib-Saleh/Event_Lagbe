@@ -79,7 +79,7 @@ const PastEvents = () => {
                 {/* Event Image */}
                 <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
                   <img
-                    src={event.bannerUrl || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80"}
+                    src={event.coverImageUrl || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80"}
                     alt={event.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {

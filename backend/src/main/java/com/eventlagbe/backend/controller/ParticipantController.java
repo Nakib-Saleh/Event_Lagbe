@@ -94,12 +94,6 @@ public class ParticipantController {
                         }
                     }
                     
-                    
-                    // Set banner URL if cover image exists
-                    if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
-                        event.setBannerUrl(event.getCoverImageUrl());
-                    }
-                    
                     bookmarkedEvents.add(event);
                 }
             }
@@ -126,12 +120,6 @@ public class ParticipantController {
                         if (organizer != null) {
                             event.setOrganizerName(organizer.getName());
                         }
-                    }
-                    
-                    
-                    // Set banner URL if cover image exists
-                    if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
-                        event.setBannerUrl(event.getCoverImageUrl());
                     }
                     
                     registeredEvents.add(event);
@@ -163,11 +151,6 @@ public class ParticipantController {
                     }
                     
                     // Set venue if location exists
-                    
-                    // Set banner URL if cover image exists
-                    if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
-                        event.setBannerUrl(event.getCoverImageUrl());
-                    }
                     
                     pastEvents.add(event);
                 }
