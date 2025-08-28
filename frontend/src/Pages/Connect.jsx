@@ -4,6 +4,7 @@ import { MdOutlineEmojiEvents, MdOutlineBusinessCenter } from "react-icons/md";
 import AuthContext from "../Provider/AuthContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const Connect = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -266,7 +267,7 @@ const Connect = () => {
       {!loading && !error && visibleData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleData.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <Link key={item.id} to={`/profile/${item.firebaseUid}`} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-4">
                 {/* Profile Picture */}
                 <img
@@ -343,7 +344,7 @@ const Connect = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

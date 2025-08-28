@@ -277,21 +277,6 @@ const AdminProfile = () => {
               </p>
             </div>
 
-            {/* Created / Updated Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="label"><span className="label-text">Created At</span></label>
-                <p className="text-sm text-gray-500">
-                  {profileData.createdAt ? new Date(profileData.createdAt).toLocaleString() : 'Not available'}
-                </p>
-              </div>
-              <div>
-                <label className="label"><span className="label-text">Last Updated</span></label>
-                <p className="text-sm text-gray-500">
-                  {profileData.updatedAt ? new Date(profileData.updatedAt).toLocaleString() : 'Not available'}
-                </p>
-              </div>
-            </div>
 
             {/* Save Button */}
             {isEditing && (

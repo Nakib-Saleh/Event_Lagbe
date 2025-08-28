@@ -8,6 +8,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import  AuthContext  from "../Provider/AuthContext";
+import { toast } from "react-hot-toast";
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -147,6 +148,19 @@ const EventDetails = () => {
       minute: "2-digit",
     });
   };
+
+  const handleShare = () => {
+      const pageUrl = window.location.href;
+      navigator.clipboard.writeText(pageUrl)
+        .then(() => {
+          toast.success("Link copied to clipboard!");
+          console.log('Success');
+        })
+        .catch((err) => {
+          console.error("Failed to copy: ", err);
+          toast.error("Failed to copy link.");
+        });
+    };
 
   const handleBookmark = async () => {
     if (!user || userRole !== 'participant') return;
@@ -577,7 +591,7 @@ const EventDetails = () => {
                     Join Event
                   </button>
                 )}
-                <button className="btn btn-outline btn-block font-bold tex-3xl">
+                <button onClick={handleShare} className="btn btn-outline btn-block font-bold tex-3xl">
                   <FaShareAlt className="text-clack" /> Share Event
                 </button>
               </div>
@@ -683,10 +697,6 @@ const EventDetails = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Going</span>
                   <span className="font-medium">{goingCount} people</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shares</span>
-                  <span className="font-medium">{event?.event?.sharesCount || 0}</span>
                 </div>
               </div>
             </div>

@@ -95,10 +95,6 @@ public class ParticipantController {
                         }
                     }
                     
-                    // Set venue if location exists
-                    if (event.getLocation() != null && event.getVenue() == null) {
-                        event.setVenue(event.getLocation());
-                    }
                     
                     // Set banner URL if cover image exists
                     if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
@@ -133,10 +129,6 @@ public class ParticipantController {
                         }
                     }
                     
-                    // Set venue if location exists
-                    if (event.getLocation() != null && event.getVenue() == null) {
-                        event.setVenue(event.getLocation());
-                    }
                     
                     // Set banner URL if cover image exists
                     if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
@@ -172,9 +164,6 @@ public class ParticipantController {
                     }
                     
                     // Set venue if location exists
-                    if (event.getLocation() != null && event.getVenue() == null) {
-                        event.setVenue(event.getLocation());
-                    }
                     
                     // Set banner URL if cover image exists
                     if (event.getCoverImageUrl() != null && event.getBannerUrl() == null) {
