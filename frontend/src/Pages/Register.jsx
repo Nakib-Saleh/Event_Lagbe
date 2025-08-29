@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import AuthContext from "../Provider/AuthContext";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload";
-import { motion } from "framer-motion";
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser, FaIdCard, FaBuilding, FaFileUpload, FaTimes } from "react-icons/fa";
 import Lottie from "lottie-react";
 import animationData from "../assets/ladylog.json";
 
@@ -135,353 +135,343 @@ const Register = () => {
     }
   };
 
-  const renderForm = () => {
-    const baseFields = (
-      
-        <>
-          <div>
-            <Toaster />
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Full Name</span>
-            </label>
-            <div>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter your full name"
-                className="input input-bordered w-full"
-                required
-              />
-            </div>
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Username</span>
-            </label>
-            <div>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Choose a username"
-                className="input input-bordered w-full"
-                required
-              />
-            </div>
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Email</span>
-            </label>
-            <div>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                className="input input-bordered w-full"
-                required
-              />
-            </div>
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Password</span>
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Enter password"
-                className="input input-bordered w-full pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showPassword ? (
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Confirm Password</span>
-            </label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder="Confirm password"
-                className="input input-bordered w-full pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showConfirmPassword ? (
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-        </>
-      
-    );
-
-    if (userType === "organizer") {
-      return (
-        <>
-          {baseFields}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">Select Organization</span>
-            </label>
-            <select
-              className="select select-bordered w-full"
-              required
-              name="organizationId"
-              value={formData.organizationId}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  organizationId: e.target.value,
-                }))
-              }
-            >
-              <option value="">Choose organization</option>
-              {organizations.map((org) => (
-                <option key={org.id || org._id} value={org.id || org._id}>
-                  {org.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </>
-      );
-    }
-
-    if (userType === "participant") {
-      return (
-        <>
-          {baseFields}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold">ID Documents</span>
-            </label>
-            <input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={handleFileChange}
-              className="file-input file-input-bordered w-full"
-              multiple
-              required
-            />
-            <label className="label">
-              <span className="label-text-alt text-gray-500">
-                Upload your ID documents (JPG, PNG)
-              </span>
-            </label>
-            {formData.idDocuments && formData.idDocuments.length > 0 && (
-              <div className="mt-2 p-2 bg-base-200 rounded-lg">
-                <ul className="text-sm space-y-2">
-                  {formData.idDocuments.map((file, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center bg-base-300 rounded-lg p-2 justify-between"
-                    >
-                      {file.name}
-                      <button
-                        type="button"
-                        className="btn btn-xs btn-error"
-                        onClick={() => handleRemoveDocument(idx)}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </>
-      );
-    }
-    return baseFields;
-  };
-
   const getUserTypeColor = (type) => {
     const colors = {
-      admin: "badge-error",
-      organization: "badge-primary",
-      organizer: "badge-success",
-      participant: "badge-secondary",
+      admin: "bg-red-500",
+      organization: "bg-blue-500",
+      organizer: "bg-green-500",
+      participant: "bg-purple-500",
     };
-    return colors[type] || "badge-neutral";
+    return colors[type] || "bg-gray-500";
+  };
+
+  const getUserTypeIcon = (type) => {
+    const icons = {
+      admin: "👨‍💼",
+      organization: "🏢",
+      organizer: "📋",
+      participant: "👤",
+    };
+    return icons[type] || "👤";
   };
 
   return (
-    <div className="min-h-screen flex flex-row items-center justify-center bg-base-100 py-8">
-      <div className="w-1/2 hidden md:flex items-center justify-center p-8">
-        <Lottie animationData={animationData} loop={true} />
-      </div>
-      <div className="container mx-auto px-4 md:w-1/2">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-base-100 shadow-xl max-w-md mx-auto"
-        >
-          <div className="card-body">
-            <h2 className="text-2xl font-bold text-center mb-6 w-full">
-              Register
-            </h2>
-            <div className="form-control mb-6">
-              <label className="label">
-                <span className="label-text font-semibold">
-                  Select User Type
-                </span>
-              </label>
-              <select
-                value={userType}
-                onChange={(e) => setUserType(e.target.value)}
-                className="select select-bordered w-full"
-              >
-                <option value="">Choose your role</option>
-                <option value="admin">Admin</option>
-                <option value="organization">Organization</option>
-                <option value="organizer">Organizer</option>
-                <option value="participant">Participant</option>
-              </select>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 transition-colors duration-300">
+      
+      {/* Main Container */}
+      <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden transition-colors duration-300">
+        <div className="flex flex-col lg:flex-row min-h-[700px]">
+          
+          {/* Left Side - Animation */}
+          <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 dark:from-blue-800 dark:via-purple-800 dark:to-indigo-900 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden transition-colors duration-300">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full"></div>
+              <div className="absolute bottom-20 right-10 w-16 h-16 bg-white rounded-full"></div>
+              <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-white rounded-full"></div>
             </div>
-            {userType && (
-              <div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="w-full"
-              >
-                <div className="flex items-center mb-4">
-                  <div
-                    className={`badge ${getUserTypeColor(
-                      userType
-                    )} p-3 text-sm font-semibold text-white`}
-                  >
-                    {userType.charAt(0).toUpperCase() + userType.slice(1)}{" "}
-                    Registration
+            
+            <div className="relative z-10 text-center">
+              <div className="mb-8">
+                <Lottie 
+                  animationData={animationData} 
+                  loop={true} 
+                  className="w-64 h-64 mx-auto"
+                />
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                Join Event Lagbe
+              </h1>
+              <p className="text-blue-100 dark:text-blue-200 text-lg max-w-md mx-auto">
+                Create your account and start organizing or participating in amazing events
+              </p>
+            </div>
+          </div>
+
+          {/* Right Side - Registration Form */}
+          <div className="lg:w-1/2 p-8 lg:p-12 flex items-center justify-center">
+            <div className="w-full max-w-md">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  Create Account
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Choose your role and join our community
+                </p>
+              </div>
+
+              {/* User Type Selection */}
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+                  Select Your Role
+                </label>
+                <select
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white"
+                >
+                  <option value="">Choose your role</option>
+                  <option value="admin">Admin</option>
+                  <option value="organization">Organization</option>
+                  <option value="organizer">Organizer</option>
+                  <option value="participant">Participant</option>
+                </select>
+              </div>
+
+              {/* User Type Badge */}
+              {userType && (
+                <div className="mb-6">
+                  <div className={`inline-flex items-center px-4 py-2 rounded-full text-white font-semibold ${getUserTypeColor(userType)}`}>
+                    <span className="mr-2 text-lg">{getUserTypeIcon(userType)}</span>
+                    {userType.charAt(0).toUpperCase() + userType.slice(1)} Registration
                   </div>
                 </div>
-                <form onSubmit={handleSubmit}>
-                  <div className="space-y-4">
-                    {renderForm()}
-                    <button
-                      type="submit"
-                      className="btn bg-red-500 text-white w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading
-                        ? "Registering..."
-                        : `Register as ${
-                            userType.charAt(0).toUpperCase() + userType.slice(1)
-                          }`}
-                    </button>
+              )}
+
+              {/* Registration Form */}
+              {userType && (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Full Name Field */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaUser className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Enter your full name"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Username Field */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Username
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaIdCard className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <input
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        placeholder="Choose a username"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="Enter your email"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="Enter password"
+                        className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password Field */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="Confirm password"
+                        className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Organization Selection (for Organizer) */}
+                  {userType === "organizer" && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        Select Organization
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaBuilding className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        </div>
+                        <select
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white"
+                          required
+                          name="organizationId"
+                          value={formData.organizationId}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              organizationId: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">Choose organization</option>
+                          {organizations.map((org) => (
+                            <option key={org.id || org._id} value={org.id || org._id}>
+                              {org.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ID Documents Upload (for Participant) */}
+                  {userType === "participant" && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        ID Documents
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaFileUpload className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        </div>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={handleFileChange}
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          multiple
+                          required
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Upload your ID documents (JPG, PNG, PDF)
+                      </p>
+                      
+                      {/* File List */}
+                      {formData.idDocuments && formData.idDocuments.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {formData.idDocuments.map((file, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                            >
+                              <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{file.name}</span>
+                              <button
+                                type="button"
+                                className="text-red-500 hover:text-red-700 transition-colors"
+                                onClick={() => handleRemoveDocument(idx)}
+                              >
+                                <FaTimes className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-800 dark:hover:to-purple-800 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Creating account...
+                      </div>
+                    ) : (
+                      `Register as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`
+                    )}
+                  </button>
+
+                  {/* Login Link */}
+                  <div className="text-center">
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        onClick={() => navigate("/login")}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors duration-200"
+                      >
+                        Sign in here
+                      </button>
+                    </p>
                   </div>
                 </form>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-          <div className="flex justify-center py-4">
-            <h3 className="text-center">
-              Already have an account?
-              <span
-                className="text-blue-500 text-center py-2 cursor-pointer"
-                onClick={() => navigate("/login")}
-              >
-                {" "}
-                Login Now
-              </span>
-            </h3>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

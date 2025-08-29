@@ -35,13 +35,24 @@ const RegisteredEvents = () => {
 
   const handleUnregister = async (eventId) => {
     try {
-      await axios.delete(
-        `http://localhost:2038/api/participant/${user.firebaseUid}/register/${eventId}`
+      const response = await fetch(
+        `http://localhost:2038/api/events/${eventId}/going`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            participantId: user.firebaseUid,
+          }),
+        }
       );
-      setRegisteredEvents((prev) =>
+      if (response.ok) {
+        setRegisteredEvents((prev) =>
         prev.filter((event) => event.id !== eventId)
       );
       toast.success("Successfully unregistered from event");
+      }
     } catch (error) {
       console.error("Error unregistering from event:", error);
       toast.error("Failed to unregister from event");

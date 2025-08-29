@@ -3,6 +3,9 @@ package com.eventlagbe.backend.Controller;
 import com.eventlagbe.backend.Models.Skill;
 import com.eventlagbe.backend.Repository.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,17 @@ public class SkillController {
     @GetMapping
     public List<Skill> getAllSkills() {
         return skillRepository.findAll();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<Skill>> searchSkills(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Skill> skills = skillRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(name, pageable);
+        return ResponseEntity.ok(skills);
     }
 
     @PostMapping

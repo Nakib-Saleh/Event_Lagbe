@@ -729,6 +729,10 @@ const EventDetails = () => {
                   <span className="text-gray-600">Going</span>
                   <span className="font-medium">{goingCount} people</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Registered</span>
+                  <span className="font-medium">{event.event.registeredBy?.length || 0} people</span>
+                </div>
               </div>
             </div>
 

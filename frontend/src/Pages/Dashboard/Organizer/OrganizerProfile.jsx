@@ -1,25 +1,27 @@
 import axios from 'axios';
 import React, { useEffect, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
-import { FaHeart } from "react-icons/fa";
-import { CiHeart } from "react-icons/ci";
 import { FaCheckCircle } from "react-icons/fa";
 import { debounce } from 'lodash';
 
 const OrganizerProfile = () => {
   const { user, userRole } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState(null);
+  const [organizationData, setOrganizationData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const [isFollowing, setIsFollowing] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
 
-  const handleToggleFollow = () => {
-    setIsFollowing(prev => !prev);
+  const handleOrganizationClick = () => {
+    if (organizationData?.firebaseUid) {
+      navigate(`/profile/${organizationData.firebaseUid}`);
+    }
   };
 
   useEffect(() => {
@@ -29,6 +31,17 @@ const OrganizerProfile = () => {
         const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
         setProfileData(response.data);
         setFormData(response.data);
+        
+        // Fetch organization data if organizationId exists
+        if (response.data.organizationId) {
+          try {
+            const orgResponse = await axios.get(`http://localhost:2038/api/organization/${response.data.organizationId}`);
+            setOrganizationData(orgResponse.data);
+          } catch (orgError) {
+            console.error("Error fetching organization data:", orgError);
+            // Don't show error toast for organization fetch failure
+          }
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
         toast.error("Failed to fetch profile data");
@@ -206,10 +219,10 @@ const OrganizerProfile = () => {
 
       {/* Name + Username + Edit */}
       <div className="pt-20 px-6 sm:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-gray-800">
+        <div className="flex flex-col md:flex-row justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold text-gray-800">
                 {profileData.name || profileData.username}
               </h2>
               {profileData.isVerified && (
@@ -219,29 +232,31 @@ const OrganizerProfile = () => {
                 </span>
               )}
             </div>
-            <p className="text-gray-500">@{profileData.username || "unknown"}</p>
-            <div className="flex gap-4 text-sm text-gray-600 mt-1">
-              <span>{profileData.followers?.length || 0} Followers</span>
-              <span>{profileData.following?.length || 0} Following</span>
-              <span>{profileData.eventIds?.length || 0} Events</span>
+            <p className="text-gray-500 text-lg mb-4">@{profileData.username || "unknown"}</p>
+            
+            {/* Quick Stats */}
+            <div className="flex flex-wrap gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.followers?.length || 0}</span>
+                <span className="text-gray-500">Followers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.following?.length || 0}</span>
+                <span className="text-gray-500">Following</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.eventIds?.length || 0}</span>
+                <span className="text-gray-500">Events</span>
+              </div>
             </div>
           </div>
-          <div className='flex gap-4'>
-            <button onClick={handleToggleFollow}
-              className={`btn flex items-center gap-2 transition duration-200 ${
-              !isFollowing ? "bg-gray-200 text-black" : "bg-red-600 text-white"
-              }`}
-            >
-              {!isFollowing ? (
-                <CiHeart className="text-xl" />
-              ) : (
-                <FaHeart className="text-xl" />
-              )}
-              {isFollowing ? "Following" : "Follow"}
-            </button>
+          <div className="flex gap-3 mt-4 md:mt-0">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="btn bg-blue-600 text-white"
+              className="btn btn-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </button>
@@ -249,110 +264,200 @@ const OrganizerProfile = () => {
         </div>
       </div>
 
-      <div className='border-b-2 border-gray-400 w-full my-4'></div>
+      <div className="border-b-2 border-gray-400 w-full my-4"></div>
             
       {/* About Section */}
-      <div className="bg-white mt-6 p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">About</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Email</span>
-            </label>
-            <p className="text-gray-700">{profileData.email}</p>
+      <div className="mt-6 space-y-6">
+        {/* Basic Information Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Basic Information</h3>
           </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+              </div>
+              <p className="text-gray-800 font-medium">{profileData.email}</p>
+            </div>
 
-          {/* Name (editable) */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Name</span>
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="name"
-                value={formData.name || ''}
-                onChange={handleInputChange}
-                className="input input-bordered"
-                placeholder="Enter your name"
-              />
-            ) : (
-              <p className="text-gray-700">{profileData.name || 'Not provided'}</p>
-            )}
-          </div>
-
-          {/* Username (editable with validation) */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Username</span>
-            </label>
-            {isEditing ? (
-              <div>
+            {/* Name */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Name</label>
+              </div>
+              {isEditing ? (
                 <input
                   type="text"
-                  name="username"
-                  value={formData.username || ''}
-                  onChange={handleUsernameChange}
-                  className={`input input-bordered ${usernameError ? 'input-error' : ''}`}
-                  placeholder="Enter username"
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleInputChange}
+                  className="input input-bordered w-full bg-white"
+                  placeholder="Enter your name"
                 />
-                {isCheckingUsername && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="loading loading-spinner loading-xs"></span>
-                    <span className="text-sm text-gray-500">Checking username availability...</span>
-                  </div>
-                )}
-                {usernameError && (
-                  <p className="text-error text-sm mt-1">{usernameError}</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-700">{profileData.username || 'Not provided'}</p>
-            )}
-          </div>
-
-          {/* Organization ID */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Organization ID</span>
-            </label>
-            <p className="text-gray-700">{profileData.organizationId || 'Not assigned'}</p>
-          </div>
-
-          {/* Verification Status */}
-          <div className="form-control flex flex-col gap-2">
-            <label className="label">
-              <span className="label-text font-medium">Verification Status</span>
-            </label>
-            <span className={`badge ${profileData.isVerified ? 'badge-success' : 'badge-warning'}`}>
-              {profileData.isVerified ? 'Verified' : 'Pending Verification'}
-            </span>
-          </div>
-
-          {/* Created At */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Member Since</span>
-            </label>
-            <p className="text-gray-700">
-              {profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString() : 'Unknown'}
-            </p>
-          </div>
-
-          {/* Save Button */}
-          {isEditing && (
-            <div className="flex justify-end">
-              <button 
-                type="submit" 
-                className="btn btn-primary"
-                disabled={!!usernameError || isCheckingUsername}
-              >
-                Save Changes
-              </button>
+              ) : (
+                <p className="text-gray-800 font-medium">{profileData.name || 'Not provided'}</p>
+              )}
             </div>
-          )}
-        </form>
+
+            {/* Username */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Username</label>
+              </div>
+              {isEditing ? (
+                <div>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username || ''}
+                    onChange={handleUsernameChange}
+                    className={`input input-bordered w-full bg-white ${usernameError ? 'input-error' : ''}`}
+                    placeholder="Enter username"
+                  />
+                  {isCheckingUsername && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="loading loading-spinner loading-xs"></span>
+                      <span className="text-sm text-gray-500">Checking username availability...</span>
+                    </div>
+                  )}
+                  {usernameError && (
+                    <p className="text-error text-sm mt-2">{usernameError}</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-800 font-medium">@{profileData.username || 'Not provided'}</p>
+              )}
+            </div>
+
+            {/* Organization */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Organization</label>
+              </div>
+              {organizationData ? (
+                <div 
+                  className="flex items-center gap-3 cursor-pointer group"
+                  onClick={handleOrganizationClick}
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all">
+                    <img
+                      src={organizationData.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp"}
+                      alt={organizationData.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "https://img.daisyui.com/images/profile/demo/2@94.webp";
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-gray-800 font-medium group-hover:text-blue-600 transition-colors">
+                      {organizationData.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{organizationData.email}</p>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              ) : (
+                <p className="text-gray-800 font-medium">{profileData.organizationId ? 'Loading organization...' : 'Not assigned'}</p>
+              )}
+            </div>
+
+            {/* Save Button */}
+            {isEditing && (
+              <div className="flex justify-end pt-4">
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-lg bg-gradient-to-r from-blue-500 to-purple-600 border-0 hover:from-blue-600 hover:to-purple-700"
+                  disabled={!!usernameError || isCheckingUsername}
+                >
+                  Save Changes
+                </button>
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* Verification & Status Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+              <FaCheckCircle className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Verification & Status</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Verification Status */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Verification Status</label>
+              </div>
+              <span className={`badge ${profileData.isVerified ? 'badge-success' : 'badge-warning'} gap-1`}>
+                <FaCheckCircle className="text-xs" />
+                {profileData.isVerified ? 'Verified' : 'Pending Verification'}
+              </span>
+            </div>
+
+            {/* Member Since */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Member Since</label>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) : 'Unknown'}
+              </p>
+            </div>
+
+            {/* Last Updated */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Last Updated</label>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.updatedAt ? new Date(profileData.updatedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) : 'Unknown'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

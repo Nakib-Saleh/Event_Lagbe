@@ -30,9 +30,23 @@ const BookmarkedEvents = () => {
 
   const handleRemoveBookmark = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:2038/api/participant/${user.firebaseUid}/bookmark/${eventId}`);
-      setBookmarkedEvents(prev => prev.filter(event => event.id !== eventId));
-      toast.success("Event removed from bookmarks");
+      const response = await fetch(
+        `http://localhost:2038/api/events/${eventId}/bookmark`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            participantId: user.firebaseUid,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setBookmarkedEvents(prev => prev.filter(event => event.id !== eventId));
+        toast.success("Event removed from bookmarks");
+      }
     } catch (error) {
       console.error("Error removing bookmark:", error);
       toast.error("Failed to remove bookmark");

@@ -3,32 +3,15 @@ import React, { useEffect, useContext, useState } from "react";
 import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
-import { FaHeart } from "react-icons/fa";
-import { CiHeart } from "react-icons/ci";
 import { FaCheckCircle } from "react-icons/fa";
 
 const Profile = () => {
-  const TABS = [
-    { id: "about", label: "About" },
-    { id: "gallery", label: "Gallery" },
-    { id: "events", label: "Events" },
-    { id: "organizers", label: "Organizers" },
-    { id: "followers", label: "Followers" },
-    { id: "following", label: "Following" },
-  ];
-
   const { user, userRole } = useContext(AuthContext);
   const [organizers, setOrganizers] = useState([]);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [pages, setPages] = useState("about");
-
-  const handleToggleFollow = () => {
-    setIsFollowing(prev => !prev);
-  };
 
   useEffect(() => {
     const fetchOrganizers = async () => {
@@ -216,10 +199,10 @@ const Profile = () => {
 
       {/* Name + Username + Edit */}
       <div className="pt-20 px-6 sm:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-gray-800">
+        <div className="flex flex-col md:flex-row justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold text-gray-800">
                 {profileData.name || profileData.username}
               </h2>
               {profileData.isVerified && (
@@ -229,30 +212,36 @@ const Profile = () => {
                 </span>
               )}
             </div>
-            <p className="text-gray-500">@{profileData.username || "unknown"}</p>
-            <div className="flex gap-4 text-sm text-gray-600 mt-1">
-              <span>{profileData.followers?.length || 0} Followers</span>
-              <span>{profileData.following?.length || 0} Following</span>
-              <span>{profileData.eventIds?.length || 0} Events</span>
-              <span>{organizers?.length || 0} Organizers</span>
+            <p className="text-gray-500 text-lg mb-4">@{profileData.username || "unknown"}</p>
+            
+            {/* Quick Stats */}
+            <div className="flex flex-wrap gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.followers?.length || 0}</span>
+                <span className="text-gray-500">Followers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.following?.length || 0}</span>
+                <span className="text-gray-500">Following</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{profileData.eventIds?.length || 0}</span>
+                <span className="text-gray-500">Events</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">{organizers?.length || 0}</span>
+                <span className="text-gray-500">Organizers</span>
+              </div>
             </div>
           </div>
-          <div className='flex gap-4'>
-            <button onClick={handleToggleFollow}
-              className={`btn flex items-center gap-2 transition duration-200 ${
-              !isFollowing ? "bg-gray-200 text-black" : "bg-red-600 text-white"
-              }`}
-            >
-              {!isFollowing ? (
-                <CiHeart className="text-xl" />
-              ) : (
-                <FaHeart className="text-xl" />
-              )}
-              {isFollowing ? "Following" : "Follow"}
-            </button>
+          <div className="flex gap-3 mt-4 md:mt-0">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="btn bg-blue-600 text-white"
+              className="btn btn-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </button>
@@ -260,78 +249,91 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className='border-b-2 border-gray-400 w-full my-4'></div>
+      <div className="border-b-2 border-gray-400 w-full my-4"></div>
             
-      <div role="tablist" className="tabs tabs-boxed gap-x-6">
-        {TABS.map(tab => (
-          <div key={tab.id}
-            onClick={() => setPages(tab.id)}
-            className={`text-center font-bold px-2 pt-2 pb-0 transition border-b-2 cursor-pointer
-              ${pages === tab.id ? "text-red-500 border-red-500" : "text-black border-transparent"} rounded-t-xl`}
-          >
-            {tab.label}
+      {/* About Section */}
+      <div className="mt-6 space-y-6">
+        {/* Basic Information Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Basic Information</h3>
           </div>
-        ))}
-      </div>
-
-      {pages === "about" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Email</span>
-              </label>
-              <p className="text-gray-700">{profileData.email}</p>
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+              </div>
+              <p className="text-gray-800 font-medium">{profileData.email}</p>
             </div>
 
-            {/* Name (editable) */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Name</span>
-              </label>
+            {/* Name */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Organization Name</label>
+              </div>
               {isEditing ? (
                 <input
                   type="text"
                   name="name"
                   value={formData.name || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered"
+                  className="input input-bordered w-full bg-white"
+                  placeholder="Enter organization name"
                 />
               ) : (
-                <p className="text-gray-700">{profileData.name || 'Not provided'}</p>
+                <p className="text-gray-800 font-medium">{profileData.name || 'Not provided'}</p>
               )}
             </div>
 
-            {/* Username (editable) */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Username</span>
-              </label>
+            {/* Username */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Username</label>
+              </div>
               {isEditing ? (
                 <input
                   type="text"
                   name="username"
                   value={formData.username || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered"
+                  className="input input-bordered w-full bg-white"
+                  placeholder="Enter username"
                 />
               ) : (
-                <p className="text-gray-700">{profileData.username || 'Not provided'}</p>
+                <p className="text-gray-800 font-medium">@{profileData.username || 'Not provided'}</p>
               )}
             </div>
 
             {/* Organization Type */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Organization Type</span>
-              </label>
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Organization Type</label>
+              </div>
               {isEditing ? (
                 <select
                   name="type"
                   value={formData.type || ''}
                   onChange={handleInputChange}
-                  className="select select-bordered"
+                  className="select select-bordered w-full bg-white"
                 >
                   <option value="">Select type</option>
                   <option value="corporate">Corporate</option>
@@ -341,35 +343,93 @@ const Profile = () => {
                   <option value="other">Other</option>
                 </select>
               ) : (
-                <p className="text-gray-700">{profileData.type || 'Not specified'}</p>
+                <p className="text-gray-800 font-medium">{profileData.type || 'Not specified'}</p>
               )}
-            </div>
-
-            {/* Verification Status */}
-            <div className="form-control flex flex-col gap-2">
-              <label className="label">
-                <span className="label-text font-medium">Verification Status</span>
-              </label>
-              <span className={`badge ${profileData.isVerified ? 'badge-success' : 'badge-warning'}`}>
-                {profileData.isVerified ? 'Verified' : 'Pending Verification'}
-              </span>
             </div>
 
             {/* Save Button */}
             {isEditing && (
-              <div className="flex justify-end">
-                <button type="submit" className="btn btn-primary">Save Changes</button>
+              <div className="flex justify-end pt-4">
+                <button type="submit" className="btn btn-primary btn-lg bg-gradient-to-r from-blue-500 to-purple-600 border-0 hover:from-blue-600 hover:to-purple-700">
+                  Save Changes
+                </button>
               </div>
             )}
           </form>
         </div>
-      )}
 
-      {pages === "gallery" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
+        {/* Verification & Status Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+              <FaCheckCircle className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Verification & Status</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Verification Status */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Verification Status</label>
+              </div>
+              <span className={`badge ${profileData.isVerified ? 'badge-success' : 'badge-warning'} gap-1`}>
+                <FaCheckCircle className="text-xs" />
+                {profileData.isVerified ? 'Verified' : 'Pending Verification'}
+              </span>
+            </div>
+
+            {/* Account Created */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Account Created</label>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) : 'Unknown'}
+              </p>
+            </div>
+
+            {/* Last Updated */}
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <label className="text-sm font-medium text-gray-700">Last Updated</label>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.updatedAt ? new Date(profileData.updatedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) : 'Unknown'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Gallery Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Gallery</h3>
-            {isEditing && formData.pictureUrls && formData.pictureUrls.length > 0 && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-red-600 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800">Gallery</h3>
+            </div>
+            {isEditing && (formData.pictureUrls || profileData.pictureUrls) && (formData.pictureUrls || profileData.pictureUrls).length > 0 && (
               <div className="flex items-center gap-2">
                 <label className="cursor-pointer">
                   <input
@@ -402,7 +462,7 @@ const Profile = () => {
                       e.target.src = "https://via.placeholder.com/300x300?text=Image+Not+Found";
                     }}
                   />
-                  {isEditing &&  (
+                  {isEditing && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                       <button
                         onClick={() => removeGalleryImage(index)}
@@ -507,110 +567,7 @@ const Profile = () => {
             </div>
           )}
         </div>
-      )}
-
-      {pages === "events" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Events ({profileData.eventIds?.length || 0})</h3>
-          {profileData.eventIds && profileData.eventIds.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.eventIds.map((eventId, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-blue-300 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">{index + 1}</span>
-                  </div>
-                  <span className="font-medium">Event ID: {eventId}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No events created yet</p>
-          )}
-        </div>
-      )}
-
-      {pages === "organizers" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className='text-2xl font-bold text-gray-800'>Verified Organizers</h2>
-            <span className="badge badge-success gap-1">
-              <FaCheckCircle className="text-xs" />
-              {organizers.length} Verified
-            </span>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {organizers.length === 0 ? (
-              <div className="col-span-full text-center py-8">
-                <p className="text-gray-500 mb-2">No verified organizers found.</p>
-                <p className="text-sm text-gray-400">Only verified organizers are displayed here.</p>
-              </div>
-            ) : (
-              organizers.map(org => (
-                <div key={org.id} className="p-4 border rounded shadow-sm flex items-center gap-4">
-                  <div className="relative">
-                    <img 
-                      src={org.profilePictureUrl} 
-                      alt={org.name} 
-                      className="w-12 h-12 rounded-full object-cover"
-                      onError={(e) => {
-                        e.target.src = "https://img.daisyui.com/images/profile/demo/2@94.webp";
-                      }}
-                    />
-                    {org.isVerified && (
-                      <div className="absolute -top-1 -right-1 bg-green-400 rounded-full p-1">
-                        <FaCheckCircle className="text-green-600 text-xs" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{org.name}</h3>
-                    <p className="text-sm text-gray-500">@{org.username}</p>
-                    {org.isVerified && (
-                      <span className="text-xs text-green-600 font-medium">Verified</span>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {pages === "followers" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Followers ({profileData.followers?.length || 0})</h3>
-          {profileData.followers && profileData.followers.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.followers.map((follower, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{follower}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No followers yet</p>
-          )}
-        </div>
-      )}
-
-      {pages === "following" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Following ({profileData.following?.length || 0})</h3>
-          {profileData.following && profileData.following.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.following.map((following, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{following}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">Not following anyone yet</p>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   );
 };

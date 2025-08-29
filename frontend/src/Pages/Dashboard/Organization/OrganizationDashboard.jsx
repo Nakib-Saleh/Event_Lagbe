@@ -75,6 +75,10 @@ const OrganizationDashboard = () => {
       title: "Calendar",
       icon: <FiCalendar className="text-red-600" />,
       badge: { text: "New", color: "badge-success" },
+    },
+    {
+      title: "Registered-List",
+      icon: <FiUsers className="text-red-600" />,
     }
   ];
 

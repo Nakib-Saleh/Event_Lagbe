@@ -35,6 +35,7 @@ public class Event {
 
     private int interestedCount = 0;
     private int goingCount = 0;
+    private List<String> registeredBy = new ArrayList<>();
     private int sharesCount = 0;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
@@ -102,6 +103,9 @@ public class Event {
 
     public int getSharesCount() { return sharesCount; }
     public void setSharesCount(int sharesCount) { this.sharesCount = sharesCount; }
+
+    public List<String> getRegisteredBy() { return registeredBy; }
+    public void setRegisteredBy(List<String> registeredBy) { this.registeredBy = registeredBy; }
 }
 
 

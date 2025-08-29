@@ -28,6 +28,8 @@ import RunningEvents from "../Pages/Dashboard/Organizer/RunningEvents";
 import OrganizerPastEvents from "../Pages/Dashboard/Organizer/PastEvents";
 import OrganizerFollowers from "../Pages/Dashboard/Organizer/Followers";
 import OrganizerFollowing from "../Pages/Dashboard/Organizer/Following";
+import OrganizerRegisteredList from "../Pages/Dashboard/Organizer/RegisteredList";
+import OrganizationRegisteredList from "../Pages/Dashboard/Organization/RegisteredList";
 import PublicProfile from "../Pages/PublicProfile";
 import EventAdd from "../Pages/EventAdd";
 import EventEdit from "../Pages/EventEdit";
@@ -146,6 +148,10 @@ const PublicRoutes = createBrowserRouter([
             path: "/organizationDashboard/following",
             element: <Following></Following>,
           },
+          {
+            path: "/organizationDashboard/registered-list",
+            element: <OrganizationRegisteredList></OrganizationRegisteredList>,
+          },
         ],
       },
       {
@@ -217,6 +223,10 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/organizerDashboard/following",
             element: <OrganizerFollowing></OrganizerFollowing>,
+          },
+          {
+            path: "/organizerDashboard/registered-list",
+            element: <OrganizerRegisteredList></OrganizerRegisteredList>,
           },
         ],
       },

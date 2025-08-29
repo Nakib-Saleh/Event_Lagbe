@@ -259,15 +259,20 @@ public class EventController {
                 bookmarkedEventIds.remove(eventId);
                 bookmarkedBy.remove(participantId);
                 event.setInterestedCount(Math.max(0, event.getInterestedCount() - 1));
+                System.out.println("Removed bookmark: " + participantId + " from event: " + eventId);
+                System.out.println("Updated bookmarkedBy list: " + bookmarkedBy);
             } else {
                 // Add bookmark
                 bookmarkedEventIds.add(eventId);
                 bookmarkedBy.add(participantId);
                 event.setInterestedCount(event.getInterestedCount() + 1);
+                System.out.println("Added bookmark: " + participantId + " to event: " + eventId);
+                System.out.println("Updated bookmarkedBy list: " + bookmarkedBy);
             }
 
             // Save both participant and event
             participant.setBookmarkedEventIds(bookmarkedEventIds);
+            event.setBookmarkedBy(bookmarkedBy);
             participantRepository.save(participant);
             eventRepository.save(event);
 
@@ -306,20 +311,32 @@ public class EventController {
                 registeredEventIds = new ArrayList<>();
             }
 
+            List<String> registeredBy = event.getRegisteredBy();
+            if (registeredBy == null) {
+                registeredBy = new ArrayList<>();
+            }
+
             boolean isGoing = registeredEventIds.contains(eventId);
             
             if (isGoing) {
                 // Remove from going
                 registeredEventIds.remove(eventId);
+                registeredBy.remove(participantId);
                 event.setGoingCount(Math.max(0, event.getGoingCount() - 1));
+                System.out.println("Removed from going: " + participantId + " from event: " + eventId);
+                System.out.println("Updated registeredBy list: " + registeredBy);
             } else {
                 // Add to going
                 registeredEventIds.add(eventId);
+                registeredBy.add(participantId);
                 event.setGoingCount(event.getGoingCount() + 1);
+                System.out.println("Added to going: " + participantId + " to event: " + eventId);
+                System.out.println("Updated registeredBy list: " + registeredBy);
             }
 
             // Save both participant and event
             participant.setRegisteredEventIds(registeredEventIds);
+            event.setRegisteredBy(registeredBy);
             participantRepository.save(participant);
             eventRepository.save(event);
 
@@ -358,6 +375,95 @@ public class EventController {
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get user status"));
+        }
+    }
+
+    @GetMapping("/{eventId}/registered-participants")
+    public ResponseEntity<?> getRegisteredParticipants(
+            @PathVariable String eventId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            // Find the event
+            Event event = eventRepository.findById(eventId).orElse(null);
+            if (event == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            List<String> registeredBy = event.getRegisteredBy();
+            if (registeredBy == null || registeredBy.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                    "participants", new ArrayList<>(),
+                    "totalCount", 0,
+                    "currentPage", page,
+                    "totalPages", 0
+                ));
+            }
+
+            // Calculate pagination
+            int totalCount = registeredBy.size();
+            int totalPages = (int) Math.ceil((double) totalCount / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalCount);
+
+            // Get paginated participant IDs
+            List<String> paginatedParticipantIds = registeredBy.subList(startIndex, endIndex);
+
+            // Fetch participant details
+            List<Map<String, Object>> participants = new ArrayList<>();
+            for (String participantId : paginatedParticipantIds) {
+                Participant participant = participantRepository.findByFirebaseUid(participantId);
+                if (participant != null) {
+                    participants.add(Map.of(
+                        "firebaseUid", participant.getFirebaseUid(),
+                        "name", participant.getName(),
+                        "username", participant.getUsername(),
+                        "email", participant.getEmail(),
+                        "profilePictureUrl", participant.getProfilePictureUrl()
+                    ));
+                }
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "participants", participants,
+                "totalCount", totalCount,
+                "currentPage", page,
+                "totalPages", totalPages
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get registered participants"));
+        }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getEventsByUser(@PathVariable String userId) {
+        try {
+            // Find events created by the user
+            List<Event> events = eventRepository.findByOwnerId(userId);
+            
+            List<Map<String, Object>> eventList = events.stream()
+                .map(event -> {
+                    Map<String, Object> eventMap = Map.of(
+                        "id", event.getId(),
+                        "title", event.getTitle(),
+                        "description", event.getDescription(),
+                        "location", event.getLocation(),
+                        "eventType", event.getEventType(),
+                        "isActive", event.getIsActive(),
+                        "createdAt", event.getCreatedAt(),
+                        "goingCount", event.getGoingCount(),
+                        "interestedCount", event.getInterestedCount(),
+                        "registeredByCount", event.getRegisteredBy() != null ? event.getRegisteredBy().size() : 0
+                    );
+                    return eventMap;
+                })
+                .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of("events", eventList));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get user events"));
         }
     }
 

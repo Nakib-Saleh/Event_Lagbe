@@ -65,8 +65,7 @@ const ParticipantDashboard = () => {
   ];
 
   return (
-    <div className="flex min-h-screen font-roboto">
-      <div><Toaster/></div> 
+    <div className="flex min-h-screen font-roboto"> 
       <Sidebar
         collapsed={isCollapsed}
         className="bg-white border-r border-gray-200 rounded-xl"

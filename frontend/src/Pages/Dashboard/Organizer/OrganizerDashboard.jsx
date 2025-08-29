@@ -22,7 +22,7 @@ import {
 } from "react-icons/fi";
 import { MdOutlineVerifiedUser, MdOutlineReport, MdOutlineEmojiEvents } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+
 import { useContext } from "react";
 import AuthContext from "../../../Provider/AuthContext";
 
@@ -61,9 +61,15 @@ const OrganizerDashboard = () => {
     },
   ];
 
+  const extraItems = [
+    {
+      title: "Registered List",
+      icon: <FiUsers className="text-red-600" />,
+    }
+  ];
+
   return (
-    <div className="flex min-h-screen font-roboto">
-      <div><Toaster/></div> 
+          <div className="flex min-h-screen font-roboto"> 
       <Sidebar
         collapsed={isCollapsed}
         className="bg-white border-r border-gray-200 rounded-xl"
@@ -201,6 +207,47 @@ const OrganizerDashboard = () => {
               </MenuItem>
             );
           })}
+
+          {/* Extra Section */}
+          {!isCollapsed && (
+            <div className="px-4 mb-2 mt-6">
+              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Extra
+              </h3>
+            </div>
+          )}
+
+          {extraItems.map((item, index) => (
+            <MenuItem
+              key={index}
+              onClick={() => {
+                navigate(`/organizerDashboard/${item.title.toLowerCase().replace(/\s+/g, '-')}`);
+                setSelected(item.title);
+              }}
+              className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
+                selected === item.title
+                  ? "bg-red-50 text-red-600"
+                  : "hover:bg-gray-50"
+              }`}
+              style={{
+                padding: "12px 16px",
+                margin: "4px 8px",
+                borderRadius: "8px",
+              }}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  {item.icon}
+                  {!isCollapsed && (
+                    <span className="font-medium">{item.title}</span>
+                  )}
+                </div>
+                {!isCollapsed && (
+                  <FiChevronRight className="text-gray-400 text-sm" />
+                )}
+              </div>
+            </MenuItem>
+          ))}
         </Menu>
 
         {/* Footer Card */}
