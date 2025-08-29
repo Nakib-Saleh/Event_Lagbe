@@ -46,45 +46,39 @@ public class EventController {
 
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_DATE_TIME;
 
-    private LocalDateTime parseToLocalDateTime(Object value) {
+    private Instant parseToInstant(Object value) {
         if (value == null) return null;
         String s = value.toString();
         
-        // Try parsing as date only (YYYY-MM-DD format)
-        try {
-            if (s.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                return LocalDate.parse(s).atStartOfDay();
-            }
-        } catch (Exception ignored) {
-        }
-        
         // Try parsing as ISO instant first (most common from frontend)
         try {
-            return Instant.parse(s).atZone(ZoneOffset.UTC).toLocalDateTime();
+            return Instant.parse(s);
         } catch (Exception ignored) {
         }
         
         // Try parsing as ISO offset date time
         try {
-            return OffsetDateTime.parse(s, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            return OffsetDateTime.parse(s, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant();
         } catch (Exception ignored) {
         }
         
-        // Try parsing as ISO local date time
+        // Try parsing as ISO local date time and convert to UTC
         try {
-            return LocalDateTime.parse(s, ISO);
+            return LocalDateTime.parse(s, ISO).atZone(ZoneOffset.UTC).toInstant();
         } catch (Exception ignored) {
         }
         
-        // Try parsing as simple local date time
+        // Try parsing as simple local date time and convert to UTC
         try {
-            return LocalDateTime.parse(s);
+            return LocalDateTime.parse(s).atZone(ZoneOffset.UTC).toInstant();
         } catch (Exception ignored) {
         }
         
-        // Try parsing as Date object (for JavaScript Date.toISOString())
+        // Try parsing as date only (YYYY-MM-DD format) and convert to UTC
         try {
-            return Instant.parse(s).atZone(ZoneOffset.UTC).toLocalDateTime();
+            if (s.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                return LocalDate.parse(s).atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
+            }
         } catch (Exception ignored) {
         }
         
@@ -163,6 +157,8 @@ public class EventController {
         // Save timeslots
         if (payload.get("timeslots") instanceof List<?> timeslots) {
             System.out.println("Received timeslots: " + timeslots);
+            System.out.println("Timeslots count: " + timeslots.size());
+            
             for (Object obj : timeslots) {
                 if (obj instanceof Map<?, ?> m) {
                     EventTimeslot ts = new EventTimeslot();
@@ -172,11 +168,12 @@ public class EventController {
                     Object s = m.get("start");
                     Object e = m.get("end");
                     
-                    System.out.println("Parsing start: " + s + " (type: " + (s != null ? s.getClass().getSimpleName() : "null") + ")");
-                    System.out.println("Parsing end: " + e + " (type: " + (e != null ? e.getClass().getSimpleName() : "null") + ")");
+                    System.out.println("Processing timeslot: " + ts.getTitle());
+                    System.out.println("Raw start: " + s + " (type: " + (s != null ? s.getClass().getSimpleName() : "null") + ")");
+                    System.out.println("Raw end: " + e + " (type: " + (e != null ? e.getClass().getSimpleName() : "null") + ")");
                     
-                    LocalDateTime start = parseToLocalDateTime(s);
-                    LocalDateTime end = parseToLocalDateTime(e);
+                    Instant start = parseToInstant(s);
+                    Instant end = parseToInstant(e);
                     
                     System.out.println("Parsed start: " + start);
                     System.out.println("Parsed end: " + end);
@@ -186,13 +183,22 @@ public class EventController {
                     
                     // Only save if we have at least a start time
                     if (start != null) {
-                        timeslotRepository.save(ts);
-                        System.out.println("✅ Saved timeslot: " + ts.getTitle() + " from " + start + " to " + end);
+                        try {
+                            timeslotRepository.save(ts);
+                            System.out.println("✅ Saved timeslot: " + ts.getTitle() + " from " + start + " to " + end);
+                        } catch (Exception ex) {
+                            System.err.println("❌ Error saving timeslot: " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
                     } else {
                         System.out.println("❌ Skipping timeslot with null start time: " + ts.getTitle());
                     }
+                } else {
+                    System.out.println("❌ Invalid timeslot object type: " + (obj != null ? obj.getClass().getSimpleName() : "null"));
                 }
             }
+        } else {
+            System.out.println("No timeslots found in payload or invalid format");
         }
 
         return ResponseEntity.ok(Map.of("event", saved, "timeslots", timeslotRepository.findByEventId(saved.getId())));
@@ -352,6 +358,152 @@ public class EventController {
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get user status"));
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEvent(@PathVariable String id, @RequestBody Map<String, Object> payload) {
+        try {
+            Event existingEvent = eventRepository.findById(id).orElse(null);
+            if (existingEvent == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Update event fields
+            if (payload.get("title") != null) {
+                existingEvent.setTitle((String) payload.get("title"));
+            }
+            if (payload.get("description") != null) {
+                existingEvent.setDescription((String) payload.get("description"));
+            }
+            if (payload.get("location") != null) {
+                existingEvent.setLocation((String) payload.get("location"));
+            }
+            if (payload.get("eventType") != null) {
+                existingEvent.setEventType((String) payload.get("eventType"));
+            }
+            if (payload.get("eventScope") != null) {
+                existingEvent.setEventScope((String) payload.get("eventScope"));
+            }
+            if (payload.get("coverImageUrl") != null) {
+                existingEvent.setCoverImageUrl((String) payload.get("coverImageUrl"));
+            }
+            if (payload.get("isActive") != null) {
+                existingEvent.setIsActive((Boolean) payload.get("isActive"));
+            }
+
+            // Handle arrays
+            if (payload.get("requiredSkills") instanceof List<?> skills) {
+                existingEvent.setRequiredSkills(skills.stream().map(Object::toString).collect(Collectors.toList()));
+            }
+            if (payload.get("coHosts") instanceof List<?> coHosts) {
+                existingEvent.setCoHosts(coHosts.stream().map(Object::toString).collect(Collectors.toList()));
+            }
+            if (payload.get("sponsors") instanceof List<?> sponsors) {
+                existingEvent.setSponsors(sponsors.stream().map(Object::toString).collect(Collectors.toList()));
+            }
+            if (payload.get("tags") instanceof List<?> tags) {
+                existingEvent.setTags(tags.stream().map(Object::toString).collect(Collectors.toList()));
+            }
+
+            // Handle timeslots
+            if (payload.get("timeslots") instanceof List<?> timeslots) {
+                System.out.println("Received timeslots for update: " + timeslots);
+                System.out.println("Timeslots count for update: " + timeslots.size());
+                
+                // Delete existing timeslots
+                List<EventTimeslot> existingTimeslots = timeslotRepository.findByEventId(id);
+                timeslotRepository.deleteAll(existingTimeslots);
+                System.out.println("Deleted " + existingTimeslots.size() + " existing timeslots");
+
+                // Create new timeslots
+                List<EventTimeslot> newTimeslots = new ArrayList<>();
+                for (Object timeslotObj : timeslots) {
+                    if (timeslotObj instanceof Map<?, ?> timeslotMap) {
+                        EventTimeslot timeslot = new EventTimeslot();
+                        timeslot.setEventId(id);
+                        timeslot.setTitle((String) timeslotMap.get("title"));
+                        
+                        // Parse start time - use 'start' field to match POST endpoint
+                        Object startObj = timeslotMap.get("start");
+                        if (startObj != null) {
+                            Instant startTime = parseToInstant(startObj);
+                            timeslot.setStart(startTime);
+                            System.out.println("Parsed start time: " + startTime);
+                        }
+                        
+                        // Parse end time - use 'end' field to match POST endpoint
+                        Object endObj = timeslotMap.get("end");
+                        if (endObj != null) {
+                            Instant endTime = parseToInstant(endObj);
+                            timeslot.setEnd(endTime);
+                            System.out.println("Parsed end time: " + endTime);
+                        }
+                        
+                        newTimeslots.add(timeslot);
+                    }
+                }
+                timeslotRepository.saveAll(newTimeslots);
+                System.out.println("Saved " + newTimeslots.size() + " new timeslots");
+            } else {
+                System.out.println("No timeslots found in update payload");
+            }
+
+            existingEvent.setUpdatedAt(Instant.now());
+            Event updatedEvent = eventRepository.save(existingEvent);
+
+            return ResponseEntity.ok(updatedEvent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error updating event: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to update event: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable String id) {
+        try {
+            Event event = eventRepository.findById(id).orElse(null);
+            if (event == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Remove event from creator's eventIds list
+            String ownerId = event.getOwnerId();
+            if (ownerId != null) {
+                // First try to find as Organization
+                Organization organization = organizationRepository.findByFirebaseUid(ownerId);
+                if (organization != null) {
+                    List<String> eventIds = organization.getEventIds();
+                    if (eventIds != null) {
+                        eventIds.remove(id);
+                        organization.setEventIds(eventIds);
+                        organizationRepository.save(organization);
+                    }
+                } else {
+                    // Try to find as Organizer
+                    Organizer organizer = organizerRepository.findByFirebaseUid(ownerId);
+                    if (organizer != null) {
+                        List<String> eventIds = organizer.getEventIds();
+                        if (eventIds != null) {
+                            eventIds.remove(id);
+                            organizer.setEventIds(eventIds);
+                            organizerRepository.save(organizer);
+                        }
+                    }
+                }
+            }
+
+            // Delete associated timeslots
+            List<EventTimeslot> timeslots = timeslotRepository.findByEventId(id);
+            timeslotRepository.deleteAll(timeslots);
+
+            // Delete the event
+            eventRepository.deleteById(id);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to delete event"));
         }
     }
 }

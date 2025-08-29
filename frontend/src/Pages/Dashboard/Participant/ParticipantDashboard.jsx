@@ -47,10 +47,6 @@ const ParticipantDashboard = () => {
       icon: <MdOutlineEmojiEvents className="text-red-600 text-xl" />,
     },
     {
-      title: "Past Events",
-      icon: <FiClock className="text-red-600" />,
-    },
-    {
       title: "Followers",
       icon: <FiUserPlus className="text-red-600" />,
     },

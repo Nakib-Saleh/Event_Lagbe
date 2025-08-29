@@ -93,13 +93,13 @@ const Followers = () => {
             <FiUserPlus className="text-6xl text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">No Followers Yet</h3>
             <p className="text-gray-500 mb-4">
-              You don't have any followers yet. Start connecting with other users and participating in events to gain followers!
+              You don't have any followers yet. Start creating events and connecting with other users to gain followers!
             </p>
             <button 
-              onClick={() => window.location.href = '/connect'}
+              onClick={() => window.location.href = '/add-event'}
               className="btn btn-primary"
             >
-              Connect with Others
+              Create Event
             </button>
           </div>
         ) : (

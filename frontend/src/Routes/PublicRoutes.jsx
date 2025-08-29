@@ -13,19 +13,24 @@ import Calendar from "../Pages/Dashboard/Admin/Calendar";
 import PrivateRoute from "./PrivateRoutes";
 import OrganizationDashboard from "../Pages/Dashboard/Organization/OrganizationDashboard";
 import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
-import Eventlist from "../Pages/Dashboard/Organization/Eventlist";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
 import OrgProfile from "../Pages/Dashboard/Organization/OrgProfile";
 import ParticipantDashboard from "../Pages/Dashboard/Participant/ParticipantDashboard";
 import ParticipantProfile from "../Pages/Dashboard/Participant/ParticipantProfile";
 import BookmarkedEvents from "../Pages/Dashboard/Participant/BookmarkedEvents";
 import RegisteredEvents from "../Pages/Dashboard/Participant/RegisteredEvents";
-import PastEvents from "../Pages/Dashboard/Participant/PastEvents";
 import Followers from "../Pages/Dashboard/Participant/Followers";
 import Following from "../Pages/Dashboard/Participant/Following";
 import ParticipantCalendar from "../Pages/Dashboard/Participant/Calendar";
+import OrganizerDashboard from "../Pages/Dashboard/Organizer/OrganizerDashboard";
+import OrganizerProfile from "../Pages/Dashboard/Organizer/OrganizerProfile";
+import RunningEvents from "../Pages/Dashboard/Organizer/RunningEvents";
+import OrganizerPastEvents from "../Pages/Dashboard/Organizer/PastEvents";
+import OrganizerFollowers from "../Pages/Dashboard/Organizer/Followers";
+import OrganizerFollowing from "../Pages/Dashboard/Organizer/Following";
 import PublicProfile from "../Pages/PublicProfile";
 import EventAdd from "../Pages/EventAdd";
+import EventEdit from "../Pages/EventEdit";
 import Connect from "../Pages/Connect";
 import AllEvents from "../Pages/AllEvents";
 import EventDetails from "../Pages/EventDetails";
@@ -54,6 +59,14 @@ const PublicRoutes = createBrowserRouter([
       {
         path: "/event/:eventId",
         element: <EventDetails></EventDetails>,
+      },
+      {
+        path: "/event-edit/:eventId",
+        element: (
+          <PrivateRoute allowedRoles={["organization", "organizer"]}>
+            <EventEdit></EventEdit>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/adminDashboard",
@@ -115,7 +128,15 @@ const PublicRoutes = createBrowserRouter([
           },
           {
             path: "/organizationDashboard/events",
-            element: <Eventlist></Eventlist>,
+            element: <Navigate to="/organizationDashboard/events/running" replace />,
+          },
+          {
+            path: "/organizationDashboard/events/running",
+            element: <RunningEvents></RunningEvents>,
+          },
+          {
+            path: "/organizationDashboard/events/past",
+            element: <OrganizerPastEvents></OrganizerPastEvents>,
           },
           {
             path: "/organizationDashboard/followers",
@@ -152,10 +173,6 @@ const PublicRoutes = createBrowserRouter([
             element: <RegisteredEvents></RegisteredEvents>,
           },
           {
-            path: "/participantDashboard/past-events",
-            element: <PastEvents></PastEvents>,
-          },
-          {
             path: "/participantDashboard/followers",
             element: <Followers></Followers>,
           },
@@ -166,6 +183,40 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/participantDashboard/calendar",
             element: <ParticipantCalendar></ParticipantCalendar>,
+          },
+        ],
+      },
+      {
+        path: "/organizerDashboard",
+        element: (
+          <PrivateRoute allowedRoles={["organizer"]}>
+            <OrganizerDashboard></OrganizerDashboard>
+          </PrivateRoute>
+        ),
+        children: [
+          {
+            path: "/organizerDashboard",
+            element: <Navigate to="/organizerDashboard/profile" replace />,
+          },
+          {
+            path: "/organizerDashboard/profile",
+            element: <OrganizerProfile></OrganizerProfile>,
+          },
+          {
+            path: "/organizerDashboard/events/running",
+            element: <RunningEvents></RunningEvents>,
+          },
+          {
+            path: "/organizerDashboard/events/past",
+            element: <OrganizerPastEvents></OrganizerPastEvents>,
+          },
+          {
+            path: "/organizerDashboard/followers",
+            element: <OrganizerFollowers></OrganizerFollowers>,
+          },
+          {
+            path: "/organizerDashboard/following",
+            element: <OrganizerFollowing></OrganizerFollowing>,
           },
         ],
       },

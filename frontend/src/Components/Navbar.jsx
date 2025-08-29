@@ -91,7 +91,7 @@ const Navbar = () => {
           Explore Events
         </Link>
       </li>
-      {user && userRole === "organization" && (
+      {user && (userRole === "organization" || userRole === "organizer") && (
         <li>
           <Link 
             to="/add-event" 

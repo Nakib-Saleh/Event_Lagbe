@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
-import { FiUsers, FiSearch, FiTrendingUp, FiPlus, FiCheckCircle, FiHeart } from "react-icons/fi";
+import { FiUsers, FiSearch, FiTrendingUp, FiPlus, FiCheckCircle, FiHeart, FiUser } from "react-icons/fi";
 import { MdOutlineEmojiEvents, MdOutlineBusinessCenter } from "react-icons/md";
 import AuthContext from "../Provider/AuthContext";
 import axios from "axios";
@@ -267,7 +267,7 @@ const Connect = () => {
       {!loading && !error && visibleData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleData.map((item) => (
-            <Link key={item.id} to={`/profile/${item.firebaseUid}`} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-4">
                 {/* Profile Picture */}
                 <img
@@ -314,29 +314,41 @@ const Connect = () => {
                     )}
                   </div>
 
-                                     {/* Action Buttons */}
-                   <div className="flex gap-2">
-                     <button
-                       onClick={() => handleFollow(item.id, item.firebaseUid)}
-                       className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                         followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid
-                           ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                           : 'bg-blue-600 text-white hover:bg-blue-700'
-                       }`}
-                       disabled={item.firebaseUid === user?.firebaseUid}
-                     >
-                       {followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid ? (
-                         <span className="flex items-center justify-center gap-2">
-                           <FiCheckCircle className="text-sm" />
-                           Following
-                         </span>
-                       ) : (
-                         <span className="flex items-center justify-center gap-2">
-                           <FiPlus className="text-sm" />
-                           Follow
-                         </span>
-                       )}
-                     </button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleFollow(item.id, item.firebaseUid);
+                      }}
+                      className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                        followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                      disabled={item.firebaseUid === user?.firebaseUid}
+                    >
+                      {followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <FiCheckCircle className="text-sm" />
+                          Following
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2">
+                          <FiPlus className="text-sm" />
+                          Follow
+                        </span>
+                      )}
+                    </button>
+
+                    <Link
+                      to={`/profile/${item.firebaseUid}`}
+                      className="flex-1 py-2 px-4 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2"
+                    >
+                      <FiUser className="text-sm" />
+                      View Profile
+                    </Link>
 
                     <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
                       <FiHeart className="text-sm" />
@@ -344,7 +356,7 @@ const Connect = () => {
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

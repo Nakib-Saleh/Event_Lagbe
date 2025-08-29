@@ -212,14 +212,13 @@ const EventAdd = () => {
 
       // Ensure timeslots are properly formatted with all required fields
       console.log('formData.timeslots:', formData.timeslots);
-      console.log('calendarState.events:', calendarState.events);
       
       const timeslots = (formData.timeslots && formData.timeslots.length > 0) 
         ? formData.timeslots 
         : calendarState.events.map(event => ({
-            title: event.title || 'Session',
-            start: event.startStr || (event.start ? new Date(event.start).toISOString() : null),
-            end: event.endStr || (event.end ? new Date(event.end).toISOString() : null)
+            title: event.title,
+            start: event.start,
+            end: event.end
           }));
 
       console.log(user);
@@ -239,7 +238,6 @@ const EventAdd = () => {
       };
 
       console.log('Timeslots being sent:', timeslots);
-      console.log('Calendar events:', calendarState.events);
       console.log(payload);
 
       const res = await fetch('http://localhost:2038/api/events', {
@@ -248,12 +246,12 @@ const EventAdd = () => {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Failed to create event');
-              await res.json();
-        toast.success('Event created successfully!');
+      await res.json();
+      toast.success('Event created successfully!');
 
-        setTimeout(() => {
-          navigate('/organizationDashboard');
-        }, 800);
+      setTimeout(() => {
+        navigate('/organizationDashboard');
+      }, 800);
       setFormData({
         title: '',
         description: '',
@@ -281,6 +279,7 @@ const EventAdd = () => {
   const addCalendarTimeslot = () => {
     if (!uiState.calendarModal) return;
     const calendarApi = uiState.calendarModal.data.view.calendar;
+
     calendarApi.unselect();
     const id = `timeslot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     calendarApi.addEvent({
@@ -288,9 +287,9 @@ const EventAdd = () => {
       title: uiState.calendarModal.title || 'Session',
       start: uiState.calendarModal.data.startStr,
       end: uiState.calendarModal.data.endStr,
-      allDay: uiState.calendarModal.data.allDay,
     });
     setUiState(prev => ({ ...prev, calendarModal: null }));
+    console.log('Added timeslot:', calendarApi.getEvents());
   };
 
   const handleCalendarEventClick = (selected) => {
@@ -379,7 +378,7 @@ const EventAdd = () => {
                   <select
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     value=""
-                                         onChange={(e) => {
+                      onChange={(e) => {
                        const skill = skillsState.list.find(sk => (sk.id || sk._id) === e.target.value);
                        if (skill && !formData.requiredSkills.includes(skill.name)) {
                          setFormData(prev => ({
@@ -478,17 +477,17 @@ const EventAdd = () => {
               editable={true}
               select={handleCalendarSelect}
               eventClick={handleCalendarEventClick}
-                             eventsSet={(events) => {
-                 setCalendarState(prev => ({ ...prev, events }));
-                 const timeslots = events.map(e => ({
-                   id: e.id,
-                   title: e.title,
-                   start: e.startStr,
-                   end: e.endStr,
-                 }));
-                 setFormData(prev => ({ ...prev, timeslots }));
-                 console.log('Updated formData.timeslots:', timeslots);
-               }}
+                eventsSet={(events) => {
+                    setCalendarState(prev => ({ ...prev, events }));
+                    const timeslots = events.map(e => ({
+                      id: e.id,
+                      title: e.title,
+                      start: e.start ? e.start.toISOString() : null,
+                      end: e.end ? e.end.toISOString() : null,
+                    }));
+                    setFormData(prev => ({ ...prev, timeslots }));
+                    console.log('Updated formData.timeslots:', timeslots);
+                  }}
             />
           </div>
 

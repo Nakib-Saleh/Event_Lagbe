@@ -7,7 +7,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import  AuthContext  from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 
 const EventDetails = () => {
@@ -52,7 +52,7 @@ const EventDetails = () => {
           setGoingCount(eventData.event?.goingCount || 0);
 
           // Fetch user status if participant
-          if (user && userRole === 'participant') {
+          if (user && userRole === "participant") {
             fetchUserStatus();
           }
 
@@ -97,10 +97,7 @@ const EventDetails = () => {
                       };
                     }
                   } catch (error) {
-                    console.error(
-                      `Failed to fetch co-host ${coHost}:`,
-                      error
-                    );
+                    console.error(`Failed to fetch co-host ${coHost}:`, error);
                   }
                   return null;
                 }
@@ -150,31 +147,35 @@ const EventDetails = () => {
   };
 
   const handleShare = () => {
-      const pageUrl = window.location.href;
-      navigator.clipboard.writeText(pageUrl)
-        .then(() => {
-          toast.success("Link copied to clipboard!");
-          console.log('Success');
-        })
-        .catch((err) => {
-          console.error("Failed to copy: ", err);
-          toast.error("Failed to copy link.");
-        });
-    };
+    const pageUrl = window.location.href;
+    navigator.clipboard
+      .writeText(pageUrl)
+      .then(() => {
+        toast.success("Link copied to clipboard!");
+        console.log("Success");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+        toast.error("Failed to copy link.");
+      });
+  };
 
   const handleBookmark = async () => {
-    if (!user || userRole !== 'participant') return;
-    
+    if (!user || userRole !== "participant") return;
+
     try {
-      const response = await fetch(`http://localhost:2038/api/events/${eventId}/bookmark`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          participantId: user.firebaseUid
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:2038/api/events/${eventId}/bookmark`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            participantId: user.firebaseUid,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -182,23 +183,26 @@ const EventDetails = () => {
         setInterestedCount(data.interestedCount);
       }
     } catch (error) {
-      console.error('Error toggling bookmark:', error);
+      console.error("Error toggling bookmark:", error);
     }
   };
 
   const handleGoing = async () => {
-    if (!user || userRole !== 'participant') return;
-    
+    if (!user || userRole !== "participant") return;
+
     try {
-      const response = await fetch(`http://localhost:2038/api/events/${eventId}/going`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          participantId: user.firebaseUid
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:2038/api/events/${eventId}/going`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            participantId: user.firebaseUid,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -206,22 +210,24 @@ const EventDetails = () => {
         setGoingCount(data.goingCount);
       }
     } catch (error) {
-      console.error('Error toggling going status:', error);
+      console.error("Error toggling going status:", error);
     }
   };
 
   const fetchUserStatus = async () => {
-    if (!user || userRole !== 'participant') return;
-    
+    if (!user || userRole !== "participant") return;
+
     try {
-      const response = await fetch(`http://localhost:2038/api/events/${eventId}/user-status?participantId=${user.firebaseUid}`);
+      const response = await fetch(
+        `http://localhost:2038/api/events/${eventId}/user-status?participantId=${user.firebaseUid}`
+      );
       if (response.ok) {
         const data = await response.json();
         setIsBookmarked(data.isBookmarked);
         setIsGoing(data.isGoing);
       }
     } catch (error) {
-      console.error('Error fetching user status:', error);
+      console.error("Error fetching user status:", error);
     }
   };
 
@@ -288,9 +294,16 @@ const EventDetails = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-end justify-between">
               <div className="text-white">
-                <h1 className="text-4xl font-bold mb-2">
-                  {event.event.title || "Untitled Event"}
-                </h1>
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-4xl font-bold">
+                    {event.event.title || "Untitled Event"}
+                  </h1>
+                  {!event.event.isActive && (
+                    <span className="badge badge-warning text-sm px-3 py-1">
+                      Completed
+                    </span>
+                  )}
+                </div>
                 <p className="text-xl opacity-90">
                   {event.event.location || "Location not specified"}
                 </p>
@@ -300,8 +313,18 @@ const EventDetails = () => {
                     : "Date not specified"}
                 </p>
               </div>
-                             <div className="hidden md:block">
-                 {user && userRole === 'participant' ? (
+              <div className="hidden md:block flex gap-3">
+                {/* Edit Button for Event Owner */}
+                {user && event?.event?.ownerId === user.firebaseUid && (
+                  <Link
+                    to={`/event-edit/${eventId}`}
+                    className="btn btn-secondary btn-lg"
+                  >
+                    Edit Event
+                  </Link>
+                )}
+
+                {user && userRole === "participant" ? (
                   <button
                     onClick={handleBookmark}
                     className={`btn btn-primary btn-lg
@@ -569,18 +592,25 @@ const EventDetails = () => {
           <div className="space-y-6">
             {/* Join Event Card */}
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
-                             <div className="text-center">
-                 {user && userRole === 'participant' ? (
+              <div className="text-center">
+                {user && userRole === "participant" ? (
                   <button
                     onClick={handleGoing}
+                    disabled={!event.event.isActive}
                     className={`btn btn-block text-xl btn-lg mb-4 transition-colors duration-300 ${
-                      isGoing
+                      !event.event.isActive
+                        ? "bg-gray-400 cursor-not-allowed text-gray-600"
+                        : isGoing
                         ? "bg-red-500 hover:bg-red-700 text-white border-none"
                         : "bg-white text-black border border-gray-400 hover:bg-gray-100"
                     }`}
                   >
                     <SiThealgorithms className="mr-2 font-extrabold" />
-                    {isGoing ? "Going" : "Join Event"}
+                    {!event.event.isActive
+                      ? "Event Completed"
+                      : isGoing
+                      ? "Going"
+                      : "Join Event"}
                   </button>
                 ) : (
                   <button
@@ -591,7 +621,10 @@ const EventDetails = () => {
                     Join Event
                   </button>
                 )}
-                <button onClick={handleShare} className="btn btn-outline btn-block font-bold tex-3xl">
+                <button
+                  onClick={handleShare}
+                  className="btn btn-outline btn-block font-bold tex-3xl"
+                >
                   <FaShareAlt className="text-clack" /> Share Event
                 </button>
               </div>
@@ -612,9 +645,7 @@ const EventDetails = () => {
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">
-                      {ownerOrg.name}
-                    </p>
+                    <p className="font-medium text-gray-900">{ownerOrg.name}</p>
                     <p className="text-sm text-gray-600">{ownerOrg.email}</p>
                   </div>
                 </div>
