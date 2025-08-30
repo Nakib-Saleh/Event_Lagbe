@@ -51,11 +51,6 @@ const EventDetails = () => {
           setInterestedCount(eventData.event?.interestedCount || 0);
           setGoingCount(eventData.event?.goingCount || 0);
 
-          // Fetch user status if participant
-          if (user && userRole === "participant") {
-            fetchUserStatus();
-          }
-
           // Fetch owner organization details
           if (eventData.event?.ownerId) {
             try {
@@ -123,7 +118,6 @@ const EventDetails = () => {
     };
 
     if (eventId) {
-      console.log("EventDetails: eventId =", eventId);
       fetchEventDetails();
     }
 
@@ -131,6 +125,13 @@ const EventDetails = () => {
       isMounted = false;
     };
   }, [eventId]);
+
+  // Separate useEffect to handle user status when user context becomes available
+  useEffect(() => {
+    if (user && userRole === "participant" && eventId) {
+      fetchUserStatus();
+    }
+  }, [user, userRole, eventId]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Date not specified";
@@ -280,6 +281,7 @@ const EventDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* Hero Section with Cover Image */}
       <div className="relative h-96">
         {event.event.coverImageUrl && (
@@ -728,10 +730,6 @@ const EventDetails = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Going</span>
                   <span className="font-medium">{goingCount} people</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Registered</span>
-                  <span className="font-medium">{event.event.registeredBy?.length || 0} people</span>
                 </div>
               </div>
             </div>

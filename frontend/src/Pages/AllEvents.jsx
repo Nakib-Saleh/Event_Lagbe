@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch, FaTimes, FaFilter, FaCheck, FaBuilding, FaUser } from "react-icons/fa";
+import { FaSearch, FaTimes, FaFilter, FaCheck, FaBuilding, FaUser, FaSort, FaChevronDown } from "react-icons/fa";
 
 const AllEvents = () => {
   const [events, setEvents] = useState([]);
@@ -24,6 +24,10 @@ const AllEvents = () => {
   const [orgSuggestions, setOrgSuggestions] = useState([]);
   const [isOrgSearching, setIsOrgSearching] = useState(false);
   const [showOrgDropdown, setShowOrgDropdown] = useState(false);
+
+  // Sorting states
+  const [sortBy, setSortBy] = useState("latest"); // latest, trending,
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Pagination states for search results
   const [displayedEvents, setDisplayedEvents] = useState([]);
@@ -183,65 +187,91 @@ const AllEvents = () => {
 
   // Handle search functionality
   useEffect(() => {
+    let filtered = [];
+
     if (searchType === "skill") {
       // For skill search, show all events if no skills selected, otherwise filter by selected skills
       if (selectedSkills.length === 0) {
-        setFilteredEvents(events);
-        setCurrentPage(1);
-        return;
+        filtered = events;
+      } else {
+        // Filter events that have at least one of the selected skills
+        const skillNames = selectedSkills.map(skill => skill.name.toLowerCase());
+        filtered = events.filter(event => 
+          event.requiredSkills && 
+          event.requiredSkills.some(eventSkill => 
+            skillNames.includes(eventSkill.toLowerCase())
+          )
+        );
       }
-
-      // Filter events that have at least one of the selected skills
-      const skillNames = selectedSkills.map(skill => skill.name.toLowerCase());
-      const filtered = events.filter(event => 
-        event.requiredSkills && 
-        event.requiredSkills.some(eventSkill => 
-          skillNames.includes(eventSkill.toLowerCase())
-        )
-      );
-      setFilteredEvents(filtered);
-      setCurrentPage(1);
     } else if (searchType === "orgs") {
       // For organization search, show all events if no orgs selected, otherwise filter by selected orgs
       if (selectedOrgs.length === 0) {
-        setFilteredEvents(events);
-        setCurrentPage(1);
-        return;
+        filtered = events;
+      } else {
+        // Filter events that are created by OR co-hosted by any of the selected organizations/organizers
+        const orgFirebaseUids = selectedOrgs.map(org => org.firebaseUid);
+        filtered = events.filter(event => {
+          // Check if event is created by any selected org
+          const isOwner = event.ownerId && orgFirebaseUids.includes(event.ownerId);
+          
+          // Check if event has any selected org as co-host
+          const hasCoHost = event.coHosts && Array.isArray(event.coHosts) && 
+            event.coHosts.some(coHostId => orgFirebaseUids.includes(coHostId));
+          
+          return isOwner || hasCoHost;
+        });
       }
-
-      // Filter events that are created by OR co-hosted by any of the selected organizations/organizers
-      const orgFirebaseUids = selectedOrgs.map(org => org.firebaseUid);
-      const filtered = events.filter(event => {
-        // Check if event is created by any selected org
-        const isOwner = event.ownerId && orgFirebaseUids.includes(event.ownerId);
-        
-        // Check if event has any selected org as co-host
-        const hasCoHost = event.coHosts && Array.isArray(event.coHosts) && 
-          event.coHosts.some(coHostId => orgFirebaseUids.includes(coHostId));
-        
-        return isOwner || hasCoHost;
-      });
-      setFilteredEvents(filtered);
-      setCurrentPage(1);
     } else if (searchType === "name") {
       // For name search, show all events if no search term, otherwise filter by title
       if (!searchTerm.trim()) {
-        setFilteredEvents(events);
-        setCurrentPage(1);
-        return;
+        filtered = events;
+      } else {
+        filtered = events.filter(event => 
+          event.title && event.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
       }
-
-      const filtered = events.filter(event => 
-        event.title && event.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredEvents(filtered);
-      setCurrentPage(1);
     } else {
       // Default: show all events
-      setFilteredEvents(events);
-      setCurrentPage(1);
+      filtered = events;
     }
-  }, [searchTerm, searchType, events, selectedSkills, selectedOrgs]);
+
+    // Apply sorting
+    if (sortBy === "latest") {
+      // Sort by createdAt (newest first)
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB - dateA; // Descending order (newest first)
+      });
+    } else if (sortBy === "trending") {
+      // Sort by trending score (engagement metrics)
+      filtered.sort((a, b) => {
+        // Calculate trending score for each event
+        const getTrendingScore = (event) => {
+          // Weighted scoring system:
+          // - Going count (actual registrations): 3x weight (highest commitment)
+          // - Interested count (showing interest): 2x weight (medium commitment)
+          // - Bookmark count (saved for later): 1x weight (low commitment)
+          // - Shares count (viral spread): 2x weight (medium-high engagement)
+          
+          const goingScore = (event.registeredBy?.length || 0) * 3;
+          const bookmarkScore = (event.bookmarkedBy?.length || 0) * 1;
+          
+          // Total trending score
+          return goingScore  + bookmarkScore;
+        };
+        
+        const scoreA = getTrendingScore(a);
+        const scoreB = getTrendingScore(b);
+        
+        // Sort by trending score (highest first)
+        return scoreB - scoreA;
+      });
+    }
+
+    setFilteredEvents(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, searchType, events, selectedSkills, selectedOrgs, sortBy]);
 
   // Handle pagination for search results
   useEffect(() => {
@@ -251,6 +281,20 @@ const AllEvents = () => {
     setDisplayedEvents(eventsToShow);
     setHasMore(endIndex < filteredEvents.length);
   }, [filteredEvents, currentPage]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSortDropdown && !event.target.closest('.sort-dropdown')) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSortDropdown]);
 
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
@@ -262,6 +306,50 @@ const AllEvents = () => {
     setSelectedSkills([]);
     setSelectedOrgs([]);
     setCurrentPage(1);
+  };
+
+  // Sorting helper functions
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case "latest":
+        return "Latest Events";
+      case "trending":
+        return "Trending Events";
+      default:
+        return "Latest Events";
+    }
+  };
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setShowSortDropdown(false);
+    setCurrentPage(1);
+    
+    // Force immediate re-sort of current filtered events
+    const currentFiltered = [...filteredEvents];
+    let sortedEvents = [...currentFiltered];
+    
+    if (newSortBy === "latest") {
+      sortedEvents.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB - dateA;
+      });
+    } else if (newSortBy === "trending") {
+      sortedEvents.sort((a, b) => {
+        const getTrendingScore = (event) => {
+          const goingScore = (event.registeredBy?.length || 0) * 3;
+          const bookmarkScore = (event.bookmarkedBy?.length || 0) * 1;
+          return goingScore + bookmarkScore;
+        };
+        
+        const scoreA = getTrendingScore(a);
+        const scoreB = getTrendingScore(b);
+        return scoreB - scoreA;
+      });
+    }
+    
+    setFilteredEvents(sortedEvents);
   };
 
   const getSearchPlaceholder = () => {
@@ -510,6 +598,61 @@ const AllEvents = () => {
           ))}
         </div>
       )}
+
+      {/* Sorting Section */}
+      <div className="mt-6 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">Sort by:</span>
+            
+            {/* Sort Dropdown */}
+            <div className="relative sort-dropdown">
+              <button
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <FaSort className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-700 font-medium">{getSortLabel()}</span>
+                <FaChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${showSortDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Sort Dropdown Menu */}
+              {showSortDropdown && (
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleSortChange("latest")}
+                      className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 ${
+                        sortBy === "latest" ? "bg-blue-50 text-blue-700" : "text-gray-700"
+                      }`}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span>Latest Events</span>
+                      {sortBy === "latest" && <FaCheck className="w-4 h-4 ml-auto text-blue-500" />}
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSortChange("trending")}
+                      className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 ${
+                        sortBy === "trending" ? "bg-blue-50 text-blue-700" : "text-gray-700"
+                      }`}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                      <span>Trending Events</span>
+                      {sortBy === "trending" && <FaCheck className="w-4 h-4 ml-auto text-blue-500" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="text-sm text-gray-500">
+            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+          </div>
+        </div>
+      </div>
 
       {/* Search Results Info */}
       {(searchTerm || selectedSkills.length > 0 || selectedOrgs.length > 0) && (
