@@ -212,7 +212,6 @@ const Register = () => {
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white"
                 >
                   <option value="">Choose your role</option>
-                  <option value="admin">Admin</option>
                   <option value="organization">Organization</option>
                   <option value="organizer">Organizer</option>
                   <option value="participant">Participant</option>

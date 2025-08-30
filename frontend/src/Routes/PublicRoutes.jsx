@@ -10,6 +10,8 @@ import OrganizationVerification from "../Pages/Dashboard/Organization/Verificati
 import UserList from "../Pages/Dashboard/Admin/UserList";
 import SkillsList from "../Pages/Dashboard/Admin/SkillsList";
 import Calendar from "../Pages/Dashboard/Admin/Calendar";
+import DeactivateExpiredEvents from "../Pages/Dashboard/Admin/DeactivateExpiredEvents";
+import CreateAdmin from "../Pages/Dashboard/Admin/CreateAdmin";
 import PrivateRoute from "./PrivateRoutes";
 import OrganizationDashboard from "../Pages/Dashboard/Organization/OrganizationDashboard";
 import OrganizerList from "../Pages/Dashboard/Organization/OrganizerList";
@@ -101,6 +103,14 @@ const PublicRoutes = createBrowserRouter([
           {
             path: "/adminDashboard/calendar",
             element: <Calendar></Calendar>,
+          },
+          {
+            path: "/adminDashboard/deactivate-expired-events",
+            element: <DeactivateExpiredEvents></DeactivateExpiredEvents>,
+          },
+          {
+            path: "/adminDashboard/create-admin",
+            element: <CreateAdmin></CreateAdmin>,
           },
         ],
       },

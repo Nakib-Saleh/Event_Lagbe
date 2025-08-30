@@ -16,6 +16,7 @@ import {
   FiUser,
   FiUserPlus,
   FiUserCheck,
+  FiClock,
 } from "react-icons/fi";
 import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -66,6 +67,16 @@ const AdminDashboard = () => {
     {
       title: "Examples",
       icon: <FiHeart className="text-red-600" />,
+    },
+    {
+      title: "Create-Admin",
+      icon: <FiUserPlus className="text-red-600" />,
+      badge: { text: "Admin", color: "badge-error" },
+    },
+    {
+      title: "Deactivate-Expired-Events",
+      icon: <FiClock className="text-red-600" />,
+      badge: { text: "Admin", color: "badge-warning" },
     },
   ];
 

@@ -10,6 +10,7 @@ import java.util.List;
 public interface EventRepository extends MongoRepository<Event, String> {
     Page<Event> findAll(Pageable pageable);
     List<Event> findByOwnerId(String ownerId);
+    List<Event> findByIsActiveTrue();
 }
 
 
