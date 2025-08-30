@@ -322,7 +322,7 @@ const Connect = () => {
                         e.stopPropagation();
                         handleFollow(item.id, item.firebaseUid);
                       }}
-                      className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                      className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium transition-colors ${
                         followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid
                           ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -330,13 +330,13 @@ const Connect = () => {
                       disabled={item.firebaseUid === user?.firebaseUid}
                     >
                       {followedUsers.has(item.id) || item.firebaseUid === user?.firebaseUid ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiCheckCircle className="text-sm" />
+                        <span className="flex items-center justify-center gap-1">
+                          <FiCheckCircle className="text-xs" />
                           Following
                         </span>
                       ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiPlus className="text-sm" />
+                        <span className="flex items-center justify-center gap-1">
+                          <FiPlus className="text-xs" />
                           Follow
                         </span>
                       )}
@@ -344,15 +344,11 @@ const Connect = () => {
 
                     <Link
                       to={`/profile/${item.firebaseUid}`}
-                      className="flex-1 py-2 px-4 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2"
+                      className="flex-1 py-1.5 px-3 rounded-md text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-1"
                     >
-                      <FiUser className="text-sm" />
+                      <FiUser className="text-xs" />
                       View Profile
                     </Link>
-
-                    <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                      <FiHeart className="text-sm" />
-                    </button>
                   </div>
                 </div>
               </div>
