@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaUsers, FaSearch, FaChevronDown, FaChevronUp, FaDownload } from "react-icons/fa";
+import { FaUsers, FaSearch, FaChevronDown, FaChevronUp, FaDownload, FaEnvelope, FaTimes } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import AuthContext from "../../../Provider/AuthContext";
 import axios from "axios";
@@ -16,6 +16,12 @@ const RegisteredList = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [showEventDropdown, setShowEventDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [showMailModal, setShowMailModal] = useState(false);
+  const [sendingMail, setSendingMail] = useState(false);
+  const [mailData, setMailData] = useState({
+    subject: "",
+    message: ""
+  });
 
   // Fetch events created by the user
   useEffect(() => {
@@ -134,6 +140,75 @@ const RegisteredList = () => {
     } finally {
       setExporting(false);
     }
+  };
+
+  const handleSendMail = async () => {
+    if (!selectedEvent) {
+      toast.error("Please select an event first");
+      return;
+    }
+
+    if (!mailData.subject.trim() || !mailData.message.trim()) {
+      toast.error("Please fill in both subject and message");
+      return;
+    }
+
+    setSendingMail(true);
+    try {
+      const allParticipantsData = await fetchAllParticipants(selectedEvent);
+      
+      if (allParticipantsData.length === 0) {
+        toast.error("No participants to send mail to");
+        return;
+      }
+
+      console.log("Sending mail to participants:", allParticipantsData);
+
+      // Send mail to all participants
+      const response = await axios.post(`http://localhost:2038/api/events/${selectedEvent}/send-mail`, {
+        subject: mailData.subject,
+        message: mailData.message,
+        senderEmail: user.email, // Send the current user's email as sender
+        participantEmails: allParticipantsData.map(p => p.email).filter(email => email)
+      });
+
+      console.log("Email response:", response.data);
+
+      if (response.data.success) {
+        toast.success(`Mail sent successfully to ${allParticipantsData.length} participants`);
+        setShowMailModal(false);
+        setMailData({ subject: "", message: "" });
+      } else {
+        toast.error(response.data.message || "Failed to send mail");
+      }
+    } catch (error) {
+      console.error("Error sending mail:", error);
+      const errorMessage = error.response?.data?.message || "Failed to send mail to participants";
+      toast.error(errorMessage);
+    } finally {
+      setSendingMail(false);
+    }
+  };
+
+  const handleMailInputChange = (e) => {
+    const { name, value } = e.target;
+    setMailData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const openMailModal = () => {
+    if (!selectedEvent) {
+      toast.error("Please select an event first");
+      return;
+    }
+    setShowMailModal(true);
+  };
+
+  const closeMailModal = () => {
+    setShowMailModal(false);
+    setMailData({ subject: "", message: "" });
   };
 
   const selectedEventData = events.find(event => event.id === selectedEvent);
@@ -310,24 +385,34 @@ const RegisteredList = () => {
                    </div>
                  </div>
                  
-                 {/* Export Button */}
-                 <button
-                   onClick={handleExport}
-                   disabled={exporting}
-                   className="btn btn-primary btn-sm"
-                 >
-                   {exporting ? (
-                     <>
-                       <div className="loading loading-spinner loading-xs"></div>
-                       Exporting...
-                     </>
-                   ) : (
-                     <>
-                       <FaDownload className="mr-1" />
-                       Export
-                     </>
-                   )}
-                 </button>
+                 {/* Export and Send Mail Buttons */}
+                 <div className="flex gap-2">
+                   <button
+                     onClick={openMailModal}
+                     disabled={!selectedEvent}
+                     className="btn btn-secondary btn-sm"
+                   >
+                     <FaEnvelope className="mr-1" />
+                     Send Mail
+                   </button>
+                   <button
+                     onClick={handleExport}
+                     disabled={exporting}
+                     className="btn btn-primary btn-sm"
+                   >
+                     {exporting ? (
+                       <>
+                         <div className="loading loading-spinner loading-xs"></div>
+                         Exporting...
+                       </>
+                     ) : (
+                       <>
+                         <FaDownload className="mr-1" />
+                         Export
+                       </>
+                     )}
+                   </button>
+                 </div>
                </div>
             </>
           )}
@@ -342,6 +427,131 @@ const RegisteredList = () => {
           </div>
           <h4 className="text-lg font-medium text-gray-800 mb-2">Select an Event</h4>
           <p className="text-gray-500">Choose an event from the dropdown above to view registered participants.</p>
+        </div>
+      )}
+
+      {/* Mail Modal */}
+      {showMailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <FaEnvelope className="text-white text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">Send Mail to Participants</h3>
+                  <p className="text-gray-600">Send a message to all registered participants</p>
+                </div>
+              </div>
+              <button
+                onClick={closeMailModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+                             {/* Event Info */}
+               {selectedEventData && (
+                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                   <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                       <FaUsers className="text-white text-sm" />
+                     </div>
+                     <div>
+                       <p className="text-sm text-blue-600 font-medium">Sending to participants of:</p>
+                       <p className="text-blue-800 font-semibold">{selectedEventData.title}</p>
+                     </div>
+                   </div>
+                 </div>
+               )}
+
+               {/* Sender Info */}
+               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                     <FaEnvelope className="text-white text-sm" />
+                   </div>
+                   <div>
+                     <p className="text-sm text-green-600 font-medium">Reply-To address:</p>
+                     <p className="text-green-800 font-semibold">{user.email}</p>
+                     <p className="text-xs text-green-600 mt-1">Participants can reply directly to your email</p>
+                   </div>
+                 </div>
+               </div>
+
+              {/* Subject Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Subject *
+                </label>
+                <input
+                  type="text"
+                  name="subject"
+                  value={mailData.subject}
+                  onChange={handleMailInputChange}
+                  placeholder="Enter email subject..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  required
+                />
+              </div>
+
+              {/* Message Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Message *
+                </label>
+                <textarea
+                  name="message"
+                  value={mailData.message}
+                  onChange={handleMailInputChange}
+                  placeholder="Enter your message to participants..."
+                  rows={8}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                  required
+                />
+              </div>
+
+              {/* Character Count */}
+              <div className="text-right">
+                <span className="text-sm text-gray-500">
+                  {mailData.message.length} characters
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={closeMailModal}
+                className="btn btn-outline btn-sm"
+                disabled={sendingMail}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendMail}
+                disabled={sendingMail || !mailData.subject.trim() || !mailData.message.trim()}
+                className="btn btn-primary btn-sm bg-gradient-to-r from-blue-500 to-purple-600 border-0 hover:from-blue-600 hover:to-purple-700"
+              >
+                {sendingMail ? (
+                  <>
+                    <div className="loading loading-spinner loading-xs"></div>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <FaEnvelope className="mr-1" />
+                    Send Mail
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
