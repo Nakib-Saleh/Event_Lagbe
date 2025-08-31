@@ -45,3 +45,5 @@ src/main/resources/application-*.properties
 # Keep only non-sensitive properties
 !src/main/resources/application-example.properties
 !src/main/resources/application-railway.properties
+
+
