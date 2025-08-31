@@ -3,6 +3,7 @@ import { FaUsers, FaSearch, FaChevronDown, FaChevronUp, FaDownload, FaEnvelope, 
 import { toast } from "react-hot-toast";
 import AuthContext from "../../../Provider/AuthContext";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const RegisteredList = () => {
   const { user } = useContext(AuthContext);
@@ -30,7 +31,8 @@ const RegisteredList = () => {
       
       setEventsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:2038/api/events/user/${user.firebaseUid}`);
+        //const response = await axios.get(`http://localhost:2038/api/events/user/${user.firebaseUid}`);
+        const response = await axios.get(API_ENDPOINTS.USER_EVENTS(user.firebaseUid));
         setEvents(response.data.events || []);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -49,7 +51,8 @@ const RegisteredList = () => {
     
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:2038/api/events/${eventId}/registered-participants`, {
+      //const response = await axios.get(`http://localhost:2038/api/events/${eventId}/registered-participants`);
+      const response = await axios.get(API_ENDPOINTS.REGISTERED_PARTICIPANTS(eventId), {
         params: {
           page: page,
           size: 10
@@ -86,7 +89,8 @@ const RegisteredList = () => {
   // Fetch all participants for export
   const fetchAllParticipants = async (eventId) => {
     try {
-      const response = await axios.get(`http://localhost:2038/api/events/${eventId}/registered-participants`, {
+      //const response = await axios.get(`http://localhost:2038/api/events/${eventId}/registered-participants`);
+      const response = await axios.get(API_ENDPOINTS.REGISTERED_PARTICIPANTS(eventId), {
         params: {
           page: 0,
           size: 1000 // Large size to get all participants
@@ -165,7 +169,8 @@ const RegisteredList = () => {
       console.log("Sending mail to participants:", allParticipantsData);
 
       // Send mail to all participants
-      const response = await axios.post(`http://localhost:2038/api/events/${selectedEvent}/send-mail`, {
+      //const response = await axios.post(`http://localhost:2038/api/events/${eventId}/send-mail`, {
+      const response = await axios.post(API_ENDPOINTS.SEND_MAIL(selectedEvent), {
         subject: mailData.subject,
         message: mailData.message,
         senderEmail: user.email, // Send the current user's email as sender

@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { FaCheckCircle, FaSearch, FaTimes, FaPlus } from "react-icons/fa";
 import { debounce } from 'lodash';
+import { API_ENDPOINTS } from "../../../config/api";
 
 const ParticipantProfile = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -27,7 +28,8 @@ const ParticipantProfile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        //const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        const response = await axios.get(API_ENDPOINTS.GET_USER_BY_ROLE(userRole, user.firebaseUid));
         setProfileData(response.data);
         setFormData(response.data);
       } catch (error) {
@@ -66,7 +68,8 @@ const ParticipantProfile = () => {
 
     setIsCheckingUsername(true);
     try {
-      const response = await axios.get(`http://localhost:2038/api/auth/check-username/${username}`);
+      //const response = await axios.get(`http://localhost:2038/api/auth/check-username/${username}`);
+      const response = await axios.get(API_ENDPOINTS.CHECK_USERNAME(username));
       if (response.data.exists) {
         setUsernameError("Username already taken");
       } else {
@@ -100,7 +103,8 @@ const ParticipantProfile = () => {
 
     setIsSearching(true);
     try {
-      const response = await axios.get(`http://localhost:2038/api/skills/search`, {
+      //const response = await axios.get(`http://localhost:2038/api/skills/search`, {
+      const response = await axios.get(API_ENDPOINTS.SEARCH_SKILLS(searchTerm), {
         params: {
           name: searchTerm,
           page: page,
@@ -202,7 +206,8 @@ const ParticipantProfile = () => {
     }
 
     try {
-      await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+      //await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+              await axios.put(API_ENDPOINTS.UPDATE_USER(userRole, user.firebaseUid), formData);
       setProfileData(formData);
       setIsEditing(false);
       toast.success("Profile updated successfully");

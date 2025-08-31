@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-
-const API_URL = 'http://localhost:2038/api/skills';
+import { API_ENDPOINTS } from '../../../config/api';
 
 const SkillsList = () => {
   const [skills, setSkills] = useState([]);
@@ -14,7 +13,7 @@ const SkillsList = () => {
   const fetchSkills = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(API_ENDPOINTS.SKILLS);
       setSkills(res.data);
     } catch {
       toast.error('Failed to fetch skills');
@@ -35,7 +34,7 @@ const SkillsList = () => {
   const handleAddSkill = async e => {
     e.preventDefault();
     try {
-      await axios.post(API_URL, form);
+      await axios.post(API_ENDPOINTS.SKILLS, form);
       toast.success('Skill added');
       setForm({ name: '', description: '', isActive: true });
       fetchSkills();
@@ -53,7 +52,7 @@ const SkillsList = () => {
   const handleUpdateSkill = async e => {
     e.preventDefault();
     try {
-      await axios.put(`${API_URL}/${editingSkill.id}`, form);
+      await axios.put(`${API_ENDPOINTS.SKILLS}/${editingSkill.id}`, form);
       toast.success('Skill updated');
       setEditingSkill(null);
       setForm({ name: '', description: '', isActive: true });
@@ -67,7 +66,7 @@ const SkillsList = () => {
   const handleDeleteSkill = async id => {
     if (!window.confirm('Delete this skill?')) return;
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${API_ENDPOINTS.SKILLS}/${id}`);
       toast.success('Skill deleted');
       fetchSkills();
     } catch {

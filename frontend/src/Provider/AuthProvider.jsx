@@ -15,6 +15,7 @@ import { auth } from "../firebase.init";
 import AuthContext from "./AuthContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { API_ENDPOINTS } from "../config/api";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -71,7 +72,8 @@ const AuthProvider = ({ children }) => {
       };
       // 3. Send to backend
       const res = await axios.post(
-        `http://localhost:2038/api/auth/register/${userType}`,
+        //`http://localhost:2038/api/auth/register/${userType}`,
+        API_ENDPOINTS.REGISTER(userType),
         backendData
       );
       // console.log("########");
@@ -96,7 +98,8 @@ const AuthProvider = ({ children }) => {
 
       if (currentUser) {
         setLoading(true);
-        fetch(`http://localhost:2038/api/auth/${currentUser.uid}`)
+        // fetch from `http://localhost:2038/api/auth/${currentUser.uid}`,
+        fetch(API_ENDPOINTS.GET_USER(currentUser.uid))
           .then((res) => res.json())
           .then((data) => {
             setUserRole(data.role);

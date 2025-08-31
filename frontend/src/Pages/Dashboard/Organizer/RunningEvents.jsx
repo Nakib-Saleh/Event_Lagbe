@@ -4,6 +4,7 @@ import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FiCalendar, FiMapPin, FiClock, FiUser, FiEdit, FiTrash2 } from "react-icons/fi";
 import { MdOutlineEmojiEvents } from "react-icons/md";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const RunningEvents = () => {
   const { user } = useContext(AuthContext);
@@ -19,7 +20,8 @@ const RunningEvents = () => {
           // Fetch each event individually using the event IDs
           const eventPromises = user.eventIds.map(async (eventId) => {
             try {
-              const eventResponse = await axios.get(`http://localhost:2038/api/events/${eventId}`);
+              //const eventResponse = await axios.get(`http://localhost:2038/api/events/${eventId}`);
+              const eventResponse = await axios.get(API_ENDPOINTS.GET_EVENT(eventId));
               return eventResponse.data.event; // The API returns {event: {...}, timeslots: [...]}
             } catch (error) {
               console.error(`Error fetching event ${eventId}:`, error);
@@ -54,7 +56,8 @@ const RunningEvents = () => {
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
-        await axios.delete(`http://localhost:2038/api/events/${eventId}`);
+        //await axios.delete(`http://localhost:2038/api/events/${eventId}`);
+        await axios.delete(API_ENDPOINTS.DELETE_EVENT(eventId));
         setRunningEvents(prev => prev.filter(event => event.id !== eventId));
         toast.success("Event deleted successfully");
       } catch (error) {
@@ -66,7 +69,8 @@ const RunningEvents = () => {
 
   const handleToggleEventStatus = async (eventId, currentStatus) => {
     try {
-      await axios.put(`http://localhost:2038/api/events/${eventId}`, {
+      //await axios.put(`http://localhost:2038/api/events/${eventId}`, {
+      await axios.put(API_ENDPOINTS.UPDATE_EVENT(eventId), {
         isActive: !currentStatus
       });
       

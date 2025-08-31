@@ -4,6 +4,7 @@ import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FiUserCheck, FiUser, FiMapPin } from "react-icons/fi";
 import { FaCheckCircle } from "react-icons/fa";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const Following = () => {
   const { user } = useContext(AuthContext);
@@ -23,9 +24,12 @@ const Following = () => {
               try {
                 // Try to find user in different endpoints
                 const [participantRes, organizerRes, organizationRes] = await Promise.allSettled([
-                  axios.get(`http://localhost:2038/api/auth/participant/${followedFirebaseUid}`),
-                  axios.get(`http://localhost:2038/api/auth/organizer/${followedFirebaseUid}`),
-                  axios.get(`http://localhost:2038/api/auth/organization/${followedFirebaseUid}`)
+                  //axios.get(`http://localhost:2038/api/auth/participant/${followedFirebaseUid}`),
+                  //axios.get(`http://localhost:2038/api/auth/organizer/${followedFirebaseUid}`),
+                  //axios.get(`http://localhost:2038/api/auth/organization/${followedFirebaseUid}`)
+                  axios.get(API_ENDPOINTS.GET_USER_BY_ROLE('participant', followedFirebaseUid)),
+                  axios.get(API_ENDPOINTS.GET_USER_BY_ROLE('organizer', followedFirebaseUid)),
+                  axios.get(API_ENDPOINTS.GET_USER_BY_ROLE('organization', followedFirebaseUid))
                 ]);
 
                 if (participantRes.status === 'fulfilled') return participantRes.value.data;
@@ -60,7 +64,7 @@ const Following = () => {
   const handleUnfollow = async (followedFirebaseUid) => {
     try {
       // Use the new common follow API to unfollow
-      await axios.delete(`http://localhost:2038/api/follow/${user.firebaseUid}/follow/${followedFirebaseUid}`);
+      await axios.delete(API_ENDPOINTS.FOLLOW(user.firebaseUid, followedFirebaseUid));
       
       // Update local state
       setFollowing(prev => prev.filter(followedUser => followedUser.firebaseUid !== followedFirebaseUid));

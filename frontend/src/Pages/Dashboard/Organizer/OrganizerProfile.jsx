@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { FaCheckCircle } from "react-icons/fa";
 import { debounce } from 'lodash';
+import { API_ENDPOINTS } from "../../../config/api";
 
 const OrganizerProfile = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -28,14 +29,16 @@ const OrganizerProfile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        //const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        const response = await axios.get(API_ENDPOINTS.GET_USER_BY_ROLE(userRole, user.firebaseUid));
         setProfileData(response.data);
         setFormData(response.data);
         
         // Fetch organization data if organizationId exists
         if (response.data.organizationId) {
           try {
-            const orgResponse = await axios.get(`http://localhost:2038/api/organization/${response.data.organizationId}`);
+            //const orgResponse = await axios.get(`http://localhost:2038/api/organization/${response.data.organizationId}`);
+            const orgResponse = await axios.get(API_ENDPOINTS.ORGANIZATION_DETAILS(response.data.organizationId));
             setOrganizationData(orgResponse.data);
           } catch (orgError) {
             console.error("Error fetching organization data:", orgError);
@@ -78,7 +81,8 @@ const OrganizerProfile = () => {
 
     setIsCheckingUsername(true);
     try {
-      const response = await axios.get(`http://localhost:2038/api/auth/check-username/${username}`);
+      //const response = await axios.get(`http://localhost:2038/api/auth/check-username/${username}`);
+      const response = await axios.get(API_ENDPOINTS.CHECK_USERNAME(username));
       if (response.data.exists) {
         setUsernameError("Username already taken");
       } else {
@@ -142,7 +146,8 @@ const OrganizerProfile = () => {
     }
 
     try {
-      await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+      //await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+              await axios.put(API_ENDPOINTS.UPDATE_USER(userRole, user.firebaseUid), formData);
       setProfileData(formData);
       setIsEditing(false);
       toast.success("Profile updated successfully");

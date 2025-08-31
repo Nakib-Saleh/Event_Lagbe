@@ -4,6 +4,7 @@ import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FiCalendar, FiMapPin, FiClock, FiUser, FiCheckCircle } from "react-icons/fi";
 import { MdOutlineEmojiEvents } from "react-icons/md";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const PastEvents = () => {
   const { user } = useContext(AuthContext);
@@ -19,7 +20,8 @@ const PastEvents = () => {
           // Fetch each event individually using the event IDs
           const eventPromises = user.eventIds.map(async (eventId) => {
             try {
-              const eventResponse = await axios.get(`http://localhost:2038/api/events/${eventId}`);
+              //const eventResponse = await axios.get(`http://localhost:2038/api/events/${eventId}`);
+              const eventResponse = await axios.get(API_ENDPOINTS.GET_EVENT(eventId));
               return eventResponse.data.event; // The API returns {event: {...}, timeslots: [...]}
             } catch (error) {
               console.error(`Error fetching event ${eventId}:`, error);
@@ -52,7 +54,8 @@ const PastEvents = () => {
 
   const handleToggleEventStatus = async (eventId, currentStatus) => {
     try {
-      await axios.put(`http://localhost:2038/api/events/${eventId}`, {
+      //await axios.put(`http://localhost:2038/api/events/${eventId}`, {
+      await axios.put(API_ENDPOINTS.UPDATE_EVENT(eventId), {
         isActive: !currentStatus
       });
       

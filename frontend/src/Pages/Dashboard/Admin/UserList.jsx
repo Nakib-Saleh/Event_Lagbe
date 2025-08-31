@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FaCheckCircle, FaTimesCircle, FaCrown, FaBuilding, FaUser, FaUserTie } from 'react-icons/fa';
+import { API_ENDPOINTS } from '../../../config/api';
 import { useNavigate } from 'react-router-dom';
 
 const UserList = () => {
@@ -30,7 +31,8 @@ const UserList = () => {
   const fetchAllUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:2038/api/admin/users');
+      //const response = await axios.get(`http://localhost:2038/api/admin/users`);
+      const response = await axios.get(API_ENDPOINTS.ADMIN_USERS);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -42,7 +44,8 @@ const UserList = () => {
 
   const handleToggleVerification = async (userType, userId) => {
     try {
-      await axios.put(`http://localhost:2038/api/admin/users/${userType}/${userId}/toggle-verification`);
+      //await axios.put(`http://localhost:2038/api/admin/users/${userType}/${userId}/toggle-verification`);
+              await axios.put(API_ENDPOINTS.TOGGLE_VERIFICATION(userType, userId));
       toast.success('Verification status updated successfully');
       
       // Update the local state

@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const ENTITY_CONFIG = {
   Organization: {
     label: "Organization Verification",
     api: {
-      fetch: "http://localhost:2038/api/organization/unverified",
-      approve: id => `http://localhost:2038/api/organization/${id}/approve`,
-      reject: id => `http://localhost:2038/api/organization/${id}/reject`,
+      //      fetch: "http://localhost:2038/api/organization/unverified",
+      //approve: id => `http://localhost:2038/api/organization/${id}/approve`,
+      //reject: id => `http://localhost:2038/api/organization/${id}/reject`,
+      fetch: API_ENDPOINTS.UNVERIFIED_ORGANIZATIONS,
+      approve: id => API_ENDPOINTS.APPROVE_ORGANIZATION(id),
+      reject: id => API_ENDPOINTS.REJECT_ORGANIZATION(id),
     },
     avatar: org => org.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp",
     name: org => org.name,
@@ -19,9 +23,12 @@ const ENTITY_CONFIG = {
   Participants: {
     label: "Participants Verification",
     api: {
-      fetch: "http://localhost:2038/api/participant/unverified",
-      approve: id => `http://localhost:2038/api/participant/${id}/approve`,
-      reject: id => `http://localhost:2038/api/participant/${id}/reject`,
+      //fetch: "http://localhost:2038/api/participant/unverified",
+      //approve: id => `http://localhost:2038/api/participant/${id}/approve`,
+      //reject: id => `http://localhost:2038/api/participant/${id}/reject`,
+      fetch: API_ENDPOINTS.UNVERIFIED_PARTICIPANTS,
+      approve: id => API_ENDPOINTS.APPROVE_PARTICIPANT(id),
+      reject: id => API_ENDPOINTS.REJECT_PARTICIPANT(id),
     },
     avatar: p => p.profilePictureUrl || "https://img.daisyui.com/images/profile/demo/2@94.webp",
     name: p => p.name,

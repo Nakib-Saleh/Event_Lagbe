@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaSearch, FaTimes, FaFilter, FaCheck, FaBuilding, FaUser, FaSort, FaChevronDown } from "react-icons/fa";
+import { API_ENDPOINTS } from "../config/api";
 
 const AllEvents = () => {
   const [events, setEvents] = useState([]);
@@ -39,7 +40,8 @@ const AllEvents = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const eventsRes = await fetch("http://localhost:2038/api/events?page=0&size=50");
+        //const eventsRes = await fetch(`http://localhost:2038/api/events?page=0&size=50`);
+        const eventsRes = await fetch(API_ENDPOINTS.EVENTS + "?page=0&size=50");
                  if (!eventsRes.ok) throw new Error("Failed to load events");
 
         const eventsData = await eventsRes.json();
@@ -70,7 +72,8 @@ const AllEvents = () => {
 
     setIsSkillSearching(true);
     try {
-      const response = await fetch(`http://localhost:2038/api/skills/search?name=${encodeURIComponent(query)}&page=0&size=10`);
+      //const response = await fetch(`http://localhost:2038/api/skills/search?name=${encodeURIComponent(query)}&page=0&size=10`);
+      const response = await fetch(API_ENDPOINTS.SEARCH_SKILLS(query));
       if (response.ok) {
         const data = await response.json();
         const suggestions = Array.isArray(data?.content) ? data.content : [];
@@ -96,8 +99,10 @@ const AllEvents = () => {
     setIsOrgSearching(true);
     try {
       const [orgRes, orgzRes] = await Promise.all([
-        fetch(`http://localhost:2038/api/organization?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
-        fetch(`http://localhost:2038/api/organizer?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
+        //fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
+        //fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
       ]);
       
       const mapOrg = (o) => ({ 

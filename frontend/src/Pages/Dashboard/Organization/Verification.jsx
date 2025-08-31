@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import AuthContext from "../../../Provider/AuthContext";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const ConfirmationModal = ({ show, onClose, onConfirm, title, message, confirmText, cancelText }) =>
   show ? (
@@ -65,7 +66,8 @@ const VerificationOptimized = () => {
     if (!user || !user.id) return;
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:2038/api/organizer/${user.id}/unverified-organizers`);
+      //const response = await axios.get(`http://localhost:2038/api/organizer/${user.id}/unverified-organizers`);
+      const response = await axios.get(API_ENDPOINTS.UNVERIFIED_ORGANIZERS(user.id));
       setData(response.data);
     } catch {
       toast.error("Failed to fetch organizers");
@@ -95,7 +97,8 @@ const VerificationOptimized = () => {
   // Approve/Reject logic
   const handleApprove = async () => {
     try {
-      await axios.put(`http://localhost:2038/api/organizer/${modal.item.id}/approve`);
+      //await axios.put(`http://localhost:2038/api/organizer/${modal.item.id}/approve`);
+      await axios.put(API_ENDPOINTS.APPROVE_ORGANIZER(modal.item.id));
       toast.success("Organizer approved successfully");
       setModal({ type: null, item: null });
       fetchData();
@@ -105,7 +108,8 @@ const VerificationOptimized = () => {
   };
   const handleReject = async () => {
     try {
-      await axios.delete(`http://localhost:2038/api/organizer/${modal.item.id}/reject`);
+      //await axios.delete(`http://localhost:2038/api/organizer/${modal.item.id}/reject`);
+      await axios.delete(API_ENDPOINTS.REJECT_ORGANIZER(modal.item.id));
       toast.success("Organizer rejected successfully");
       setModal({ type: null, item: null });
       fetchData();
@@ -115,7 +119,8 @@ const VerificationOptimized = () => {
   };
   const handleBulkApprove = async () => {
     try {
-      await Promise.all(selected.map(id => axios.put(`http://localhost:2038/api/organizer/${id}/approve`)));
+      //await Promise.all(selected.map(id => axios.put(`http://localhost:2038/api/organizer/${id}/approve`)));
+              await Promise.all(selected.map(id => axios.put(API_ENDPOINTS.APPROVE_ORGANIZER(id))));
       toast.success(`${selected.length} organizers approved successfully`);
       setModal({ type: null, item: null });
       setSelected([]);
@@ -126,7 +131,8 @@ const VerificationOptimized = () => {
   };
   const handleBulkReject = async () => {
     try {
-      await Promise.all(selected.map(id => axios.delete(`http://localhost:2038/api/organizer/${id}/reject`)));
+      //await Promise.all(selected.map(id => axios.delete(`http://localhost:2038/api/organizer/${id}/reject`)));
+              await Promise.all(selected.map(id => axios.delete(API_ENDPOINTS.REJECT_ORGANIZER(id))));
       toast.success(`${selected.length} organizers rejected successfully`);
       setModal({ type: null, item: null });
       setSelected([]);

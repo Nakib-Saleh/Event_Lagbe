@@ -4,6 +4,7 @@ import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FiCalendar, FiMapPin, FiClock, FiUser } from "react-icons/fi";
 import { MdOutlineEmojiEvents } from "react-icons/md";
+import { API_ENDPOINTS } from "../../../config/api";
 
 
 
@@ -17,7 +18,7 @@ const RegisteredEvents = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:2038/api/participant/${user.firebaseUid}/registered-events`
+          API_ENDPOINTS.REGISTERED_EVENTS(user.firebaseUid)
         );
         setRegisteredEvents(response.data);
       } catch (error) {
@@ -36,7 +37,8 @@ const RegisteredEvents = () => {
   const handleUnregister = async (eventId) => {
     try {
       const response = await fetch(
-        `http://localhost:2038/api/events/${eventId}/going`,
+        //API_ENDPOINTS.GOING_EVENT(eventId),
+        API_ENDPOINTS.GOING_EVENT(eventId),
         {
           method: "POST",
           headers: {

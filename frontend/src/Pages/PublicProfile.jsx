@@ -5,6 +5,7 @@ import { FaHeart, FaCheckCircle, FaCrown } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
 import AuthContext from "../Provider/AuthContext";
 import { toast } from "react-hot-toast";
+import { API_ENDPOINTS } from "../config/api";
 
 const PublicProfile = () => {
   const { firebaseUid } = useParams();
@@ -60,7 +61,8 @@ const PublicProfile = () => {
         setLoading(true);
         // First, get the user's role and basic info
         const userResponse = await axios.get(
-          `http://localhost:2038/api/auth/${firebaseUid}`
+          //`http://localhost:2038/api/auth/${firebaseUid}`,
+          API_ENDPOINTS.GET_USER(firebaseUid)
         );
         const { role, user } = userResponse.data;
 
@@ -86,7 +88,8 @@ const PublicProfile = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:2038/api/organizer/${profileData.id}/verified-organizers`
+          //`http://localhost:2038/api/organizer/${profileData.id}/verified-organizers`,
+          API_ENDPOINTS.VERIFIED_ORGANIZERS(profileData.id)
         );
         setOrganizers(res.data);
       } catch {
@@ -108,7 +111,8 @@ const PublicProfile = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:2038/api/follow/${currentUser.firebaseUid}/is-following/${firebaseUid}`
+          //`http://localhost:2038/api/follow/${currentUser.firebaseUid}/is-following/${firebaseUid}`,
+          API_ENDPOINTS.IS_FOLLOWING(currentUser.firebaseUid, firebaseUid)
         );
         setIsFollowing(response.data.isFollowing);
       } catch (error) {
@@ -130,7 +134,8 @@ const PublicProfile = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:2038/api/organization/${profileData.organizationId}`
+          //`http://localhost:2038/api/organization/${profileData.organizationId}`,
+          API_ENDPOINTS.ORGANIZATION_DETAILS(profileData.organizationId)
         );
         setOrganizationData(response.data);
       } catch (error) {
@@ -152,7 +157,8 @@ const PublicProfile = () => {
            // For organizations and organizers, fetch events using eventIds
            if (profileData.eventIds && profileData.eventIds.length > 0) {
              const eventPromises = profileData.eventIds.map(eventId =>
-               axios.get(`http://localhost:2038/api/events/${eventId}`)
+               //axios.get(`http://localhost:2038/api/events/${eventId}`),
+               axios.get(API_ENDPOINTS.GET_EVENT(eventId))
              );
              const eventResponses = await Promise.all(eventPromises);
              const fetchedEvents = eventResponses.map(response => response.data.event);
@@ -164,7 +170,8 @@ const PublicProfile = () => {
            // For participants, fetch events using registeredEventIds
            if (profileData.registeredEventIds && profileData.registeredEventIds.length > 0) {
              const eventPromises = profileData.registeredEventIds.map(eventId =>
-               axios.get(`http://localhost:2038/api/events/${eventId}`)
+               //axios.get(`http://localhost:2038/api/events/${eventId}`),
+               axios.get(API_ENDPOINTS.GET_EVENT(eventId))
              );
              const eventResponses = await Promise.all(eventPromises);
              const fetchedEvents = eventResponses.map(response => response.data.event);
@@ -197,14 +204,16 @@ const PublicProfile = () => {
       if (isFollowing) {
         // Unfollow user
         await axios.delete(
-          `http://localhost:2038/api/follow/${currentUser.firebaseUid}/follow/${firebaseUid}`
+          //`http://localhost:2038/api/follow/${currentUser.firebaseUid}/follow/${firebaseUid}`,
+          API_ENDPOINTS.FOLLOW(currentUser.firebaseUid, firebaseUid)
         );
         setIsFollowing(false);
         toast.success("Unfollowed successfully");
       } else {
         // Follow user
         await axios.post(
-          `http://localhost:2038/api/follow/${currentUser.firebaseUid}/follow/${firebaseUid}`
+          //`http://localhost:2038/api/follow/${currentUser.firebaseUid}/follow/${firebaseUid}`,
+          API_ENDPOINTS.FOLLOW(currentUser.firebaseUid, firebaseUid)
         );
         setIsFollowing(true);
         toast.success("Followed successfully");

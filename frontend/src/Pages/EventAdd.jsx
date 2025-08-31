@@ -9,6 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../Provider/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
 const EventAdd = () => {
   const { user } = useContext(AuthContext);
@@ -58,7 +59,7 @@ const EventAdd = () => {
     const loadSkills = async () => {
       try {
         setSkillsState(prev => ({ ...prev, loading: true }));
-        const res = await fetch('http://localhost:2038/api/skills');
+        const res = await fetch(API_ENDPOINTS.SKILLS);
         const data = await res.json();
         setSkillsState(prev => ({ 
           ...prev, 
@@ -84,8 +85,10 @@ const EventAdd = () => {
     try {
       setSearchState(prev => ({ ...prev, searching: true }));
       const [orgRes, orgzRes] = await Promise.all([
-        fetch(`http://localhost:2038/api/organization?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
-        fetch(`http://localhost:2038/api/organizer?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        //fetch(`http://localhost:2038/api/organizations?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        //fetch(`http://localhost:2038/api/organizers?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
       ]);
       const mapOrg = (o) => ({ firebaseUid: o.firebaseUid, name: o.name || o.username || o.email, type: 'organization', email: o.email });
       const mapOrgz = (p) => ({ firebaseUid: p.firebaseUid, name: p.name || p.username || p.email, type: 'organizer', email: p.email });
@@ -240,7 +243,8 @@ const EventAdd = () => {
       console.log('Timeslots being sent:', timeslots);
       console.log(payload);
 
-      const res = await fetch('http://localhost:2038/api/events', {
+      //const res = await fetch(`http://localhost:2038/api/events`, {
+              const res = await fetch(API_ENDPOINTS.EVENTS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

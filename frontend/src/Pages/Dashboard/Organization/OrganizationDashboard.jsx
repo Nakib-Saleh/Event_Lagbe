@@ -21,7 +21,6 @@ import {
 } from "react-icons/fi";
 import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { useContext } from "react";
 import { MdOutlineEmojiEvents } from "react-icons/md";
 import AuthContext from "../../../Provider/AuthContext";
@@ -79,7 +78,6 @@ const OrganizationDashboard = () => {
 
   return (
     <div className="flex min-h-screen font-roboto">
-      <div><Toaster/></div> 
       <Sidebar
         collapsed={isCollapsed}
         className="bg-white border-r border-gray-200 rounded-xl "

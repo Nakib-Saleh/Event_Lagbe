@@ -6,6 +6,7 @@ import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser, FaIdCard, FaBuilding, FaFileUpload, FaTimes } from "react-icons/fa";
 import Lottie from "lottie-react";
 import animationData from "../assets/ladylog.json";
+import { API_ENDPOINTS } from "../config/api";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ const Register = () => {
 
   useEffect(() => {
     if (userType === "organizer") {
-      fetch("http://localhost:2038/api/organization")
+      //`http://localhost:2038/api/organizations`,
+      fetch(API_ENDPOINTS.ORGANIZATIONS)
         .then((res) => res.json())
         .then((data) => {
           // Handle both paginated and non-paginated responses
@@ -156,14 +158,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 transition-colors duration-300">
       
       {/* Main Container */}
-      <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden transition-colors duration-300">
+      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-colors duration-300">
         <div className="flex flex-col lg:flex-row min-h-[700px]">
           
           {/* Left Side - Animation */}
-          <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 dark:from-blue-800 dark:via-purple-800 dark:to-indigo-900 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden transition-colors duration-300">
+          <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden transition-colors duration-300">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full"></div>
@@ -182,7 +184,7 @@ const Register = () => {
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                 Join Event Lagbe
               </h1>
-              <p className="text-blue-100 dark:text-blue-200 text-lg max-w-md mx-auto">
+              <p className="text-blue-100 text-lg max-w-md mx-auto">
                 Create your account and start organizing or participating in amazing events
               </p>
             </div>
@@ -193,10 +195,10 @@ const Register = () => {
             <div className="w-full max-w-md">
               {/* Header */}
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
                   Create Account
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600">
                   Choose your role and join our community
                 </p>
               </div>

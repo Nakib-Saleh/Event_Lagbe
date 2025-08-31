@@ -9,6 +9,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import AuthContext from "../Provider/AuthContext";
 import { toast } from "react-hot-toast";
+import { API_ENDPOINTS } from "../config/api";
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -34,7 +35,8 @@ const EventDetails = () => {
         let eventData = null;
         try {
           const eventRes = await fetch(
-            `http://localhost:2038/api/events/${eventId}`
+            //`http://localhost:2038/api/events/${eventId}`,
+            API_ENDPOINTS.GET_EVENT(eventId)
           );
           if (eventRes.ok) {
             eventData = await eventRes.json();
@@ -56,7 +58,8 @@ const EventDetails = () => {
             try {
               // First try to fetch by organization ID
               let ownerRes = await fetch(
-                `http://localhost:2038/api/auth/${eventData.event.ownerId}`
+                //`http://localhost:2038/api/auth/${eventData.event.ownerId}`,
+                API_ENDPOINTS.GET_USER(eventData.event.ownerId)
               );
 
               if (ownerRes.ok) {
@@ -80,7 +83,8 @@ const EventDetails = () => {
 
                     // First try to fetch by organization ID
                     let coHostRes = await fetch(
-                      `http://localhost:2038/api/auth/${coHostId}`
+                      //`http://localhost:2038/api/auth/${coHostId}`,
+                      API_ENDPOINTS.GET_USER(coHostId)
                     );
 
                     if (coHostRes.ok) {
@@ -166,7 +170,8 @@ const EventDetails = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:2038/api/events/${eventId}/bookmark`,
+        //`http://localhost:2038/api/events/${eventId}/bookmark`,
+        API_ENDPOINTS.BOOKMARK_EVENT(eventId),
         {
           method: "POST",
           headers: {
@@ -193,7 +198,8 @@ const EventDetails = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:2038/api/events/${eventId}/going`,
+        //`http://localhost:2038/api/events/${eventId}/going`,
+        API_ENDPOINTS.GOING_EVENT(eventId),
         {
           method: "POST",
           headers: {
@@ -220,7 +226,8 @@ const EventDetails = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:2038/api/events/${eventId}/user-status?participantId=${user.firebaseUid}`
+        //`http://localhost:2038/api/events/${eventId}/user-status`,
+        API_ENDPOINTS.USER_STATUS(eventId, user.firebaseUid)
       );
       if (response.ok) {
         const data = await response.json();

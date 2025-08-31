@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const Verification = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -33,7 +34,7 @@ const Verification = () => {
   const fetchOrganizations = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:2038/api/organization/unverified");
+      const response = await axios.get(API_ENDPOINTS.UNVERIFIED_ORGANIZATIONS);
       setOrganizations(response.data);
     } catch (error) {
       console.error("Error fetching organizations:", error);
@@ -47,7 +48,7 @@ const Verification = () => {
   const fetchParticipants = async () => {
     try {
       setParticipantsLoading(true);
-      const response = await axios.get("http://localhost:2038/api/participant/unverified");
+      const response = await axios.get(API_ENDPOINTS.UNVERIFIED_PARTICIPANTS);
       setParticipants(response.data);
     } catch (error) {
       console.error("Error fetching participants:", error);
@@ -82,7 +83,7 @@ const Verification = () => {
   // Handle approve organization
   const handleApprove = async () => {
     try {
-      await axios.put(`http://localhost:2038/api/organization/${selectedOrganization.id}/approve`);
+      await axios.put(API_ENDPOINTS.APPROVE_ORGANIZATION(selectedOrganization.id));
       toast.success("Organization approved successfully");
       setShowApproveModal(false);
       setSelectedOrganization(null);
@@ -96,7 +97,7 @@ const Verification = () => {
   // Handle reject organization
   const handleReject = async () => {
     try {
-      await axios.delete(`http://localhost:2038/api/organization/${selectedOrganization.id}/reject`);
+      await axios.delete(API_ENDPOINTS.REJECT_ORGANIZATION(selectedOrganization.id));
       toast.success("Organization rejected successfully");
       setShowRejectModal(false);
       setSelectedOrganization(null);
@@ -129,7 +130,7 @@ const Verification = () => {
   const handleBulkApprove = async () => {
     try {
       const promises = selectedOrganizations.map(id => 
-        axios.put(`http://localhost:2038/api/organization/${id}/approve`)
+        axios.put(API_ENDPOINTS.APPROVE_ORGANIZATION(id))
       );
       await Promise.all(promises);
       toast.success(`${selectedOrganizations.length} organizations approved successfully`);
@@ -146,7 +147,7 @@ const Verification = () => {
   const handleBulkReject = async () => {
     try {
       const promises = selectedOrganizations.map(id => 
-        axios.delete(`http://localhost:2038/api/organization/${id}/reject`)
+        axios.delete(API_ENDPOINTS.REJECT_ORGANIZATION(id))
       );
       await Promise.all(promises);
       toast.success(`${selectedOrganizations.length} organizations rejected successfully`);
@@ -205,7 +206,7 @@ const Verification = () => {
   };
   const handleApproveParticipant = async () => {
     try {
-      await axios.put(`http://localhost:2038/api/participant/${selectedParticipant.id}/approve`);
+      await axios.put(API_ENDPOINTS.APPROVE_PARTICIPANT(selectedParticipant.id));
       toast.success("Participant approved successfully");
       setShowApproveParticipantModal(false);
       setSelectedParticipant(null);
@@ -217,7 +218,7 @@ const Verification = () => {
   };
   const handleRejectParticipant = async () => {
     try {
-      await axios.delete(`http://localhost:2038/api/participant/${selectedParticipant.id}/reject`);
+      await axios.delete(API_ENDPOINTS.REJECT_PARTICIPANT(selectedParticipant.id));
       toast.success("Participant rejected successfully");
       setShowRejectParticipantModal(false);
       setSelectedParticipant(null);
@@ -244,7 +245,7 @@ const Verification = () => {
   const handleBulkApproveParticipants = async () => {
     try {
       const promises = selectedParticipants.map(id =>
-        axios.put(`http://localhost:2038/api/participant/${id}/approve`)
+        axios.put(API_ENDPOINTS.APPROVE_PARTICIPANT(id))
       );
       await Promise.all(promises);
       toast.success(`${selectedParticipants.length} participants approved successfully`);
@@ -259,7 +260,7 @@ const Verification = () => {
   const handleBulkRejectParticipants = async () => {
     try {
       const promises = selectedParticipants.map(id =>
-        axios.delete(`http://localhost:2038/api/participant/${id}/reject`)
+        axios.delete(API_ENDPOINTS.REJECT_PARTICIPANT(id))
       );
       await Promise.all(promises);
       toast.success(`${selectedParticipants.length} participants rejected successfully`);

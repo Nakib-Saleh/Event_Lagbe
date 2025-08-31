@@ -9,6 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload';
 import { useNavigate, useParams } from 'react-router-dom';
 import AuthContext from '../Provider/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
 const EventEdit = () => {
   const { user } = useContext(AuthContext);
@@ -78,7 +79,8 @@ const EventEdit = () => {
         setUiState(prev => ({ ...prev, loading: true }));
         
         // Fetch event data
-        const eventRes = await fetch(`http://localhost:2038/api/events/${eventId}`);
+        //`http://localhost:2038/api/events/${eventId}`,
+        const eventRes = await fetch(API_ENDPOINTS.GET_EVENT(eventId));
         if (!eventRes.ok) {
           throw new Error('Event not found');
         }
@@ -116,7 +118,8 @@ const EventEdit = () => {
             const coHostPromises = event.coHosts.map(async (coHostId) => {
               try {
                 // Use common auth endpoint
-                const response = await fetch(`http://localhost:2038/api/auth/${coHostId}`);
+                // const response = await fetch(`http://localhost:2038/api/auth/${coHostId}`);
+                const response = await fetch(API_ENDPOINTS.GET_USER(coHostId));
                 
                 if (response.ok) {
                   const data = await response.json();
@@ -189,7 +192,8 @@ const EventEdit = () => {
     const loadSkills = async () => {
       try {
         setSkillsState(prev => ({ ...prev, loading: true }));
-        const res = await fetch('http://localhost:2038/api/skills');
+        //const res = await fetch(`http://localhost:2038/api/skills`);
+        const res = await fetch(API_ENDPOINTS.SKILLS);
         const data = await res.json();
         setSkillsState(prev => ({ 
           ...prev, 
@@ -213,8 +217,10 @@ const EventEdit = () => {
     try {
       setSearchState(prev => ({ ...prev, searching: true }));
       const [orgRes, orgzRes] = await Promise.all([
-        fetch(`http://localhost:2038/api/organization?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
-        fetch(`http://localhost:2038/api/organizer?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        //fetch(`http://localhost:2038/api/organizations?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        //fetch(`http://localhost:2038/api/organizers?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
+        fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=${page}&size=5`).then(r => r.json()),
       ]);
       const mapOrg = (o) => ({ firebaseUid: o.firebaseUid, name: o.name || o.username || o.email, type: 'organization', email: o.email });
       const mapOrgz = (p) => ({ firebaseUid: p.firebaseUid, name: p.name || p.username || p.email, type: 'organizer', email: p.email });
@@ -335,8 +341,9 @@ const EventEdit = () => {
       }
       
       console.log('Sending event data:', eventData);
+      // const response = await fetch(`http://localhost:2038/api/events/${eventId}`, {
       
-      const response = await fetch(`http://localhost:2038/api/events/${eventId}`, {
+              const response = await fetch(API_ENDPOINTS.UPDATE_EVENT(eventId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import axios from "axios";
 import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FiBookmark, FiMapPin } from "react-icons/fi";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const BookmarkedEvents = () => {
   const { user } = useContext(AuthContext);
@@ -13,7 +14,8 @@ const BookmarkedEvents = () => {
     const fetchBookmarkedEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:2038/api/participant/${user.firebaseUid}/bookmarked-events`);
+        //const response = await axios.get(`http://localhost:2038/api/participant/${user.firebaseUid}/bookmarked-events`);
+        const response = await axios.get(API_ENDPOINTS.BOOKMARKED_EVENTS(user.firebaseUid));
         setBookmarkedEvents(response.data);
       } catch (error) {
         console.error("Error fetching bookmarked events:", error);
@@ -31,7 +33,8 @@ const BookmarkedEvents = () => {
   const handleRemoveBookmark = async (eventId) => {
     try {
       const response = await fetch(
-        `http://localhost:2038/api/events/${eventId}/bookmark`,
+        //`http://localhost:2038/api/events/${eventId}/bookmark`,
+        API_ENDPOINTS.BOOKMARK_EVENT(eventId),
         {
           method: "POST",
           headers: {

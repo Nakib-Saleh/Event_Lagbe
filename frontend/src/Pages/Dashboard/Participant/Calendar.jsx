@@ -7,6 +7,7 @@ import listPlugin from "@fullcalendar/list";
 import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const Calendar = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -38,8 +39,9 @@ const Calendar = () => {
     try {
       setLoading(true);
       
-      // First, get the participant's profile to get registeredEventIds
-      const participantRes = await fetch(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+             // First, get the participant's profile to get registeredEventIds
+             //const participantRes = await fetch(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+       const participantRes = await fetch(API_ENDPOINTS.GET_USER_BY_ROLE(userRole, user.firebaseUid));
       if (!participantRes.ok) {
         throw new Error('Failed to fetch participant data');
       }
@@ -64,11 +66,18 @@ const Calendar = () => {
         const eventColor = eventColors[colorIndex];
 
         try {
-          const eventRes = await fetch(`http://localhost:2038/api/events/${eventId}`);
+          //const eventRes = await fetch(`http://localhost:2038/api/events/${eventId}`);
+                     const eventRes = await fetch(API_ENDPOINTS.GET_EVENT(eventId));
           if (eventRes.ok) {
             const eventData = await eventRes.json();
             const event = eventData.event;
             const timeslots = eventData.timeslots || [];
+
+            // Skip inactive events
+            if (event.isActive === false) {
+              console.log(`Skipping inactive event: ${event.title} (ID: ${eventId})`);
+              continue;
+            }
 
             // Add event to the list
             eventsWithTimeslots.push({
@@ -179,7 +188,7 @@ const Calendar = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {registeredEvents.map((event, index) => (
+                {registeredEvents.map((event) => (
                   <div
                     key={event.id}
                     className="p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-pointer"

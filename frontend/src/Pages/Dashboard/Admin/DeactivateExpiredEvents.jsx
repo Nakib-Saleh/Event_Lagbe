@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FiClock, FiPlay, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const DeactivateExpiredEvents = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -12,7 +13,8 @@ const DeactivateExpiredEvents = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:2038/api/scheduled-tasks/deactivate-expired-events"
+        //"http://localhost:2038/api/scheduled-tasks/deactivate-expired-events"
+        API_ENDPOINTS.DEACTIVATE_EXPIRED_EVENTS
       );
 
       if (response.data.success) {

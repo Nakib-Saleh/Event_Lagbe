@@ -4,6 +4,7 @@ import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { FaCheckCircle } from "react-icons/fa";
+import { API_ENDPOINTS } from "../../../config/api";
 
 const Profile = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -19,7 +20,8 @@ const Profile = () => {
       
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:2038/api/organizer/${profileData.id}/verified-organizers`);
+        //const res = await axios.get(`http://localhost:2038/api/organizer/${profileData.id}/verified-organizers`);
+        const res = await axios.get(API_ENDPOINTS.VERIFIED_ORGANIZERS(profileData.id));
         setOrganizers(res.data);
       } catch (error) {
         console.error("Error fetching verified organizers:", error);
@@ -38,7 +40,8 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        //const response = await axios.get(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`);
+        const response = await axios.get(API_ENDPOINTS.GET_USER_BY_ROLE(userRole, user.firebaseUid));
         setProfileData(response.data);
         setFormData(response.data);
       } catch (error) {
@@ -122,7 +125,8 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+      //await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
+              await axios.put(API_ENDPOINTS.UPDATE_USER(userRole, user.firebaseUid), formData);
       setProfileData(formData);
       setIsEditing(false);
       toast.success("Profile updated successfully");

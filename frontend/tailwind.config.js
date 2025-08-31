@@ -5,7 +5,6 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       fontFamily: {
@@ -17,7 +16,7 @@ export default {
     daisyui,
   ],
   daisyui: {
-    themes: ["light", "dark", "cupcake"],
+    themes: ["light", "cupcake"],
   },
 }
 

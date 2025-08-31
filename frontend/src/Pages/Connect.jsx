@@ -5,6 +5,7 @@ import AuthContext from "../Provider/AuthContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { API_ENDPOINTS } from "../config/api";
 
 const Connect = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -23,10 +24,13 @@ const Connect = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        //const participantsResponse = await fetch(`http://localhost:2038/api/participant`);
+        //const organizersResponse = await fetch(`http://localhost:2038/api/organizer`);
+        //const organizationsResponse = await fetch(`http://localhost:2038/api/organization`);
         // Fetch participants from the correct endpoint
-        const participantsResponse = await fetch("http://localhost:2038/api/participant");
-        const organizersResponse = await fetch("http://localhost:2038/api/organizer");
-        const organizationsResponse = await fetch("http://localhost:2038/api/organization");
+        const participantsResponse = await fetch(API_ENDPOINTS.PARTICIPANTS);
+        const organizersResponse = await fetch(API_ENDPOINTS.ORGANIZERS);
+        const organizationsResponse = await fetch(API_ENDPOINTS.ORGANIZATIONS);
 
         if (!participantsResponse.ok) throw new Error(`HTTP error! status: ${participantsResponse.status}`);
         if (!organizersResponse.ok) throw new Error(`HTTP error! status: ${organizersResponse.status}`);
@@ -94,7 +98,8 @@ const Connect = () => {
       const isCurrentlyFollowing = followedUsers.has(userId);
       
       // Use the common follow endpoint
-      const apiEndpoint = `http://localhost:2038/api/follow/${user.firebaseUid}/follow/${firebaseUid}`;
+      //const apiEndpoint = API_ENDPOINTS.FOLLOW(user.firebaseUid, firebaseUid);
+      const apiEndpoint = API_ENDPOINTS.FOLLOW(user.firebaseUid, firebaseUid);
       
       if (isCurrentlyFollowing) {
         // Unfollow user

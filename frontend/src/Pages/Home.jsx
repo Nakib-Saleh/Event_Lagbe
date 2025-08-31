@@ -15,6 +15,7 @@ import AuthContext from "../Provider/AuthContext";
 import pic1 from "../assets/bd.JPG";
 import pic2 from "../assets/finals.jpg";
 import pic3 from "../assets/foreign.jpg";
+import { API_ENDPOINTS } from "../config/api";
 
 const Home = () => {
   const { user, userRole } = useContext(AuthContext);
@@ -39,7 +40,8 @@ const Home = () => {
       try {
         setLoadingEvents(true);
         const eventsRes = await fetch(
-          "http://localhost:2038/api/events?page=0&size=200"
+          //`http://localhost:2038/api/events?page=0&size=200`,
+          API_ENDPOINTS.EVENTS + "?page=0&size=200"
         );
         if (!eventsRes.ok) throw new Error("Failed to load events");
 
@@ -65,9 +67,12 @@ const Home = () => {
       try {
         const [participantsRes, organizersRes, organizationsRes] =
           await Promise.all([
-            fetch("http://localhost:2038/api/participant"),
-            fetch("http://localhost:2038/api/organizer"),
-            fetch("http://localhost:2038/api/organization"),
+            //`http://localhost:2038/api/participant`,
+            //`http://localhost:2038/api/organizer`,
+            //`http://localhost:2038/api/organization`,
+            fetch(API_ENDPOINTS.PARTICIPANTS),
+            fetch(API_ENDPOINTS.ORGANIZERS),
+            fetch(API_ENDPOINTS.ORGANIZATIONS),
           ]);
 
         if (!participantsRes.ok)
