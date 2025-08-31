@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch, FaTimes, FaFilter, FaCheck, FaBuilding, FaUser, FaSort, FaChevronDown } from "react-icons/fa";
+import {
+  FaSearch,
+  FaTimes,
+  FaFilter,
+  FaCheck,
+  FaBuilding,
+  FaUser,
+  FaSort,
+  FaChevronDown,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaBookmark,
+} from "react-icons/fa";
 import { API_ENDPOINTS } from "../config/api";
 
 const AllEvents = () => {
@@ -8,7 +20,7 @@ const AllEvents = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState("name"); // name, skill, orgs
@@ -42,7 +54,7 @@ const AllEvents = () => {
         setLoading(true);
         //const eventsRes = await fetch(`http://localhost:2038/api/events?page=0&size=50`);
         const eventsRes = await fetch(API_ENDPOINTS.EVENTS + "?page=0&size=50");
-                 if (!eventsRes.ok) throw new Error("Failed to load events");
+        if (!eventsRes.ok) throw new Error("Failed to load events");
 
         const eventsData = await eventsRes.json();
 
@@ -101,27 +113,35 @@ const AllEvents = () => {
       const [orgRes, orgzRes] = await Promise.all([
         //fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
         //fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
-        fetch(`${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
-        fetch(`${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(query)}&page=0&size=5`).then(r => r.json()),
+        fetch(
+          `${API_ENDPOINTS.ORGANIZATIONS}?q=${encodeURIComponent(
+            query
+          )}&page=0&size=5`
+        ).then((r) => r.json()),
+        fetch(
+          `${API_ENDPOINTS.ORGANIZERS}?q=${encodeURIComponent(
+            query
+          )}&page=0&size=5`
+        ).then((r) => r.json()),
       ]);
-      
-      const mapOrg = (o) => ({ 
-        firebaseUid: o.firebaseUid, 
-        name: o.name || o.username || o.email, 
-        type: 'organization', 
-        email: o.email 
+
+      const mapOrg = (o) => ({
+        firebaseUid: o.firebaseUid,
+        name: o.name || o.username || o.email,
+        type: "organization",
+        email: o.email,
       });
-      const mapOrgz = (p) => ({ 
-        firebaseUid: p.firebaseUid, 
-        name: p.name || p.username || p.email, 
-        type: 'organizer', 
-        email: p.email 
+      const mapOrgz = (p) => ({
+        firebaseUid: p.firebaseUid,
+        name: p.name || p.username || p.email,
+        type: "organizer",
+        email: p.email,
       });
-      
+
       const orgContent = orgRes?.content ?? orgRes ?? [];
       const orgzContent = orgzRes?.content ?? orgzRes ?? [];
       const items = [...orgContent.map(mapOrg), ...orgzContent.map(mapOrgz)];
-      
+
       setOrgSuggestions(items);
       setShowOrgDropdown(items.length > 0);
     } catch (error) {
@@ -162,8 +182,8 @@ const AllEvents = () => {
 
   // Handle skill selection
   const handleSkillSelect = (skill) => {
-    if (!selectedSkills.find(s => s.id === skill.id)) {
-      setSelectedSkills(prev => [...prev, skill]);
+    if (!selectedSkills.find((s) => s.id === skill.id)) {
+      setSelectedSkills((prev) => [...prev, skill]);
       setSearchTerm("");
       setSkillSuggestions([]);
       setShowSkillDropdown(false);
@@ -172,13 +192,13 @@ const AllEvents = () => {
 
   // Handle skill removal
   const handleSkillRemove = (skillId) => {
-    setSelectedSkills(prev => prev.filter(skill => skill.id !== skillId));
+    setSelectedSkills((prev) => prev.filter((skill) => skill.id !== skillId));
   };
 
   // Handle organization selection
   const handleOrgSelect = (org) => {
-    if (!selectedOrgs.find(o => o.firebaseUid === org.firebaseUid)) {
-      setSelectedOrgs(prev => [...prev, org]);
+    if (!selectedOrgs.find((o) => o.firebaseUid === org.firebaseUid)) {
+      setSelectedOrgs((prev) => [...prev, org]);
       setSearchTerm("");
       setOrgSuggestions([]);
       setShowOrgDropdown(false);
@@ -187,7 +207,9 @@ const AllEvents = () => {
 
   // Handle organization removal
   const handleOrgRemove = (firebaseUid) => {
-    setSelectedOrgs(prev => prev.filter(org => org.firebaseUid !== firebaseUid));
+    setSelectedOrgs((prev) =>
+      prev.filter((org) => org.firebaseUid !== firebaseUid)
+    );
   };
 
   // Handle search functionality
@@ -200,12 +222,15 @@ const AllEvents = () => {
         filtered = events;
       } else {
         // Filter events that have at least one of the selected skills
-        const skillNames = selectedSkills.map(skill => skill.name.toLowerCase());
-        filtered = events.filter(event => 
-          event.requiredSkills && 
-          event.requiredSkills.some(eventSkill => 
-            skillNames.includes(eventSkill.toLowerCase())
-          )
+        const skillNames = selectedSkills.map((skill) =>
+          skill.name.toLowerCase()
+        );
+        filtered = events.filter(
+          (event) =>
+            event.requiredSkills &&
+            event.requiredSkills.some((eventSkill) =>
+              skillNames.includes(eventSkill.toLowerCase())
+            )
         );
       }
     } else if (searchType === "orgs") {
@@ -214,15 +239,20 @@ const AllEvents = () => {
         filtered = events;
       } else {
         // Filter events that are created by OR co-hosted by any of the selected organizations/organizers
-        const orgFirebaseUids = selectedOrgs.map(org => org.firebaseUid);
-        filtered = events.filter(event => {
+        const orgFirebaseUids = selectedOrgs.map((org) => org.firebaseUid);
+        filtered = events.filter((event) => {
           // Check if event is created by any selected org
-          const isOwner = event.ownerId && orgFirebaseUids.includes(event.ownerId);
-          
+          const isOwner =
+            event.ownerId && orgFirebaseUids.includes(event.ownerId);
+
           // Check if event has any selected org as co-host
-          const hasCoHost = event.coHosts && Array.isArray(event.coHosts) && 
-            event.coHosts.some(coHostId => orgFirebaseUids.includes(coHostId));
-          
+          const hasCoHost =
+            event.coHosts &&
+            Array.isArray(event.coHosts) &&
+            event.coHosts.some((coHostId) =>
+              orgFirebaseUids.includes(coHostId)
+            );
+
           return isOwner || hasCoHost;
         });
       }
@@ -231,8 +261,10 @@ const AllEvents = () => {
       if (!searchTerm.trim()) {
         filtered = events;
       } else {
-        filtered = events.filter(event => 
-          event.title && event.title.toLowerCase().includes(searchTerm.toLowerCase())
+        filtered = events.filter(
+          (event) =>
+            event.title &&
+            event.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
     } else {
@@ -258,17 +290,17 @@ const AllEvents = () => {
           // - Interested count (showing interest): 2x weight (medium commitment)
           // - Bookmark count (saved for later): 1x weight (low commitment)
           // - Shares count (viral spread): 2x weight (medium-high engagement)
-          
+
           const goingScore = (event.registeredBy?.length || 0) * 3;
           const bookmarkScore = (event.bookmarkedBy?.length || 0) * 1;
-          
+
           // Total trending score
-          return goingScore  + bookmarkScore;
+          return goingScore + bookmarkScore;
         };
-        
+
         const scoreA = getTrendingScore(a);
         const scoreB = getTrendingScore(b);
-        
+
         // Sort by trending score (highest first)
         return scoreB - scoreA;
       });
@@ -290,19 +322,19 @@ const AllEvents = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showSortDropdown && !event.target.closest('.sort-dropdown')) {
+      if (showSortDropdown && !event.target.closest(".sort-dropdown")) {
         setShowSortDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showSortDropdown]);
 
   const handleLoadMore = () => {
-    setCurrentPage(prev => prev + 1);
+    setCurrentPage((prev) => prev + 1);
   };
 
   const clearSearch = () => {
@@ -329,11 +361,11 @@ const AllEvents = () => {
     setSortBy(newSortBy);
     setShowSortDropdown(false);
     setCurrentPage(1);
-    
+
     // Force immediate re-sort of current filtered events
     const currentFiltered = [...filteredEvents];
     let sortedEvents = [...currentFiltered];
-    
+
     if (newSortBy === "latest") {
       sortedEvents.sort((a, b) => {
         const dateA = new Date(a.createdAt);
@@ -347,13 +379,13 @@ const AllEvents = () => {
           const bookmarkScore = (event.bookmarkedBy?.length || 0) * 1;
           return goingScore + bookmarkScore;
         };
-        
+
         const scoreA = getTrendingScore(a);
         const scoreB = getTrendingScore(b);
         return scoreB - scoreA;
       });
     }
-    
+
     setFilteredEvents(sortedEvents);
   };
 
@@ -386,8 +418,12 @@ const AllEvents = () => {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Explore Events</h1>
-        <p className="text-gray-600">Discover amazing events and opportunities</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Explore Events
+        </h1>
+        <p className="text-gray-600">
+          Discover amazing events and opportunities
+        </p>
       </div>
 
       {/* Modern Search Section */}
@@ -406,15 +442,17 @@ const AllEvents = () => {
                     onChange={(e) => setSearchType(e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`px-3 py-1.5 text-lg rounded-md font-medium transition-all duration-200 ${
-                    searchType === "name"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}>
+                  <div
+                    className={`px-3 py-1.5 text-lg rounded-md font-medium transition-all duration-200 ${
+                      searchType === "name"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
                     Name
                   </div>
                 </label>
-                
+
                 <label className="relative cursor-pointer">
                   <input
                     type="radio"
@@ -424,15 +462,17 @@ const AllEvents = () => {
                     onChange={(e) => setSearchType(e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`px-3 py-1.5 rounded-md text-lg font-medium transition-all duration-200 ${
-                    searchType === "skill"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}>
+                  <div
+                    className={`px-3 py-1.5 rounded-md text-lg font-medium transition-all duration-200 ${
+                      searchType === "skill"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
                     Skills
                   </div>
                 </label>
-                
+
                 <label className="relative cursor-pointer">
                   <input
                     type="radio"
@@ -442,11 +482,13 @@ const AllEvents = () => {
                     onChange={(e) => setSearchType(e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`px-3 py-1.5 rounded-md text-lg font-medium transition-all duration-200 ${
-                    searchType === "orgs"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}>
+                  <div
+                    className={`px-3 py-1.5 rounded-md text-lg font-medium transition-all duration-200 ${
+                      searchType === "orgs"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
                     Organizations
                   </div>
                 </label>
@@ -455,9 +497,13 @@ const AllEvents = () => {
 
             {/* Search Bar */}
             <div className="flex-1">
-              <div className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all duration-300 ${
-                isSearchFocused ? 'border-blue-500 shadow-xl' : 'border-gray-200 hover:border-gray-300'
-              }`}>
+              <div
+                className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all duration-300 ${
+                  isSearchFocused
+                    ? "border-blue-500 shadow-xl"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
                 <div className="flex items-center p-4">
                   {/* Search Input */}
                   <div className="flex-1 relative">
@@ -474,7 +520,9 @@ const AllEvents = () => {
 
                   {/* Search Icon */}
                   <div className="flex-shrink-0 ml-4">
-                    {(searchTerm || selectedSkills.length > 0 || selectedOrgs.length > 0) ? (
+                    {searchTerm ||
+                    selectedSkills.length > 0 ||
+                    selectedOrgs.length > 0 ? (
                       <button
                         onClick={clearSearch}
                         className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -506,9 +554,13 @@ const AllEvents = () => {
                             className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between"
                           >
                             <div>
-                              <div className="font-medium text-gray-900">{skill.name}</div>
+                              <div className="font-medium text-gray-900">
+                                {skill.name}
+                              </div>
                               {skill.description && (
-                                <div className="text-sm text-gray-500">{skill.description}</div>
+                                <div className="text-sm text-gray-500">
+                                  {skill.description}
+                                </div>
                               )}
                             </div>
                             <FaCheck className="w-4 h-4 text-blue-500" />
@@ -536,15 +588,28 @@ const AllEvents = () => {
                             className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                org.type === 'organization' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
-                              }`}>
-                                {org.type === 'organization' ? <FaBuilding className="w-4 h-4" /> : <FaUser className="w-4 h-4" />}
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  org.type === "organization"
+                                    ? "bg-blue-100 text-blue-600"
+                                    : "bg-green-100 text-green-600"
+                                }`}
+                              >
+                                {org.type === "organization" ? (
+                                  <FaBuilding className="w-4 h-4" />
+                                ) : (
+                                  <FaUser className="w-4 h-4" />
+                                )}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900">{org.name}</div>
+                                <div className="font-medium text-gray-900">
+                                  {org.name}
+                                </div>
                                 <div className="text-sm text-gray-500">
-                                  {org.type === 'organization' ? 'Organization' : 'Organizer'} • {org.email}
+                                  {org.type === "organization"
+                                    ? "Organization"
+                                    : "Organizer"}{" "}
+                                  • {org.email}
                                 </div>
                               </div>
                             </div>
@@ -590,7 +655,11 @@ const AllEvents = () => {
               className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-sm font-medium"
             >
               <div className="w-4 h-4">
-                {org.type === 'organization' ? <FaBuilding className="w-3 h-3" /> : <FaUser className="w-3 h-3" />}
+                {org.type === "organization" ? (
+                  <FaBuilding className="w-3 h-3" />
+                ) : (
+                  <FaUser className="w-3 h-3" />
+                )}
               </div>
               <span>{org.name}</span>
               <button
@@ -609,7 +678,7 @@ const AllEvents = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-700">Sort by:</span>
-            
+
             {/* Sort Dropdown */}
             <div className="relative sort-dropdown">
               <button
@@ -617,8 +686,14 @@ const AllEvents = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <FaSort className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-700 font-medium">{getSortLabel()}</span>
-                <FaChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${showSortDropdown ? 'rotate-180' : ''}`} />
+                <span className="text-gray-700 font-medium">
+                  {getSortLabel()}
+                </span>
+                <FaChevronDown
+                  className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${
+                    showSortDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* Sort Dropdown Menu */}
@@ -628,23 +703,31 @@ const AllEvents = () => {
                     <button
                       onClick={() => handleSortChange("latest")}
                       className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 ${
-                        sortBy === "latest" ? "bg-blue-50 text-blue-700" : "text-gray-700"
+                        sortBy === "latest"
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700"
                       }`}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                       <span>Latest Events</span>
-                      {sortBy === "latest" && <FaCheck className="w-4 h-4 ml-auto text-blue-500" />}
+                      {sortBy === "latest" && (
+                        <FaCheck className="w-4 h-4 ml-auto text-blue-500" />
+                      )}
                     </button>
-                    
+
                     <button
                       onClick={() => handleSortChange("trending")}
                       className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 ${
-                        sortBy === "trending" ? "bg-blue-50 text-blue-700" : "text-gray-700"
+                        sortBy === "trending"
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700"
                       }`}
                     >
                       <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                       <span>Trending Events</span>
-                      {sortBy === "trending" && <FaCheck className="w-4 h-4 ml-auto text-blue-500" />}
+                      {sortBy === "trending" && (
+                        <FaCheck className="w-4 h-4 ml-auto text-blue-500" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -654,7 +737,8 @@ const AllEvents = () => {
 
           {/* Results Count */}
           <div className="text-sm text-gray-500">
-            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+            {filteredEvents.length} event
+            {filteredEvents.length !== 1 ? "s" : ""} found
           </div>
         </div>
       </div>
@@ -665,16 +749,26 @@ const AllEvents = () => {
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             <span className="text-sm text-blue-700 font-medium">
-              {searchType === "skill" && selectedSkills.length > 0 ? (
-                `Found ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} with ${selectedSkills.length} skill${selectedSkills.length !== 1 ? 's' : ''}`
-              ) : searchType === "orgs" && selectedOrgs.length > 0 ? (
-                `Found ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} from ${selectedOrgs.length} organization${selectedOrgs.length !== 1 ? 's' : ''}`
-              ) : (
-                `Found ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} for "${searchTerm}" (by ${getSearchTypeLabel().toLowerCase()})`
-              )}
+              {searchType === "skill" && selectedSkills.length > 0
+                ? `Found ${filteredEvents.length} event${
+                    filteredEvents.length !== 1 ? "s" : ""
+                  } with ${selectedSkills.length} skill${
+                    selectedSkills.length !== 1 ? "s" : ""
+                  }`
+                : searchType === "orgs" && selectedOrgs.length > 0
+                ? `Found ${filteredEvents.length} event${
+                    filteredEvents.length !== 1 ? "s" : ""
+                  } from ${selectedOrgs.length} organization${
+                    selectedOrgs.length !== 1 ? "s" : ""
+                  }`
+                : `Found ${filteredEvents.length} event${
+                    filteredEvents.length !== 1 ? "s" : ""
+                  } for "${searchTerm}" (by ${getSearchTypeLabel().toLowerCase()})`}
             </span>
           </div>
-          {(filteredEvents.length > 0 || selectedSkills.length > 0 || selectedOrgs.length > 0) && (
+          {(filteredEvents.length > 0 ||
+            selectedSkills.length > 0 ||
+            selectedOrgs.length > 0) && (
             <button
               onClick={clearSearch}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
@@ -691,7 +785,7 @@ const AllEvents = () => {
           <span className="ml-3 text-gray-600">Loading events...</span>
         </div>
       )}
-      
+
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
           <div className="flex items-center">
@@ -703,22 +797,25 @@ const AllEvents = () => {
 
       {!loading && !error && (
         <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedEvents.length === 0 ? (
               <div className="col-span-full text-center py-16">
-                {(searchTerm || selectedSkills.length > 0 || selectedOrgs.length > 0) ? (
+                {searchTerm ||
+                selectedSkills.length > 0 ||
+                selectedOrgs.length > 0 ? (
                   <div className="max-w-md mx-auto">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FaSearch className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No events found</h3>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                      No events found
+                    </h3>
                     <p className="text-gray-500 mb-4">
                       {searchType === "skill" && selectedSkills.length > 0
                         ? `We couldn't find any events matching the selected skills`
                         : searchType === "orgs" && selectedOrgs.length > 0
                         ? `We couldn't find any events from the selected organizations`
-                        : `We couldn't find any events matching "${searchTerm}"`
-                      }
+                        : `We couldn't find any events matching "${searchTerm}"`}
                     </p>
                     <button
                       onClick={clearSearch}
@@ -732,8 +829,12 @@ const AllEvents = () => {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FaFilter className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No events available</h3>
-                    <p className="text-gray-500">Check back later for new events</p>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                      No events available
+                    </h3>
+                    <p className="text-gray-500">
+                      Check back later for new events
+                    </p>
                   </div>
                 )}
               </div>
@@ -743,78 +844,130 @@ const AllEvents = () => {
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 h-full flex flex-col">
                     {evt.coverImageUrl && (
                       <div className="relative overflow-hidden flex-shrink-0">
-                        <img 
-                          src={evt.coverImageUrl} 
-                          alt={evt.title} 
-                          className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        <img
+                          src={evt.coverImageUrl}
+                          alt={evt.title}
+                          className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        {/* Event Type Tag - Top Right */}
+                        {evt.eventType && (
+                          <div className="absolute top-3 right-3 z-10">
+                            <span
+                              className={`px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg ${
+                                evt.eventType.toLowerCase() === "online"
+                                  ? "bg-green-500 text-white"
+                                  : "bg-blue-500 text-white"
+                              }`}
+                            >
+                              {evt.eventType}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="p-6 flex-1 flex flex-col">
                       <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2 min-h-[3.5rem]">
                         {evt.title}
                       </h2>
-                  {evt.description && (
-                        <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed flex-1 min-h-[4.5rem]">
+                      {evt.description && (
+                        <p
+                          className="text-gray-600 mb-4 text-sm leading-relaxed flex-1 min-h-[4.5rem] overflow-hidden"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
                           {evt.description}
                         </p>
                       )}
-                      {!evt.description && (
-                        <div className="flex-1 min-h-[4.5rem]"></div>
-                      )}
-                      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <span className="truncate">{evt.location}</span>
-                        </div>
-                        {evt.eventType && (
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                            {evt.eventType}
-                          </span>
-                        )}
-                  </div>
-                                    {Array.isArray(evt.requiredSkills) && evt.requiredSkills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 flex-shrink-0">
-                          {evt.requiredSkills.slice(0, 3).map((skillName, index) => (
-                            <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
-                          {skillName}
-                        </span>
-                      ))}
-                          {evt.requiredSkills.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-xs font-medium">
-                              +{evt.requiredSkills.length - 3} more
+                                             {!evt.description && (
+                         <div className="flex-1 min-h-[4.5rem]"></div>
+                       )}
+                       
+                        {/* Event Stats */}
+                        <div className="flex items-center gap-3 mb-4 flex-shrink-0">
+                          <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded-full">
+                            <FaUsers className="w-3.5 h-3.5 text-blue-600 mr-1.5" />
+                            <span className="text-sm font-semibold text-blue-700">
+                              {evt.registeredBy?.length || 0}
                             </span>
-                          )}
+                            <span className="text-xs text-blue-600 ml-1">going</span>
+                          </div>
+                          <div className="flex items-center bg-purple-50 px-3 py-1.5 rounded-full">
+                            <FaBookmark className="w-3.5 h-3.5 text-purple-600 mr-1.5" />
+                            <span className="text-sm font-semibold text-purple-700">
+                              {evt.bookmarkedBy?.length || 0}
+                            </span>
+                            <span className="text-xs text-purple-600 ml-1">interested</span>
+                          </div>
                         </div>
-                      )}
-                      {(!evt.requiredSkills || evt.requiredSkills.length === 0) && (
+                       
+                       {/* Location */}
+                       <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                         <div className="flex items-center text-sm text-gray-700 min-w-0 flex-1">
+                           <FaMapMarkerAlt className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
+                           <span className="truncate overflow-hidden">{evt.location}</span>
+                         </div>
+                       </div>
+                      {Array.isArray(evt.requiredSkills) &&
+                        evt.requiredSkills.length > 0 && (
+                          <div className="flex flex-wrap gap-2 flex-shrink-0">
+                            {evt.requiredSkills
+                              .slice(0, 3)
+                              .map((skillName, index) => (
+                                                                 <span
+                                   key={index}
+                                   className="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium"
+                                 >
+                                   {skillName}
+                                 </span>
+                              ))}
+                                                         {evt.requiredSkills.length > 3 && (
+                               <span className="px-2 py-1 bg-green-100 text-green-500 rounded-md text-xs font-medium">
+                                 +{evt.requiredSkills.length - 3} more
+                               </span>
+                             )}
+                          </div>
+                        )}
+                      {(!evt.requiredSkills ||
+                        evt.requiredSkills.length === 0) && (
                         <div className="flex-shrink-0 min-h-[2rem]"></div>
                       )}
                     </div>
-                 </div>
-               </Link>
-             ))
-          )}
-        </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
 
           {/* Load More Button */}
-          {(searchTerm || selectedSkills.length > 0 || selectedOrgs.length > 0) && hasMore && (
+          {hasMore && (
             <div className="text-center mt-12">
               <button
                 onClick={handleLoadMore}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-medium hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Load More (+{Math.min(eventsPerPage, filteredEvents.length - displayedEvents.length)})
+                Load More (+
+                {Math.min(
+                  eventsPerPage,
+                  filteredEvents.length - displayedEvents.length
+                )}
+                )
               </button>
             </div>
           )}
 
           {/* Show all results loaded message */}
-          {(searchTerm || selectedSkills.length > 0 || selectedOrgs.length > 0) && !hasMore && filteredEvents.length > 0 && (
+          {!hasMore && filteredEvents.length > 0 && (
             <div className="text-center mt-8">
               <div className="inline-flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                Showing all {filteredEvents.length} result{filteredEvents.length !== 1 ? 's' : ''}
+                Showing all {filteredEvents.length} result
+                {filteredEvents.length !== 1 ? "s" : ""}
               </div>
             </div>
           )}
@@ -825,5 +978,3 @@ const AllEvents = () => {
 };
 
 export default AllEvents;
-
-
