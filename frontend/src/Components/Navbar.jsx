@@ -1,13 +1,11 @@
 import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import AuthContext from "../Provider/AuthContext";
-import { useTheme } from "../Provider/ThemeContext";
 import { FaSun, FaMoon } from "react-icons/fa";
 import logos from "../assets/EVENT.png";
 
 const Navbar = () => {
   const { user, userRole, logOut } = useContext(AuthContext);
-  const { isDarkMode, toggleTheme } = useTheme();
   const location = useLocation();
   
   const handleLogOut = () => {
