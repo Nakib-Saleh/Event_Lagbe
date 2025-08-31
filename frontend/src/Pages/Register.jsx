@@ -205,13 +205,13 @@ const Register = () => {
 
               {/* User Type Selection */}
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select Your Role
                 </label>
                 <select
                   value={userType}
                   onChange={(e) => setUserType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900"
                 >
                   <option value="">Choose your role</option>
                   <option value="organization">Organization</option>
@@ -235,12 +235,12 @@ const Register = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Full Name Field */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700">
                       Full Name
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaUser className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <FaUser className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="text"
@@ -248,7 +248,7 @@ const Register = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Enter your full name"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500"
                         required
                       />
                     </div>
@@ -256,12 +256,12 @@ const Register = () => {
 
                   {/* Username Field */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700">
                       Username
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaIdCard className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <FaIdCard className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="text"
@@ -269,7 +269,7 @@ const Register = () => {
                         value={formData.username}
                         onChange={handleInputChange}
                         placeholder="Choose a username"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500"
                         required
                       />
                     </div>
@@ -277,12 +277,12 @@ const Register = () => {
 
                   {/* Email Field */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700">
                       Email Address
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaEnvelope className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <FaEnvelope className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="email"
@@ -290,7 +290,7 @@ const Register = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="Enter your email"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500"
                         required
                       />
                     </div>
@@ -298,12 +298,12 @@ const Register = () => {
 
                   {/* Password Field */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700">
                       Password
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <FaLock className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -311,7 +311,7 @@ const Register = () => {
                         value={formData.password}
                         onChange={handleInputChange}
                         placeholder="Enter password"
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500"
                         required
                       />
                       <button
@@ -320,9 +320,9 @@ const Register = () => {
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                          <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                         ) : (
-                          <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                          <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                         )}
                       </button>
                     </div>
@@ -330,12 +330,12 @@ const Register = () => {
 
                   {/* Confirm Password Field */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700">
                       Confirm Password
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaLock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <FaLock className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type={showConfirmPassword ? "text" : "password"}
@@ -343,7 +343,7 @@ const Register = () => {
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         placeholder="Confirm password"
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500"
                         required
                       />
                       <button
@@ -352,9 +352,9 @@ const Register = () => {
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
-                          <FaEyeSlash className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                          <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                         ) : (
-                          <FaEye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                          <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                         )}
                       </button>
                     </div>
@@ -363,15 +363,15 @@ const Register = () => {
                   {/* Organization Selection (for Organizer) */}
                   {userType === "organizer" && (
                     <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      <label className="block text-sm font-semibold text-gray-700">
                         Select Organization
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaBuilding className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                          <FaBuilding className="h-5 w-5 text-gray-400" />
                         </div>
                         <select
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900"
                           required
                           name="organizationId"
                           value={formData.organizationId}
@@ -396,23 +396,23 @@ const Register = () => {
                   {/* ID Documents Upload (for Participant) */}
                   {userType === "participant" && (
                     <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      <label className="block text-sm font-semibold text-gray-700">
                         ID Documents
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaFileUpload className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                          <FaFileUpload className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
                           type="file"
                           accept=".pdf,.jpg,.jpeg,.png"
                           onChange={handleFileChange}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           multiple
                           required
                         />
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500">
                         Upload your ID documents (JPG, PNG, PDF)
                       </p>
                       
@@ -422,9 +422,9 @@ const Register = () => {
                           {formData.idDocuments.map((file, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
                             >
-                              <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{file.name}</span>
+                              <span className="text-sm text-gray-700 truncate">{file.name}</span>
                               <button
                                 type="button"
                                 className="text-red-500 hover:text-red-700 transition-colors"
@@ -443,7 +443,7 @@ const Register = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-800 dark:hover:to-purple-800 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -457,12 +457,12 @@ const Register = () => {
 
                   {/* Login Link */}
                   <div className="text-center">
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600">
                       Already have an account?{" "}
                       <button
                         type="button"
                         onClick={() => navigate("/login")}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors duration-200"
+                        className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
                       >
                         Sign in here
                       </button>
