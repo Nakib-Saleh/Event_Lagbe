@@ -529,56 +529,6 @@ const PublicProfile = () => {
                </div>
              </div>
            )}
-
-           {/* Account Information Card */}
-           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-             <div className="flex items-center gap-3 mb-4">
-               <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                 </svg>
-               </div>
-               <h3 className="text-xl font-bold text-gray-800">Account Information</h3>
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border border-orange-100 hover:border-orange-200 transition-all">
-                 <div className="flex items-center gap-2 mb-2">
-                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                   <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Created At</span>
-                 </div>
-                 <p className="text-gray-800 font-medium">
-                   {profileData.createdAt
-                     ? new Date(profileData.createdAt).toLocaleDateString('en-US', {
-                         year: 'numeric',
-                         month: 'long',
-                         day: 'numeric',
-                         hour: '2-digit',
-                         minute: '2-digit'
-                       })
-                     : "Not available"}
-                 </p>
-               </div>
-               <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border border-orange-100 hover:border-orange-200 transition-all">
-                 <div className="flex items-center gap-2 mb-2">
-                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                   <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Last Updated</span>
-                 </div>
-                 <p className="text-gray-800 font-medium">
-                   {profileData.updatedAt
-                     ? new Date(profileData.updatedAt).toLocaleDateString('en-US', {
-                         year: 'numeric',
-                         month: 'long',
-                         day: 'numeric',
-                         hour: '2-digit',
-                         minute: '2-digit'
-                       })
-                     : "Not available"}
-                 </p>
-               </div>
-             </div>
-           </div>
-
-           
          </div>
        )}
 

@@ -3,28 +3,17 @@ import React, { useEffect, useContext, useState } from "react";
 import AuthContext from "../../../Provider/AuthContext";
 import { toast } from "react-hot-toast";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
-import { FaHeart } from "react-icons/fa";
-import { CiHeart } from "react-icons/ci";
 import { FaCrown } from "react-icons/fa";
+import { debounce } from 'lodash';
 
 const AdminProfile = () => {
-  const TABS = [
-    { id: "about", label: "About" },
-    { id: "followers", label: "Followers" },
-    { id: "following", label: "Following" },
-  ];
-
   const { user, userRole } = useContext(AuthContext);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [pages, setPages] = useState("about");
-
-  const handleToggleFollow = () => {
-    setIsFollowing(prev => !prev);
-  };
+  const [usernameError, setUsernameError] = useState("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -52,6 +41,45 @@ const AdminProfile = () => {
       ...prev,
       [name]: value
     }));
+
+    // Clear username error when user starts typing
+    if (name === 'username') {
+      setUsernameError("");
+    }
+  };
+
+  // Debounced username check
+  const checkUsernameAvailability = debounce(async (username) => {
+    if (!username || username === profileData?.username) {
+      setUsernameError("");
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const response = await axios.get(`http://localhost:2038/api/auth/check-username/${username}`);
+      if (response.data.exists) {
+        setUsernameError("Username already taken");
+      } else {
+        setUsernameError("");
+      }
+    } catch (error) {
+      console.error("Error checking username:", error);
+      setUsernameError("Error checking username availability");
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  }, 500);
+
+  const handleUsernameChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      username: value
+    }));
+    setUsernameError("");
+    checkUsernameAvailability(value);
   };
 
   const handleProfilePicChange = async (e) => {
@@ -86,6 +114,13 @@ const AdminProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if there's a username error
+    if (usernameError) {
+      toast.error("Please fix the username error before saving");
+      return;
+    }
+
     try {
       await axios.put(`http://localhost:2038/api/auth/${userRole}/${user.firebaseUid}`, formData);
       setProfileData(formData);
@@ -120,7 +155,7 @@ const AdminProfile = () => {
         <img
           src={formData.bannerUrl || profileData.bannerUrl || "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80"}
           alt="Cover"
-          className="object-cover h-full w-full rounded-lg"
+          className="object-cover w-full h-full rounded-lg"
         />
         {isEditing && (
           <div className="absolute top-4 right-4">
@@ -164,10 +199,10 @@ const AdminProfile = () => {
 
       {/* Name + Username + Edit */}
       <div className="pt-20 px-6 sm:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-gray-800">
+        <div className="flex flex-col md:flex-row justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold text-gray-800">
                 {profileData.name || profileData.username}
               </h2>
               {profileData.isSuperAdmin && (
@@ -177,28 +212,28 @@ const AdminProfile = () => {
                 </span>
               )}
             </div>
-            <p className="text-gray-500">@{profileData.username || "unknown"}</p>
-            <div className="flex gap-4 text-sm text-gray-600 mt-1">
-              <span>{profileData.followers?.length || 0} Followers</span>
-              <span>{profileData.following?.length || 0} Following</span>
+            <p className="text-gray-500 text-lg mb-4">@{profileData.username || "unknown"}</p>
+            
+            {/* Admin Stats */}
+            <div className="flex flex-wrap gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">Admin</span>
+                <span className="text-gray-500">Role</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="font-semibold text-gray-700">
+                  {profileData.isSuperAdmin ? 'Super Admin' : 'Regular Admin'}
+                </span>
+                <span className="text-gray-500">Type</span>
+              </div>
             </div>
           </div>
-          <div className='flex gap-4'>
-            <button onClick={handleToggleFollow}
-              className={`btn flex items-center gap-2 transition duration-200 ${
-              !isFollowing ? "bg-gray-200 text-black" : "bg-red-600 text-white"
-              }`}
-            >
-              {!isFollowing ? (
-                <CiHeart className="text-xl" />
-              ) : (
-                <FaHeart className="text-xl" />
-              )}
-              {isFollowing ? "Following" : "Follow"}
-            </button>
+          <div className="flex gap-3 mt-4 md:mt-0">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="btn bg-blue-600 text-white"
+              className="btn btn-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </button>
@@ -206,123 +241,197 @@ const AdminProfile = () => {
         </div>
       </div>
 
-      <div className='border-b-2 border-gray-400 w-full my-4'></div>
+      <div className="border-b-2 border-gray-400 w-full my-4"></div>
             
-      <div role="tablist" className="tabs tabs-boxed gap-x-6">
-        {TABS.map(tab => (
-          <div key={tab.id}
-            onClick={() => setPages(tab.id)}
-            className={`text-center font-bold px-2 pt-2 pb-0 transition border-b-2 cursor-pointer
-              ${pages === tab.id ? "text-red-500 border-red-500" : "text-black border-transparent"} rounded-t-xl`}
-          >
-            {tab.label}
+      {/* About Section */}
+      <div className="mt-6 space-y-6">
+        {/* Basic Information Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Basic Information</h3>
           </div>
-        ))}
-      </div>
-
-      {pages === "about" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Email</span>
-              </label>
-              <p className="text-gray-700">{profileData.email}</p>
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Email</span>
+              </div>
+              <p className="text-gray-800 font-medium">{profileData.email}</p>
             </div>
 
             {/* Name (editable) */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Name</span>
-              </label>
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Name</span>
+              </div>
               {isEditing ? (
                 <input
                   type="text"
                   name="name"
                   value={formData.name || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered"
+                  className="input input-bordered w-full"
+                  placeholder="Enter your name"
                 />
               ) : (
-                <p className="text-gray-700">{profileData.name || 'Not provided'}</p>
+                <p className="text-gray-800 font-medium">{profileData.name || 'Not provided'}</p>
               )}
             </div>
 
             {/* Username (editable) */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Username</span>
-              </label>
+            <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Username</span>
+              </div>
               {isEditing ? (
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username || ''}
-                  onChange={handleInputChange}
-                  className="input input-bordered"
-                />
+                <div>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username || ''}
+                    onChange={handleUsernameChange}
+                    className={`input input-bordered w-full ${usernameError ? 'input-error' : ''}`}
+                    placeholder="Enter username"
+                  />
+                  {isCheckingUsername && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="loading loading-spinner loading-xs"></span>
+                      <span className="text-sm text-gray-500">Checking username availability...</span>
+                    </div>
+                  )}
+                  {usernameError && (
+                    <p className="text-error text-sm mt-1">{usernameError}</p>
+                  )}
+                </div>
               ) : (
-                <p className="text-gray-700">{profileData.username || 'Not provided'}</p>
+                <p className="text-gray-800 font-medium">{profileData.username || 'Not provided'}</p>
               )}
             </div>
-
-            {/* Admin Type */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Admin Type</span>
-              </label>
-              <p className="text-gray-700">
-                {profileData.isSuperAdmin ? 'Super Admin' : 'Regular Admin'}
-              </p>
-            </div>
-
 
             {/* Save Button */}
             {isEditing && (
               <div className="flex justify-end">
-                <button type="submit" className="btn btn-primary">Save Changes</button>
+                <button 
+                  type="submit" 
+                  className="btn btn-lg bg-gradient-to-r from-green-500 to-teal-600 text-white border-0 hover:from-green-600 hover:to-teal-700"
+                  disabled={!!usernameError || isCheckingUsername}
+                >
+                  Save Changes
+                </button>
               </div>
             )}
           </form>
         </div>
-      )}
 
-      {pages === "followers" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Followers ({profileData.followers?.length || 0})</h3>
-          {profileData.followers && profileData.followers.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.followers.map((follower, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{follower}</span>
-                </div>
-              ))}
+        {/* Admin Status Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+              <FaCrown className="w-5 h-5 text-white" />
             </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No followers yet</p>
-          )}
-        </div>
-      )}
+            <h3 className="text-xl font-bold text-gray-800">Admin Status</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Admin Type */}
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-100 hover:border-yellow-200 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Admin Type</span>
+              </div>
+              <span className={`badge badge-lg ${profileData.isSuperAdmin ? 'badge-warning' : 'badge-info'}`}>
+                <FaCrown className="text-xs mr-1" />
+                {profileData.isSuperAdmin ? 'Super Admin' : 'Regular Admin'}
+              </span>
+            </div>
 
-      {pages === "following" && (
-        <div className="bg-white mt-6 p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Following ({profileData.following?.length || 0})</h3>
-          {profileData.following && profileData.following.length > 0 ? (
-            <div className="space-y-2">
-              {profileData.following.map((following, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <span className="font-medium">{following}</span>
+            {/* Permissions */}
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-100 hover:border-yellow-200 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Permissions</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-700">User Management</span>
                 </div>
-              ))}
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-700">Event Moderation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-700">System Administration</span>
+                </div>
+                {profileData.isSuperAdmin && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-gray-700 font-semibold">Super Admin Privileges</span>
+                  </div>
+                )}
+              </div>
             </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">Not following anyone yet</p>
-          )}
+          </div>
         </div>
-      )}
+
+        {/* Account Information Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Account Information</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border border-orange-100 hover:border-orange-200 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Created At</span>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.createdAt
+                  ? new Date(profileData.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  : "Not available"}
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border border-orange-100 hover:border-orange-200 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Last Updated</span>
+              </div>
+              <p className="text-gray-800 font-medium">
+                {profileData.updatedAt
+                  ? new Date(profileData.updatedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  : "Not available"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

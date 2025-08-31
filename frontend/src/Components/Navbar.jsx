@@ -22,18 +22,7 @@ const Navbar = () => {
     <>
       {user ? (
         <div className="navbar-end">
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="btn btn-ghost btn-circle mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {isDarkMode ? (
-              <FaSun className="h-5 w-5 text-yellow-500" />
-            ) : (
-              <FaMoon className="h-5 w-5 text-gray-600" />
-            )}
-          </button>
+          
           
           <div className="dropdown dropdown-end">
             <div
@@ -54,7 +43,7 @@ const Navbar = () => {
             >
               <li>
                 <a className="justify-between text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                  {userRole || "User"}
+                  {user?.name ? `${user.name} (${userRole || "User"})` : userRole || "User"}
                 </a>
               </li>
               <li>
@@ -68,18 +57,6 @@ const Navbar = () => {
         </div>
       ) : (
         <div className="navbar-end gap-2">
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="btn btn-ghost btn-circle hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {isDarkMode ? (
-              <FaSun className="h-5 w-5 text-yellow-500" />
-            ) : (
-              <FaMoon className="h-5 w-5 text-gray-600" />
-            )}
-          </button>
           
           <Link to="/login" className="btn bg-red-500 hover:bg-red-600 text-white border-0">
             Login

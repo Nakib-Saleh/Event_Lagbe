@@ -17,113 +17,106 @@ import {
   FiUserPlus,
   FiUserCheck,
   FiClock,
+  FiHome,
+  FiSettings,
+  FiLogOut,
 } from "react-icons/fi";
-import { MdOutlineVerifiedUser, MdOutlineReport } from "react-icons/md";
+import { MdOutlineVerifiedUser, MdOutlineReport, MdOutlineAdminPanelSettings } from "react-icons/md";
+import { FaCrown } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
-
 
 const AdminDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Profile");
   const navigate = useNavigate(); 
+  
   const menuItems = [
     {
-      title:"Profile",
-      icon: <FiUser className="text-red-600" />,
+      title: "Profile",
+      icon: <FiUser className="text-lg" />,
+      description: "Manage your profile",
+      color: "from-red-500 to-pink-600"
     },
     {
       title: "Verification",
-      icon: <MdOutlineVerifiedUser className="text-red-600" />,
-      //badge: { text: "6", color: "badge-error" },
-    },
-    {
-      title: "Reports",
-      icon: <MdOutlineReport className="text-red-600" />,
+      icon: <MdOutlineVerifiedUser className="text-lg" />,
+      description: "Verify users and organizations",
+      color: "from-red-500 to-pink-600",
+      badge: { text: "New", color: "badge-success" }
     },
     {
       title: "Users",
-      icon: <FiUsers className="text-red-600" />,
-    },
-    {
-      title: "Followers",
-      icon: <FiUserPlus className="text-red-600" />,
-    },
-    {
-      title: "Following",
-      icon: <FiUserCheck className="text-red-600" />,
+      icon: <FiUsers className="text-lg" />,
+      description: "Manage all users",
+      color: "from-purple-500 to-pink-600"
     },
   ];
 
   const extraItems = [
     {
-      title: "Calendar",
-      icon: <FiCalendar className="text-red-600" />,
-      badge: { text: "New", color: "badge-success" },
-    },
-    {
       title: "Skills",
-      icon: <FiFileText className="text-red-600" />,
-    },
-    {
-      title: "Examples",
-      icon: <FiHeart className="text-red-600" />,
+      icon: <FiFileText className="text-lg" />,
+      description: "Manage skills",
+      color: "from-orange-500 to-red-600"
     },
     {
       title: "Create-Admin",
-      icon: <FiUserPlus className="text-red-600" />,
-      badge: { text: "Admin", color: "badge-error" },
+      icon: <FiUserPlus className="text-lg" />,
+      description: "Create new admin",
+      color: "from-indigo-500 to-blue-600"
     },
     {
       title: "Deactivate-Expired-Events",
-      icon: <FiClock className="text-red-600" />,
-      badge: { text: "Admin", color: "badge-warning" },
+      icon: <FiClock className="text-lg" />,
+      description: "Manage expired events",
+      color: "from-yellow-500 to-orange-600",
+      badge: { text: "Admin", color: "badge-warning" }
     },
   ];
 
   return (
-    <div className="flex min-h-screen font-roboto">
+    <div className="flex min-h-screen font-roboto bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar
         collapsed={isCollapsed}
-        className="bg-white border-r border-gray-200 rounded-xl"
+        className="bg-white border-r border-gray-200 shadow-2xl"
         style={{
           minHeight: "100vh",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
         }}
       >
         {/* Header */}
-        <div className="flex justify-between items-center w-full">
-          {!isCollapsed && (
-            <div className="flex items-center gap-3 p-2">
-              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">P</span>
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <FaCrown className="text-white text-lg" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 to-pink-600 bg-clip-text text-transparent">
+                    Admin Panel
+                  </h1>
+                  <p className="text-xs text-gray-500">Event Lagbe</p>
+                </div>
               </div>
-              <span className="text-red-600 font-semibold text-lg">
-                Profile
-              </span>
-            </div>
-          )}
+            )}
 
-          {/* Toggle Button */}
-          <div
-            className={` p-3 border-gray-100 ${
-              isCollapsed ? "w-full" : ""
-            } text-center`}
-          >
+            {/* Toggle Button */}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="w-full p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md"
             >
-              <FiMenu className="text-gray-600" />
+              <FiMenu className="text-gray-600 text-lg" />
             </button>
           </div>
         </div>
 
-        <Menu className="py-4">
+        <Menu className="py-6 px-4">
           {/* General Section */}
           {!isCollapsed && (
-            <div className="px-4 mb-2">
-              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                General
+            <div className="mb-6">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">
+                General Management
               </h3>
             </div>
           )}
@@ -135,45 +128,61 @@ const AdminDashboard = () => {
                 navigate(`/adminDashboard/${item.title.toLowerCase()}`);
                 setSelected(item.title);
               }}
-              className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
+              className={`mb-2 rounded-xl transition-all duration-300 group ${
                 selected === item.title
-                  ? "bg-red-50 text-red-600"
-                  : "hover:bg-gray-100"
+                  ? "bg-gradient-to-r " + item.color + " text-white shadow-lg transform scale-105"
+                  : "hover:bg-gray-50 hover:shadow-md"
               }`}
               style={{
-                padding: "12px 16px",
-                margin: "4px 8px",
-                borderRadius: "8px",
+                padding: isCollapsed ? "12px" : "16px 20px",
+                borderRadius: "12px",
               }}
             >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3">
-                  {item.icon}
+              <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} w-full`}>
+                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'}`}>
+                  <div className={`${isCollapsed ? 'p-3' : 'p-2'} rounded-lg transition-all duration-300 ${
+                    selected === item.title
+                      ? " text-white group-hover:text-black"
+                      : "text-gray-600 group-hover:text-gray-800"
+                  }`}>
+                    {item.icon}
+                  </div>
                   {!isCollapsed && (
-                    <span className="font-medium">{item.title}</span>
+                    <div className="flex-1">
+                      <span className={`font-semibold text-sm ${
+                        selected === item.title ? "text-white group-hover:text-black" : "text-gray-700"
+                      }`}>
+                        {item.title}
+                      </span>
+                      <p className={`text-xs mt-1 ${
+                        selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-500"
+                      }`}>
+                        {item.description}
+                      </p>
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {item.badge && !isCollapsed && (
-                    <span
-                      className={`badge badge-sm ${item.badge.color} text-white`}
-                    >
-                      {item.badge.text}
-                    </span>
-                  )}
-                  {!isCollapsed && (
-                    <FiChevronRight className="text-gray-400 text-sm" />
-                  )}
-                </div>
+                {!isCollapsed && (
+                  <div className="flex items-center gap-2">
+                    {item.badge && (
+                      <span className={`badge badge-xs ${item.badge.color} text-white`}>
+                        {item.badge.text}
+                      </span>
+                    )}
+                    <FiChevronRight className={`text-sm transition-transform duration-300 ${
+                      selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-400"
+                    } group-hover:translate-x-1`} />
+                  </div>
+                )}
               </div>
             </MenuItem>
           ))}
 
           {/* Extra Section */}
           {!isCollapsed && (
-            <div className="px-4 mb-2 mt-6">
-              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Extra
+            <div className="mb-6 mt-8">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">
+                System Tools
               </h3>
             </div>
           )}
@@ -188,54 +197,87 @@ const AdminDashboard = () => {
                 navigate(path);
                 setSelected(item.title);
               }}
-              className={`mx-2 mb-1 rounded-lg transition-all duration-200 ${
+              className={`mb-2 rounded-xl transition-all duration-300 group ${
                 selected === item.title
-                  ? "bg-red-50 text-red-600"
-                  : "hover:bg-gray-50"
+                  ? "bg-gradient-to-r " + item.color + " text-white shadow-lg transform scale-105"
+                  : "hover:bg-gray-50 hover:shadow-md"
               }`}
               style={{
-                padding: "12px 16px",
-                margin: "4px 8px",
-                borderRadius: "8px",
+                padding: isCollapsed ? "12px" : "16px 20px",
+                borderRadius: "12px",
               }}
             >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3">
-                  {item.icon}
+              <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} w-full`}>
+                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'}`}>
+                  <div className={`${isCollapsed ? 'p-3' : 'p-2'} rounded-lg transition-all duration-300 ${
+                    selected === item.title
+                      ? " text-white group-hover:text-black"
+                      : "text-gray-600 group-hover:text-gray-800"
+                  }`}>
+                    {item.icon}
+                  </div>
                   {!isCollapsed && (
-                    <span className="font-medium">{item.title}</span>
+                    <div className="flex-1">
+                      <span className={`font-semibold text-sm ${
+                        selected === item.title ? "text-white group-hover:text-black" : "text-gray-700"
+                      }`}>
+                        {item.title}
+                      </span>
+                      <p className={`text-xs mt-1 ${
+                        selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-500"
+                      }`}>
+                        {item.description}
+                      </p>
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {item.badge && !isCollapsed && (
-                    <span
-                      className={`badge badge-sm ${item.badge.color} text-white`}
-                    >
-                      {item.badge.text}
-                    </span>
-                  )}
-                  {!isCollapsed && (
-                    <FiChevronRight className="text-gray-400 text-sm" />
-                  )}
-                </div>
+                {!isCollapsed && (
+                  <div className="flex items-center gap-2">
+                    {item.badge && (
+                      <span className={`badge badge-xs ${item.badge.color} text-white`}>
+                        {item.badge.text}
+                      </span>
+                    )}
+                    <FiChevronRight className={`text-sm transition-transform duration-300 ${
+                      selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-400"
+                    } group-hover:translate-x-1`} />
+                  </div>
+                )}
               </div>
             </MenuItem>
           ))}
         </Menu>
 
-        {/* Footer Card */}
-        <div className="mt-auto p-4 sticky bottom-0 left-0 right-0">
-          
+        {/* Footer */}
+        <div className="mt-auto p-6 border-t border-gray-100">
+          {!isCollapsed && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <FaCrown className="text-white text-sm" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Super Admin</p>
+                  <p className="text-xs text-gray-500">Full Access</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </Sidebar>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 bg-[#eef1fc] rounded-r-2xl min-h-screen">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          Admin Dashboard
-        </h1>
-        <div className="min-h-full">
-          <Outlet></Outlet>
+      <div className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-600">Welcome back! Manage your platform efficiently.</p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>
