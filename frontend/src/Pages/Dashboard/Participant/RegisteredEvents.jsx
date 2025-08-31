@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import axios from "axios";
-import AuthContext from "../../../Provider/AuthContext";
+import AuthContext from "../../../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
 import { FiCalendar, FiMapPin, FiClock, FiUser } from "react-icons/fi";
 import { MdOutlineEmojiEvents } from "react-icons/md";

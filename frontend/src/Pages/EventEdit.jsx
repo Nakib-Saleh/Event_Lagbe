@@ -8,7 +8,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { useNavigate, useParams } from 'react-router-dom';
-import AuthContext from '../Provider/AuthContext';
+import AuthContext from '../Provider/AuthContext.jsx';
 import { API_ENDPOINTS } from '../config/api.js';
 
 const EventEdit = () => {

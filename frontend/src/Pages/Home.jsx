@@ -11,7 +11,7 @@ import {
   FiCheckCircle,
   FiTrendingUp,
 } from "react-icons/fi";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import pic1 from "../assets/bd.JPG";
 import pic2 from "../assets/finals.jpg";
 import pic3 from "../assets/foreign.jpg";
