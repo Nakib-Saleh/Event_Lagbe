@@ -406,7 +406,7 @@ const AllEvents = () => {
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}>
-                    #name
+                    Name
                   </div>
                 </label>
                 
@@ -424,7 +424,7 @@ const AllEvents = () => {
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}>
-                    #skill
+                    Skills
                   </div>
                 </label>
                 
@@ -442,7 +442,7 @@ const AllEvents = () => {
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}>
-                    #orgs
+                    Organizations
                   </div>
                 </label>
               </div>

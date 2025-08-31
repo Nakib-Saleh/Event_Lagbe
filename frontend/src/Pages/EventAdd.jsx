@@ -250,7 +250,7 @@ const EventAdd = () => {
       toast.success('Event created successfully!');
 
       setTimeout(() => {
-        navigate('/organizationDashboard');
+        navigate('/events');
       }, 800);
       setFormData({
         title: '',
