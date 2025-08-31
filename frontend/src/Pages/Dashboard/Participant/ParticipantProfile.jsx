@@ -1,11 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useContext, useState } from "react";
-import AuthContext from "../../../Provider/AuthContext";
+import AuthContext from "../../../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
-import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { uploadToCloudinary } from "../../../utils/cloudinaryUpload.js";
 import { FaCheckCircle, FaSearch, FaTimes, FaPlus } from "react-icons/fa";
 import { debounce } from 'lodash';
-import { API_ENDPOINTS } from "../../../config/api";
+import { API_ENDPOINTS } from "../../../config/api.js";
 
 const ParticipantProfile = () => {
   const { user, userRole } = useContext(AuthContext);
