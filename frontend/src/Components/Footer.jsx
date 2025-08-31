@@ -1,37 +1,50 @@
 import React from "react";
 import logos from "../assets/EVENT.png";
+import { IoLogoGooglePlaystore } from "react-icons/io5";
+import { FaApple } from "react-icons/fa";
+import { FaFacebookF, FaGithub, FaLinkedinIn, FaYoutube } from "react-icons/fa";
+
 
 const Footer = () => {
   return (
     <div>
-      <footer className="footer flex justify-between bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white p-10 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+      <footer className="footer flex justify-around bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white p-10 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <aside>
           <img src={logos} alt="Event Lagbe" className="h-12" />
           <p className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
             Event Lagbe
             <br />
-            Providing reliable tech since 1992
+            Your one click Event Finder
           </p>
         </aside>
         <nav>
-          <h6 className="footer-title text-gray-900 dark:text-white font-semibold transition-colors duration-300">Services</h6>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Branding</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Design</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Marketing</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Advertisement</a>
+          <h6 className="footer-title text-gray-900 dark:text-white font-semibold transition-colors duration-300">Follow Us</h6>
+          <div className="grid grid-flow-col gap-4 text-2xl">
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="link link-hover text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-500 transition-colors duration-200"><FaFacebookF /></a>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"><FaGithub /></a>
+            <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="link link-hover text-gray-600 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-600 transition-colors duration-200"><FaLinkedinIn /></a>
+            <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="link link-hover text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors duration-200"><FaYoutube /></a>
+          </div>
         </nav>
+
         <nav>
-          <h6 className="footer-title text-gray-900 dark:text-white font-semibold transition-colors duration-300">Company</h6>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">About us</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Contact</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Jobs</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Press kit</a>
-        </nav>
-        <nav>
-          <h6 className="footer-title text-gray-900 dark:text-white font-semibold transition-colors duration-300">Legal</h6>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Terms of use</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Privacy policy</a>
-          <a className="link link-hover text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">Cookie policy</a>
+          <h6 className="footer-title text-gray-900 dark:text-white font-semibold transition-colors duration-300">Download Apps</h6>
+          <div className="flex gap-4">
+            <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 rounded-lg bg-black text-white hover:bg-gray-900 transition-colors duration-200">
+            <IoLogoGooglePlaystore className="text-2xl" />
+              <div className="text-left">
+                <div className="text-xs text-gray-400">GET IT ON</div>
+                <div className="text-base font-medium">Google Play</div>
+              </div>
+            </a>
+            <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 rounded-lg bg-black text-white hover:bg-gray-900 transition-colors duration-200">
+            <FaApple className="text-2xl" />
+              <div className="text-left">
+                <div className="text-xs text-gray-400">Download on the</div>
+                <div className="text-base font-medium">App Store</div>
+              </div>
+            </a>
+          </div>
         </nav>
       </footer>
     </div>
