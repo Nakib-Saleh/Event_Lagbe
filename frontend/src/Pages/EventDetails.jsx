@@ -7,9 +7,9 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const EventDetails = () => {
   const { eventId } = useParams();

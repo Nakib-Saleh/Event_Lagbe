@@ -15,7 +15,7 @@ import AuthContext from "../Provider/AuthContext";
 import pic1 from "../assets/bd.JPG";
 import pic2 from "../assets/finals.jpg";
 import pic3 from "../assets/foreign.jpg";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const Home = () => {
   const { user, userRole } = useContext(AuthContext);

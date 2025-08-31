@@ -3,9 +3,9 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { FaHeart, FaCheckCircle, FaCrown } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const PublicProfile = () => {
   const { firebaseUid } = useParams();

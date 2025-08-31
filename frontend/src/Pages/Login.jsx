@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
 import { FaGoogle, FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import Lottie from "lottie-react";

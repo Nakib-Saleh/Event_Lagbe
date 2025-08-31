@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import logos from "../assets/EVENT.png";
 
 const Navbar = () => {

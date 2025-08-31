@@ -13,7 +13,7 @@ import {
   FaUsers,
   FaBookmark,
 } from "react-icons/fa";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const AllEvents = () => {
   const [events, setEvents] = useState([]);

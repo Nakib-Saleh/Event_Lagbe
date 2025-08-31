@@ -1,12 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { uploadToCloudinary } from "../utils/cloudinaryUpload";
+import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser, FaIdCard, FaBuilding, FaFileUpload, FaTimes } from "react-icons/fa";
 import Lottie from "lottie-react";
 import animationData from "../assets/ladylog.json";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const Register = () => {
   const navigate = useNavigate();

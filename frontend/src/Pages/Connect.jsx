@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
 import { FiUsers, FiSearch, FiTrendingUp, FiPlus, FiCheckCircle, FiHeart, FiUser } from "react-icons/fi";
 import { MdOutlineEmojiEvents, MdOutlineBusinessCenter } from "react-icons/md";
-import AuthContext from "../Provider/AuthContext";
+import AuthContext from "../Provider/AuthContext.jsx";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api.js";
 
 const Connect = () => {
   const { user, userRole } = useContext(AuthContext);
