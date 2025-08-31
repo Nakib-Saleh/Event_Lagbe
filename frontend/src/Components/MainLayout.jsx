@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import NavBar from './NavBar';
-import Footer from './Footer';
+import NavBar from './Navbar.jsx';
+import Footer from './Footer.jsx';
 import { Toaster } from 'react-hot-toast';
 
 const MainLayout = () => {
