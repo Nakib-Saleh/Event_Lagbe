@@ -46,4 +46,4 @@ src/main/resources/application-*.properties
 !src/main/resources/application-example.properties
 !src/main/resources/application-railway.properties
 
-
+RAILWAY_DEPLOYMENT.md
