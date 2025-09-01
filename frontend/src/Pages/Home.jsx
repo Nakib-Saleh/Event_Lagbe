@@ -373,7 +373,7 @@ const Home = () => {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
-                      to="/events"
+                      to=""
                       className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-300 transform hover:scale-105"
                     >
                       Find Your Event
@@ -683,7 +683,7 @@ const Home = () => {
                 )}
               </div>
               <Link
-                to={userRole === "participant" 
+                to={!user ? "/login" : userRole === "admin" ? "/events" : userRole === "participant" 
                   ? "/participantDashboard/bookmarked-events" 
                   : `/${userRole}Dashboard/events/running`}
                 className="block text-center text-blue-600 hover:text-blue-700 font-medium items-end"

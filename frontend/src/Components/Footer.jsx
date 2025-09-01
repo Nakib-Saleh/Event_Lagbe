@@ -8,7 +8,7 @@ import { FaFacebookF, FaGithub, FaLinkedinIn, FaYoutube } from "react-icons/fa";
 const Footer = () => {
   return (
     <div>
-      <footer className="footer flex justify-around bg-gray-200 text-gray-900 p-10 border-t border-gray-200 transition-colors duration-300">
+      <footer className="footer flex flex-col lg:flex-row justify-between bg-gray-200 text-gray-900 p-10 border-t border-gray-200 transition-colors duration-300 space-y-8 lg:space-y-0">
         <aside>
           <img src={logos} alt="Event Lagbe" className="h-12" />
           <p className="text-gray-700 transition-colors duration-300">
@@ -29,7 +29,7 @@ const Footer = () => {
 
         <nav>
           <h6 className="footer-title text-gray-900 font-semibold transition-colors duration-300">Download Apps</h6>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 rounded-lg bg-black text-white hover:bg-gray-900 transition-colors duration-200">
             <IoLogoGooglePlaystore className="text-2xl" />
               <div className="text-left">
