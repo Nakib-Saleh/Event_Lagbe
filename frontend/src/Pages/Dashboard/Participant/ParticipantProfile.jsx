@@ -93,7 +93,7 @@ const ParticipantProfile = () => {
     checkUsernameAvailability(value);
   };
 
-  // Debounced skill search
+  // Debounced skill search - using same approach as AllEvents
   const searchSkills = debounce(async (searchTerm, page = 0) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
@@ -103,24 +103,23 @@ const ParticipantProfile = () => {
 
     setIsSearching(true);
     try {
-      //const response = await axios.get(`http://localhost:2038/api/skills/search`, {
-      const response = await axios.get(API_ENDPOINTS.SEARCH_SKILLS(searchTerm), {
-        params: {
-          name: searchTerm,
-          page: page,
-          size: 5
+      // Use the same API call approach as AllEvents
+      const response = await fetch(API_ENDPOINTS.SEARCH_SKILLS(searchTerm, page, 5));
+      if (response.ok) {
+        const data = await response.json();
+        const newResults = Array.isArray(data?.content) ? data.content : [];
+        
+        if (page === 0) {
+          setSearchResults(newResults);
+        } else {
+          setSearchResults(prev => [...prev, ...newResults]);
         }
-      });
-      
-      const newResults = response.data.content || [];
-      if (page === 0) {
-        setSearchResults(newResults);
+        
+        setHasMoreResults(!data.last);
+        setCurrentPage(page);
       } else {
-        setSearchResults(prev => [...prev, ...newResults]);
+        throw new Error('Failed to fetch skills');
       }
-      
-      setHasMoreResults(!response.data.last);
-      setCurrentPage(page);
     } catch (error) {
       console.error("Error searching skills:", error);
       toast.error("Failed to search skills");

@@ -39,7 +39,7 @@ export const API_ENDPOINTS = {
   
   // Skills endpoints
   SKILLS: `${API_BASE_URL}/api/skills`,
-  SEARCH_SKILLS: (name) => `${API_BASE_URL}/api/skills/search?name=${encodeURIComponent(name)}&page=0&size=10`,
+  SEARCH_SKILLS: (name, page = 0, size = 10) => `${API_BASE_URL}/api/skills/search?name=${encodeURIComponent(name)}&page=${page}&size=${size}`,
   
   // Admin endpoints
   TOGGLE_VERIFICATION: (userType, userId) => `${API_BASE_URL}/api/admin/users/${userType}/${userId}/toggle-verification`,
