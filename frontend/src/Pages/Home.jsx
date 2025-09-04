@@ -314,22 +314,22 @@ const Home = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Student",
+      name: "Nafiz Zia",
+      role: "Participant",
       content:
         "Event Lagbe helped me find amazing opportunities to showcase my skills and connect with industry professionals.",
       rating: 5,
     },
     {
-      name: "Dr. Michael Chen",
-      role: "University Professor",
+      name: "Zarek Tia",
+      role: "Participant",
       content:
         "This platform has revolutionized how we organize and manage student events. Highly recommended!",
       rating: 5,
     },
     {
-      name: "Emily Rodriguez",
-      role: "Event Organizer",
+      name: "Nayeem Ahad",
+      role: "Participant",
       content:
         "The platform makes event management so much easier. Great features and excellent support team.",
       rating: 5,
@@ -782,9 +782,6 @@ const Home = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               What Our Users Say
             </h2>
-            <p className="text-xl text-gray-600">
-              Real feedback from students and organizations using our platform
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
