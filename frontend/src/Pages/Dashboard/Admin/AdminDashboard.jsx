@@ -91,7 +91,7 @@ const AdminDashboard = () => {
             {/* Toggle Button */}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-400 hover:from-gray-400 hover:to-gray-300 rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md"
+              className="w-10 h-10 bg-gray-200 hover:gray-400 rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md"
             >
               <FiMenu className="text-gray-600 text-lg" />
             </button>
