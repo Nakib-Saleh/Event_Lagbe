@@ -108,13 +108,9 @@ const Alert = ({ message, type, isDismissible, duration }) => {
 };
 
 Alert.propTypes = {
-  /** The message to be displayed in the alert. */
   message: PropTypes.string.isRequired,
-  /** The type of alert, which determines its color and icon. */
   type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
-  /** If true, a dismiss button will be displayed. */
   isDismissible: PropTypes.bool,
-  /** The duration in milliseconds after which the alert will automatically disappear. */
   duration: PropTypes.number,
 };
 
