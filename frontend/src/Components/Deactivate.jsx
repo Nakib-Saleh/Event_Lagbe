@@ -1,8 +1,19 @@
 import React, { useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from 'firebase/firestore';
+
+// Global variables for Firebase configuration provided by the Canvas environment.
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 // --- DEACTIVATION CONFIGURATION ---
-// Centralized configuration for all hardcoded strings, making the component more maintainable.
-// This is a significant improvement over hardcoding values directly in the JSX.
 const DEACTIVATION_CONFIG = {
   TITLE: 'Deactivate Your Account',
   WARNING_HEADING: 'Warning: This action is permanent.',
@@ -27,7 +38,6 @@ const DEACTIVATION_CONFIG = {
 };
 
 // --- REDUCER STATE MANAGEMENT ---
-// Using a reducer for a complex state machine is a strong code quality improvement.
 const deactivationReducer = (state, action) => {
   switch (action.type) {
     case 'SET_LOADING':
@@ -61,21 +71,7 @@ const initialState = {
   },
 };
 
-// --- DUMMY DATA FOR DEMONSTRATION ---
-const dummyUserData = [
-  { id: 1, name: 'John Doe', email: 'john.doe@example.com', registrationDate: '2022-01-15' },
-  { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', registrationDate: '2021-11-20' },
-  { id: 3, name: 'Peter Jones', email: 'peter.jones@example.com', registrationDate: '2023-05-10' },
-  { id: 4, name: 'Sarah Wilson', email: 'sarah.wilson@example.com', registrationDate: '2022-09-01' },
-  { id: 5, name: 'Michael Brown', email: 'michael.brown@example.com', registrationDate: '2021-03-25' },
-  { id: 6, name: 'Emily Davis', email: 'emily.davis@example.com', registrationDate: '2023-01-30' },
-  { id: 7, name: 'Chris Evans', email: 'chris.evans@example.com', registrationDate: '2022-07-18' },
-  { id: 8, name: 'Laura Martinez', email: 'laura.martinez@example.com', registrationDate: '2021-10-05' },
-  { id: 9, name: 'Daniel Taylor', email: 'daniel.taylor@example.com', registrationDate: '2023-03-08' },
-  { id: 10, name: 'Olivia Clark', email: 'olivia.clark@example.com', registrationDate: '2022-06-22' },
-];
-
-// --- FAKE API CALL FUNCTION ---
+// --- FAKE API CALL FUNCTION (REPLACED BY FIRESTORE LOGIC) ---
 const mockDeactivationApi = (data) => {
   return new Promise((resolve, reject) => {
     const delay = 1500;
@@ -92,11 +88,6 @@ const mockDeactivationApi = (data) => {
 };
 
 // --- REUSABLE SUB-COMPONENTS ---
-
-/**
- * A reusable component for the warning message section.
- * This refactoring effort is a key part of a valuable contribution.
- */
 const WarningSection = () => (
   <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md">
     <h2 className="font-semibold text-lg">{DEACTIVATION_CONFIG.WARNING_HEADING}</h2>
@@ -104,9 +95,6 @@ const WarningSection = () => (
   </div>
 );
 
-/**
- * A reusable component for a single user card in the dummy data list.
- */
 const UserCard = ({ user }) => (
   <div
     className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300"
@@ -117,17 +105,13 @@ const UserCard = ({ user }) => (
       </div>
       <div className="flex-1">
         <p className="font-semibold text-gray-900">{user.name}</p>
-        <p className="text-xs text-gray-500">Member since: {user.registrationDate}</p>
+        <p className="text-xs text-gray-500">Deactivated on: {user.deactivatedOn}</p>
       </div>
     </div>
     <p className="text-sm text-gray-600 truncate">{user.email}</p>
   </div>
 );
 
-/**
- * A reusable modal component for the deactivation confirmation.
- * This encapsulates complex state and logic, making the main component cleaner.
- */
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, state, dispatch }) => {
   if (!isOpen) return null;
 
@@ -276,9 +260,6 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, state, dispatch }) => {
   );
 };
 
-/**
- * A reusable toast notification component.
- */
 const ToastNotification = ({ message, type, isVisible }) => (
   <div
     className={`fixed bottom-6 right-6 p-4 rounded-lg shadow-xl text-white transition-transform transform ${
@@ -298,7 +279,64 @@ const Deactivate = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+  const [deactivations, setDeactivations] = useState([]);
+  const [userId, setUserId] = useState(null);
   const toastTimeoutRef = useRef(null);
+
+  // --- FIREBASE INITIALIZATION AND REAL-TIME LISTENER ---
+  useEffect(() => {
+    let unsubscribe;
+    const signInUser = async () => {
+      try {
+        if (initialAuthToken) {
+          await signInWithCustomToken(auth, initialAuthToken);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Firebase Auth error:", error);
+      }
+    };
+    
+    signInUser();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+        // Set up real-time listener for deactivation requests
+        const q = query(collection(db, `/artifacts/${appId}/public/data/deactivations`));
+        unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const fetchedDeactivations = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Sanitize and parse data from Firestore
+            try {
+              const parsedData = JSON.parse(data.payload);
+              fetchedDeactivations.push({
+                id: doc.id,
+                name: `User ${parsedData.userId.substring(0, 4)}...`,
+                email: 'data not available',
+                deactivatedOn: new Date(data.timestamp?.toMillis()).toLocaleDateString(),
+              });
+            } catch (e) {
+              console.error("Failed to parse Firestore document:", e);
+            }
+          });
+          setDeactivations(fetchedDeactivations);
+        }, (error) => {
+          console.error("Error fetching Firestore data:", error);
+        });
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   const showNotification = useCallback((message, type) => {
     if (toastTimeoutRef.current) {
@@ -320,14 +358,26 @@ const Deactivate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch({ type: 'SET_LOADING' });
+
     try {
-      const result = await mockDeactivationApi(formData);
+      // Simulate API call and validation
+      await mockDeactivationApi(formData);
+      
+      // Save data to Firestore as a deactivation request
+      const docRef = await addDoc(collection(db, `/artifacts/${appId}/public/data/deactivations`), {
+        userId: userId,
+        timestamp: serverTimestamp(),
+        payload: JSON.stringify(formData), // Sanitize and save data
+      });
+      console.log("Deactivation submitted with ID: ", docRef.id);
+      
       dispatch({ type: 'SET_SUCCESS' });
-      showNotification(result, 'success');
+      showNotification('Deactivation request submitted!', 'success');
       setTimeout(() => setIsModalOpen(false), 2000);
+
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err });
-      showNotification(err, 'error');
+      dispatch({ type: 'SET_ERROR', payload: err.message || err });
+      showNotification(err.message || err, 'error');
     }
   };
 
@@ -340,6 +390,7 @@ const Deactivate = () => {
     <div className="bg-gray-100 min-h-screen flex items-center justify-center font-sans p-6">
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full">
         <h1 className="text-4xl font-extrabold text-red-600 mb-6 text-center">{DEACTIVATION_CONFIG.TITLE}</h1>
+        {userId && <p className="text-center text-sm text-gray-500 mb-4">Your User ID: **{userId}**</p>}
         <WarningSection />
 
         <button
@@ -379,12 +430,16 @@ const Deactivate = () => {
         <div className="border-t border-gray-200 my-8"></div>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">Recent Deactivations (Dummy Data)</h2>
-          <p className="text-gray-600">This is a dummy list and does not reflect actual user data.</p>
+          <h2 className="text-2xl font-bold text-gray-800">Recent Deactivations (Live Data)</h2>
+          <p className="text-gray-600">This is a live list of recent deactivation requests.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {dummyUserData.map(user => (
-              <UserCard key={user.id} user={user} />
-            ))}
+            {deactivations.length > 0 ? (
+              deactivations.map(user => (
+                <UserCard key={user.id} user={user} />
+              ))
+            ) : (
+              <p className="text-gray-500">No deactivations have been logged yet.</p>
+            )}
           </div>
         </div>
       </div>
