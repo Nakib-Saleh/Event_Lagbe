@@ -32,44 +32,31 @@ const AdminDashboard = () => {
   
   const menuItems = [
     {
-      title: "Profile",
-      icon: <FiUser className="text-lg" />,
-      description: "Manage your profile",
-      color: "from-red-500 to-pink-600"
+      title:"Profile",
+      icon: <FiUser className="text-red-600" />,
     },
     {
       title: "Verification",
-      icon: <MdOutlineVerifiedUser className="text-lg" />,
-      description: "Verify users and organizations",
-      color: "from-red-500 to-pink-600",
-      badge: { text: "New", color: "badge-success" }
+      icon: <MdOutlineVerifiedUser className="text-red-600" />,
     },
     {
       title: "Users",
-      icon: <FiUsers className="text-lg" />,
-      description: "Manage all users",
-      color: "from-purple-500 to-pink-600"
+      icon: <FiUsers className="text-red-600" />,
     },
   ];
 
   const extraItems = [
     {
       title: "Skills",
-      icon: <FiFileText className="text-lg" />,
-      description: "Manage skills",
-      color: "from-orange-500 to-red-600"
+      icon: <FiFileText className="text-red-600" />,
     },
     {
       title: "Create-Admin",
-      icon: <FiUserPlus className="text-lg" />,
-      description: "Create new admin",
-      color: "from-indigo-500 to-blue-600"
+      icon: <FiUserPlus className="text-red-600" />,
     },
     {
       title: "Deactivate-Expired-Events",
-      icon: <FiClock className="text-lg" />,
-      description: "Manage expired events",
-      color: "from-yellow-500 to-orange-600",
+      icon: <FiClock className="text-red-600" />,
       badge: { text: "Admin", color: "badge-warning" }
     },
   ];
@@ -78,7 +65,7 @@ const AdminDashboard = () => {
     <div className="flex min-h-screen font-roboto bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar
         collapsed={isCollapsed}
-        className="bg-white border-r border-gray-200 shadow-2xl"
+        className="bg-white border-r border-gray-400 shadow-2xl"
         style={{
           minHeight: "100vh",
           boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
@@ -104,7 +91,7 @@ const AdminDashboard = () => {
             {/* Toggle Button */}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md"
+              className="w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-400 hover:from-gray-400 hover:to-gray-300 rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md"
             >
               <FiMenu className="text-gray-600 text-lg" />
             </button>
@@ -150,12 +137,12 @@ const AdminDashboard = () => {
                   {!isCollapsed && (
                     <div className="flex-1">
                       <span className={`font-semibold text-sm ${
-                        selected === item.title ? "text-white group-hover:text-black" : "text-gray-700"
+                        selected === item.title ? "text-red-600 group-hover:text-black" : "text-gray-700"
                       }`}>
                         {item.title}
                       </span>
                       <p className={`text-xs mt-1 ${
-                        selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-500"
+                        selected === item.title ? "text-red-400 group-hover:text-black" : "text-gray-500"
                       }`}>
                         {item.description}
                       </p>
@@ -170,7 +157,7 @@ const AdminDashboard = () => {
                       </span>
                     )}
                     <FiChevronRight className={`text-sm transition-transform duration-300 ${
-                      selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-400"
+                      selected === item.title ? "text-red-400 group-hover:text-black" : "text-gray-400"
                     } group-hover:translate-x-1`} />
                   </div>
                 )}
@@ -219,12 +206,12 @@ const AdminDashboard = () => {
                   {!isCollapsed && (
                     <div className="flex-1">
                       <span className={`font-semibold text-sm ${
-                        selected === item.title ? "text-white group-hover:text-black" : "text-gray-700"
+                        selected === item.title ? "text-red-600 group-hover:text-black" : "text-gray-700"
                       }`}>
                         {item.title}
                       </span>
                       <p className={`text-xs mt-1 ${
-                        selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-500"
+                        selected === item.title ? "text-red-400 group-hover:text-black" : "text-gray-500"
                       }`}>
                         {item.description}
                       </p>
@@ -234,12 +221,12 @@ const AdminDashboard = () => {
                 {!isCollapsed && (
                   <div className="flex items-center gap-2">
                     {item.badge && (
-                      <span className={`badge badge-xs ${item.badge.color} text-white`}>
+                      <span className={`badge badge-xs ${item.badge.color} text-red-600`}>
                         {item.badge.text}
                       </span>
                     )}
                     <FiChevronRight className={`text-sm transition-transform duration-300 ${
-                      selected === item.title ? "text-white/80 group-hover:text-black" : "text-gray-400"
+                      selected === item.title ? "text-red-400 group-hover:text-black" : "text-gray-400"
                     } group-hover:translate-x-1`} />
                   </div>
                 )}
@@ -247,23 +234,6 @@ const AdminDashboard = () => {
             </MenuItem>
           ))}
         </Menu>
-
-        {/* Footer */}
-        <div className="mt-auto p-6 border-t border-gray-100">
-          {!isCollapsed && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-                  <FaCrown className="text-white text-sm" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">Super Admin</p>
-                  <p className="text-xs text-gray-500">Full Access</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </Sidebar>
 
       {/* Main Content */}
