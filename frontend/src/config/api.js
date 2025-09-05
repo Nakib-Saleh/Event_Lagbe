@@ -1,8 +1,7 @@
 // API Configuration
-// Environment variable for backend URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:2038';
 
-// Log the API URL in development
+
 if (import.meta.env.DEV) {
   console.log('API Base URL:', API_BASE_URL);
 }
