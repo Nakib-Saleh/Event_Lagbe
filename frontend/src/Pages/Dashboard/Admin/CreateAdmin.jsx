@@ -235,25 +235,6 @@ const CreateAdmin = () => {
               )}
             </button>
           </form>
-
-          {/* Important Notes */}
-          <div className="mt-8 bg-red-50 rounded-xl p-6 border border-red-200">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                <FaShieldAlt className="text-white text-sm" />
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-red-800 mb-2">Important Notes</h4>
-                <ul className="text-red-700 space-y-2 text-sm">
-                  <li>• Only existing admins can create new admin accounts</li>
-                  <li>• Admin accounts have full system access and privileges</li>
-                  <li>• Ensure the email address is valid and accessible</li>
-                  <li>• Choose a strong password for security</li>
-                  <li>• The new admin will be able to log in immediately after creation</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

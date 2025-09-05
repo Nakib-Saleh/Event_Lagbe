@@ -50,40 +50,7 @@ const DeactivateExpiredEvents = () => {
       {/* Main Content */}
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="max-w-2xl mx-auto">
-          {/* Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* What it does */}
-            <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <FiCheckCircle className="text-white text-sm" />
-                </div>
-                <h3 className="text-lg font-semibold text-blue-800">What it does</h3>
-              </div>
-              <ul className="text-blue-700 space-y-2 text-sm">
-                <li>• Fetches all active events</li>
-                <li>• Checks each event's timeslots</li>
-                <li>• Deactivates events where ALL timeslots have ended</li>
-                <li>• Keeps events active if ANY timeslot is still in the future</li>
-              </ul>
-            </div>
-
-            {/* Schedule Info */}
-            <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <FiClock className="text-white text-sm" />
-                </div>
-                <h3 className="text-lg font-semibold text-green-800">Automatic Schedule</h3>
-              </div>
-                             <div className="text-green-700 space-y-2 text-sm">
-                 <p><strong>Frequency:</strong> Daily at midnight</p>
-                 <p><strong>Timezone:</strong> Bangladesh (Asia/Dhaka)</p>
-                 <p><strong>Status:</strong> Active</p>
-               </div>
-            </div>
-          </div>
-
+    
           {/* Manual Trigger Section */}
           <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
             <div className="text-center">
@@ -123,7 +90,6 @@ const DeactivateExpiredEvents = () => {
                 )}
               </button>
 
-              {/* Last Run Info */}
               {lastRun && (
                 <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center gap-2 text-green-700">
@@ -144,24 +110,6 @@ const DeactivateExpiredEvents = () => {
             </div>
           </div>
 
-          {/* Important Notes */}
-          <div className="mt-8 bg-yellow-50 rounded-xl p-6 border border-yellow-200">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                <FiAlertCircle className="text-white text-sm" />
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-yellow-800 mb-2">Important Notes</h4>
-                <ul className="text-yellow-700 space-y-2 text-sm">
-                  <li>• The task will only deactivate events where ALL timeslots have ended</li>
-                  <li>• Events with any future timeslots will remain active</li>
-                  <li>• Check the backend console logs for detailed execution information</li>
-                  <li>• This action cannot be undone - deactivated events will need manual reactivation</li>
-                                     <li>• The task runs automatically every day at midnight Bangladesh time</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
