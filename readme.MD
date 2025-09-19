@@ -50,25 +50,6 @@ Event Lagbe is a full-stack event management platform that allows users to creat
 
 ---
 
-## 📂 Project Structure
-
-Event_Lagbe/
-│── backend/ # Spring Boot project
-│ ├── src/main/java/ # Controllers, Services, Models
-│ ├── resources/ # Config, application.properties
-│
-│── frontend/ # React project
-│ ├── src/ # Components, Pages, Services
-│ ├── public/ # Static assets
-│
-│── docs/ # ER diagrams, WBS, Gantt charts
-│── README.md # Project documentation
-
-yaml
-Copy code
-
----
-
 ## ⚡ Installation & Setup
 
 ### Prerequisites
@@ -78,46 +59,17 @@ Copy code
 - Maven
 
 ### Backend Setup
-cd backend
-mvn spring-boot:run
+- cd backend
+- mvn spring-boot:run
 
-shell
-Copy code
 
 ### Frontend Setup
-cd frontend
-npm install
-npm start
+- cd frontend
+- npm install
+- npm start
 
-yaml
-Copy code
 
 Frontend runs on **http://localhost:3000**  
 Backend runs on **http://localhost:8080**
 
 ---
-
-## 📸 Screenshots
-
-(Add screenshots of login page, event creation form, event listing, etc.)
-
----
-
-## 📊 Project Management
-
-- **ER Diagram** – for database schema  
-- **Work Breakdown Structure (WBS)** – for task planning  
-- **Gantt Chart** – for timeline tracking  
-
----
-
-## 👨‍💻 Contributors
-
-- Nakib Saleh (Frontend, UI/UX)  
-- [Teammates’ names if applicable]  
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License – feel free to use and modify.
