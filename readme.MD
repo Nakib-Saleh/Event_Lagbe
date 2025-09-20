@@ -53,21 +53,23 @@ Event Lagbe is a full-stack event management platform that allows users to creat
 ## ⚡ Installation & Setup
 
 ### Prerequisites
-- Node.js (v16+)
-- Java 17
-- MongoDB (running locally or cloud, e.g., MongoDB Atlas)
+- Node.js
+- Java 
+- MongoDB
 - Maven
 
 ### Backend Setup
-- cd backend
-- mvn spring-boot:run
-
+```
+cd backend
+$env:SPRING_PROFILES_ACTIVE="local"
+./mvnw spring-boot:run
+```
 
 ### Frontend Setup
 ```
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 
