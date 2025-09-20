@@ -64,12 +64,13 @@ Event Lagbe is a full-stack event management platform that allows users to creat
 
 
 ### Frontend Setup
-- cd frontend
-- npm install
-- npm start
+``
+cd frontend
+npm install
+npm start
+``
 
 
-Frontend runs on **http://localhost:3000**  
-Backend runs on **http://localhost:8080**
+Live Link: https://event-lagbe.vercel.app/
 
 ---
