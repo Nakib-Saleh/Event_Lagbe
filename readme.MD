@@ -46,7 +46,7 @@ Event Lagbe is a full-stack event management platform that allows users to creat
 
 **Deployment**
 - Docker for containerization  
-- Render / Vercel for deployment  
+- Vercel for deployment  
 
 ---
 
@@ -64,11 +64,11 @@ Event Lagbe is a full-stack event management platform that allows users to creat
 
 
 ### Frontend Setup
-``
+```
 cd frontend
 npm install
 npm start
-``
+```
 
 
 Live Link: https://event-lagbe.vercel.app/
