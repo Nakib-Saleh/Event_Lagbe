@@ -281,15 +281,8 @@ const AllEvents = () => {
         return dateB - dateA; // Descending order (newest first)
       });
     } else if (sortBy === "trending") {
-      // Sort by trending score (engagement metrics)
       filtered.sort((a, b) => {
-        // Calculate trending score for each event
         const getTrendingScore = (event) => {
-          // Weighted scoring system:
-          // - Going count (actual registrations): 3x weight (highest commitment)
-          // - Interested count (showing interest): 2x weight (medium commitment)
-          // - Bookmark count (saved for later): 1x weight (low commitment)
-          // - Shares count (viral spread): 2x weight (medium-high engagement)
 
           const goingScore = (event.registeredBy?.length || 0) * 3;
           const bookmarkScore = (event.bookmarkedBy?.length || 0) * 1;
